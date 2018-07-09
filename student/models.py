@@ -27,18 +27,42 @@ class ChoiceEnum(enum.Enum):
 
 
 ### validators
+def validate_student_full_name(value: str):
+    if not value.istitle():
+        raise exceptions.ValidationError(f'Full name must pass `istitle` check.')
+
+
 def validate_student_ticket_number(value: str):
     if not len(value) == 8 or not value.isdigit():
         raise exceptions.ValidationError(f'Student ticket number must contain exact 8 digits.')
 
 
-### Actual model
+### Actual models
+class StructuralUnit(models.Model):
+
+    name = models.CharField(max_length=100)
+
+    def __repr__(self) -> str:
+        return f'<StructuralUnit #{self.id} "{self.name}">'
+
+    def __str__(self) -> str:
+        return str(self.name)
+
+
+class Specialty(models.Model):
+
+    name = models.CharField(max_length=100)
+
+    def __repr__(self) -> str:
+        return f'<Specialty #{self.id} "{self.name}">'
+
+    def __str__(self) -> str:
+        return str(self.name)
+
+
 class Student(models.Model):
     """ Represent's student of the university.
     All fields aren't NULL, or blank. """
-
-    class StructuralUnit(ChoiceEnum):
-        REX = "Faculty of radio-physics, electronics and computer systems"
 
     class FormOfStudy(ChoiceEnum):
         EXT = "external"
@@ -56,18 +80,18 @@ class Student(models.Model):
 
     # identifiers
     full_name = models.CharField(
-        max_length=100)
+        max_length=100, validators=[validate_student_full_name])
     student_ticket_number = models.CharField(
         max_length=8, validators=[validate_student_ticket_number])
     date_of_birth = models.DateField()
 
-    # faculty/institute & specialization
-    structural_unit = models.CharField(
-        max_length=3, choices=StructuralUnit.as_choices())
-    specialty = models.CharField(
-        max_length=100)
+    # foreign keys
+    structural_unit = models.ForeignKey(
+        StructuralUnit, on_delete=models.CASCADE)
+    specialty = models.ForeignKey(
+        Specialty, on_delete=models.CASCADE)
 
-    # other
+    # enums
     form_of_study = models.CharField(
         max_length=3, choices=FormOfStudy.as_choices())
     educational_degree = models.CharField(
@@ -79,8 +103,8 @@ class Student(models.Model):
     def create(cls, full_name: str,
                student_ticket_number: str,
                date_of_birth: str or timezone.datetime,
-               structural_unit: str,
-               specialty: str,
+               structural_unit: StructuralUnit,
+               specialty: Specialty,
                form_of_study: str,
                educational_degree: str,
                year: str):
