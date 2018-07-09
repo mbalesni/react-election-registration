@@ -73,10 +73,10 @@ class Student(models.Model):
         BAC = "bachelor"
 
     class Year(ChoiceEnum):
-        y1 = "1"
-        y2 = "2"
-        y3 = "3"
-        y4 = "4"
+        Y1 = "1"
+        Y2 = "2"
+        Y3 = "3"
+        Y4 = "4"
 
     # identifiers
     full_name = models.CharField(
