@@ -1,11 +1,11 @@
 
 Python: 3.6
-Django: 2.0 (with Jinja)
+Django: 2.0
 PostgreSQL: 10
 
 ### start Postgres with Docker
 
-####launch Postgres
+#### launch Postgres
 ```
 docker run --name elists-pg
            -e POSTGRES_PASSWORD=postgres
@@ -23,6 +23,16 @@ docker exec -it elists-pg psql -U postgres -W
 2. create database
 ```
 postgres=# CREATE DATABASE elists;
+```
+
+#### migrate database
+```
+python manage.py migrate
+```
+
+#### create admin account
+```
+python manage.py createsuperuser
 ```
 
 #### launch PgAdmin 4
