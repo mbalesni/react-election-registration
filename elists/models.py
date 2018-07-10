@@ -9,6 +9,7 @@ Staff: type = User
 
 
 class CheckInSession(models.Model):
+
     STATUS_STARTED = 1
     STATUS_IN_PROGRESS = 2
     STATUS_CANCELED = -1
@@ -28,36 +29,36 @@ class CheckInSession(models.Model):
         on_delete=models.CASCADE,
         null=True,
         related_name='check_in_session',
-        verbose_name='Student',
+        verbose_name='Студент',
     )
     staff = models.ForeignKey(
         Staff,
         on_delete=models.CASCADE,
         related_name='check_in_session',
-        verbose_name='Staff',
+        verbose_name='Член ВКС',
     )
 
     # status
     status = models.IntegerField(
         choices=STATUS_CHOICES,
-        verbose_name='Status',
+        verbose_name='Статус',
     )
 
     # time marks
     start_time = models.TimeField(
         auto_now_add=True,
-        verbose_name='Start time',
+        verbose_name='Час початку',
     )
     end_time = models.TimeField(
         null=True,
-        verbose_name='End time',
+        verbose_name='Час завершення',
     )
 
     def __repr__(self) -> str:
         return f'<CheckInSession #{self.id} [{self.status}] by "{self.staff}">'
 
     def __str__(self) -> str:
-        return f'Check-in session [{self.status}] by "{self.staff}" from {self.start_time}'
+        return f'Сесія [{self.get_status_display()}] почата "{self.staff}" о {self.start_time}'
 
     @property
     def is_open(self) -> bool:

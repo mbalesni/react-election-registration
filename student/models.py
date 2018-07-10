@@ -16,8 +16,11 @@ def validate_student_ticket_number(value: str):
 
 ### Actual models
 class StructuralUnit(models.Model):
+    class Meta:
+        verbose_name = 'Структурний підрозділ'
+        verbose_name_plural = 'Структурні підрозділи'
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, verbose_name='Назва')
 
     def __repr__(self) -> str:
         return f'<StructuralUnit #{self.id} "{self.name}">'
@@ -27,8 +30,11 @@ class StructuralUnit(models.Model):
 
 
 class Specialty(models.Model):
+    class Meta:
+        verbose_name = 'Спеціальність'
+        verbose_name_plural = 'Спеціальності'
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, verbose_name='Назва')
 
     def __repr__(self) -> str:
         return f'<Specialty #{self.id} "{self.name}">'
@@ -41,55 +47,59 @@ class Student(models.Model):
     """ Represent's student of the university.
     All fields aren't NULL, or blank. """
 
+    class Meta:
+        verbose_name = 'Студент'
+        verbose_name_plural = 'Студенти'
+
     YEAR_CHOICES = tuple((i, str(i)) for i in (1, 2, 3, 4))
     EDUCATIONAL_DEGREE_CHOICES = tuple((i+1, s) for i, s in enumerate([
-        'Bachelor',  # Бакалавр
-        'Master',    # Магістр
+        'Бакалавр',
+        'Магістр',
     ]))
     FORM_OF_STUDY_CHOICES = tuple((i+1, s) for i, s in enumerate([
-        'External',   # Заочна
-        'Full-time',  # денна
+        'Денна',
+        'Заочна',
     ]))
 
     # identifiers
     full_name = models.CharField(
         max_length=100,
         validators=[validate_student_full_name],
-        verbose_name='Full name',  # ПІБ
+        verbose_name='Призвище Ім\'я По-батькові',  # ПІБ
     )
     ticket_number = models.CharField(
         max_length=8,
         validators=[validate_student_ticket_number],
-        verbose_name='Student ticket number',  # Номер студентського квитка
+        verbose_name='Номер студентського квитка',  # Номер студентського квитка
     )
     date_of_birth = models.DateField(
-        verbose_name='Date of birth',  # Дата народження
+        verbose_name='Дата народження',  # Дата народження
     )
 
     # foreign keys
     structural_unit = models.ForeignKey(
         StructuralUnit,
         on_delete=models.PROTECT,
-        verbose_name='Structural unit (faculty/institute)',  # Структурний підрозділ (факультет/інститут)
+        verbose_name='Структурний підрозділ (факультет/інститут)',  # Структурний підрозділ (факультет/інститут)
     )
     specialty = models.ForeignKey(
         Specialty,
         on_delete=models.PROTECT,
-        verbose_name='Specialty',  # Спеціальність
+        verbose_name='Спеціальність',  # Спеціальність
     )
 
     # constant choices
     form_of_study = models.IntegerField(
         choices=FORM_OF_STUDY_CHOICES,
-        verbose_name='Form of study',  # Форма навчання
+        verbose_name='Форма навчання',  # Форма навчання
     )
     educational_degree = models.IntegerField(
         choices=EDUCATIONAL_DEGREE_CHOICES,
-        verbose_name='Educational degree',  # Освітній ступінь
+        verbose_name='Освітній ступінь',  # Освітній ступінь
     )
     year = models.IntegerField(
         choices=YEAR_CHOICES,
-        verbose_name='Year',  # Курс
+        verbose_name='Курс',  # Курс
     )
 
     @classmethod

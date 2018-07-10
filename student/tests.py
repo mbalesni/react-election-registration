@@ -31,7 +31,7 @@ class TestStudent:
 
     def test_joined_edu_year(self):
         s, *_ = create_models(**STUDENT_KWARGS)
-        assert s.get_joined_edu_year_display() == 'Bachelor-3'
+        assert s.get_joined_edu_year_display() == 'Бакалавр-3'
 
     def test_validation(self):
         s, *_ = create_models(**STUDENT_KWARGS)
