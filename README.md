@@ -21,9 +21,10 @@ docker exec -it evs-pg psql -U postgres -W
 ```
 (it will ask your password - `postgres`)
 
-2. create database
+2. create databases
 ```
-postgres=# CREATE DATABASE evs;
+CREATE DATABASE evs;
+CREATE DATABASE test_evs;
 ```
 
 #### migrate database

@@ -1,9 +1,9 @@
-import pytest
 import typing
 
+import pytest
 from django.core import exceptions
-from .models import Student, StructuralUnit, Specialty
 
+from .models import Student, StructuralUnit, Specialty
 
 STUDENT_KWARGS = dict(
         full_name="Testing Test Testson",
@@ -30,11 +30,11 @@ def create_models(structural_unit, specialty, **kwargs) -> typing.Tuple[Student,
 class TestStudent:
 
     def test_joined_edu_year(self):
-        s, *_ = self.create_models(**STUDENT_KWARGS)
+        s, *_ = create_models(**STUDENT_KWARGS)
         assert s.get_joined_edu_year_display() == 'bachelor-3'
 
     def test_validation(self):
-        s, *_ = self.create_models(**STUDENT_KWARGS)
+        s, *_ = create_models(**STUDENT_KWARGS)
 
         s.student_ticket_number += 's'
         s.year += '5'
