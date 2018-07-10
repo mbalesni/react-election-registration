@@ -16,14 +16,11 @@ class TestCheckInSession:
 
     def test_start_new_session(self):
         staff = create_staff_account()
-        now = timezone.now().time()
 
         session = CheckInSession.start_new_session(staff)
         assert isinstance(session, CheckInSession)
         assert session.status == CheckInSession.STATUS_STARTED
         assert session.is_open
-        assert now < session.start_time
-        assert session.start_time < timezone.now().time()
         assert session.end_time is None
         assert session.student is None
         assert session.staff == staff
@@ -51,7 +48,6 @@ class TestCheckInSession:
 
         assert isinstance(session, CheckInSession)
         assert session.status == CheckInSession.STATUS_IN_PROGRESS
-        assert session.start_time < timezone.now().time()
         assert session.end_time is None
         assert session.student == student
         assert session.is_open
@@ -67,7 +63,6 @@ class TestCheckInSession:
         CheckInSession.cancel_session(session)
 
         assert session.status == CheckInSession.STATUS_CANCELED
-        assert session.end_time < timezone.now().time()
         assert session.start_time < session.end_time
         assert not session.is_open
         assert not CheckInSession.staff_has_open_sessions(staff)
@@ -82,7 +77,6 @@ class TestCheckInSession:
         CheckInSession.complete_session(session)
 
         assert session.status == CheckInSession.STATUS_COMPLETED
-        assert session.end_time < timezone.now().time()
         assert session.start_time < session.end_time
         assert not session.is_open
         assert not CheckInSession.staff_has_open_sessions(staff)
@@ -135,3 +129,19 @@ class TestCheckInSession:
         CheckInSession.assign_student_to_session(s2, student)
         CheckInSession.complete_session(s2)
         assert not CheckInSession.student_allowed_to_assign(student)
+
+    def test_get_session_by_staff(self):
+        staff = create_staff_account()
+        student: Student = create_student_models(**STUDENT_KWARGS)[0]
+
+        s1 = CheckInSession.start_new_session(staff)
+        assert CheckInSession.get_session_by_staff(staff) == s1
+        CheckInSession.cancel_session(s1)
+        assert CheckInSession.get_session_by_staff(staff) is None
+
+        s2 = CheckInSession.start_new_session(staff)
+        assert CheckInSession.get_session_by_staff(staff) == s2
+        CheckInSession.assign_student_to_session(s2, student)
+        assert CheckInSession.get_session_by_staff(staff) == s2
+        CheckInSession.complete_session(s2)
+        assert CheckInSession.get_session_by_staff(staff) is None

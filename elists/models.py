@@ -5,7 +5,7 @@ from django.utils import timezone
 from student.models import Student
 
 # for better flexibility
-Staff: type = User
+Staff = User
 
 
 class CheckInSession(models.Model):
@@ -65,12 +65,19 @@ class CheckInSession(models.Model):
         return self.status > 0
 
     @classmethod
-    def staff_has_open_sessions(cls, staff: Staff) -> bool:
-        return cls.objects.filter(staff=staff, status__gt=0).count() > 0
-
-    @classmethod
     def student_allowed_to_assign(cls, student: Student) -> bool:
         return cls.objects.filter(student=student, status__gte=0).count() == 0
+
+    @classmethod
+    def get_session_by_staff(cls, staff) -> 'CheckInSession' or None:
+        try:
+            return cls.objects.get(staff=staff, status__gt=0)
+        except models.ObjectDoesNotExist:
+            return None
+
+    @classmethod
+    def staff_has_open_sessions(cls, staff: Staff) -> bool:
+        return cls.get_session_by_staff(staff) is not None
 
     @classmethod
     def start_new_session(cls, staff: Staff) -> 'CheckInSession' or None:
