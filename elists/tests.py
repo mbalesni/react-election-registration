@@ -49,8 +49,9 @@ class TestCheckInSession:
         student: Student = create_student_models(**STUDENT_KWARGS)[0]
 
         session = CheckInSession.start_new_session(staff)
-        CheckInSession.assign_student_to_session(session, student)
+        session = CheckInSession.assign_student_to_session(session, student)
 
+        assert isinstance(session, CheckInSession)
         assert session.status == CheckInSession.Status.IN_PROGRESS.name
         assert session.start_time < timezone.now().time()
         assert session.end_time is None
@@ -80,7 +81,6 @@ class TestCheckInSession:
 
         session = CheckInSession.start_new_session(staff)
         CheckInSession.assign_student_to_session(session, student)
-        CheckInSession.cancel_session(session)
         CheckInSession.complete_session(session)
 
         assert session.status == CheckInSession.Status.COMPLETED.name

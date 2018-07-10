@@ -13,8 +13,6 @@ Staff: type = User
 
 class CheckInSession(models.Model):
 
-    # TODO: use `is_open` for checking inside classmethods, write desired tests
-
     class Status(ChoiceEnum):
         STARTED = 'Just STARTED'
         IN_PROGRESS = 'Checking in'
@@ -30,6 +28,12 @@ class CheckInSession(models.Model):
     start_time = models.TimeField(auto_now_add=True)
     end_time = models.TimeField(null=True)
 
+    def __repr__(self) -> str:
+        return f'<CheckInSession #{self.id} [{self.status}] by "{self.staff}">'
+
+    def __str__(self) -> str:
+        return f'Check-in session [{self.status}] by "{self.staff}" from {self.start_time}'
+
     @property
     def is_open(self) -> bool:
         return self.status in (
@@ -39,22 +43,22 @@ class CheckInSession(models.Model):
 
     @classmethod
     def staff_has_open_sessions(cls, staff: Staff) -> bool:
-        open_sessions = cls.objects.filter(
+        return cls.objects.filter(
             staff=staff,
             status__in=(
                 cls.Status.STARTED.name,
                 cls.Status.IN_PROGRESS.name
             ),
-        )
-        return open_sessions.count()
+        ).count() > 0
+
     @classmethod
     def student_allowed_to_assign(cls, student: Student) -> bool:
         return cls.objects.filter(
             student=student,
             status__in=(
-                cls.Status.STARTED.name,    # no other sessions
+                cls.Status.STARTED.name,      # no other sessions
                 cls.Status.IN_PROGRESS.name,  # no other sessions
-                cls.Status.COMPLETED.name,  # can't vote twice
+                cls.Status.COMPLETED.name,    # can't vote twice
             ),
         ).count() == 0
 
@@ -83,7 +87,8 @@ class CheckInSession(models.Model):
                                   student: Student) -> 'CheckInSession' or None:
         """ Checks if `student` has open sessions. Assigns `student` to given
         `session` and updates status to `IN_PROGRESS` value. """
-        if not cls.student_allowed_to_assign(student):
+        if not (cls.student_allowed_to_assign(student) and
+                session.status == cls.Status.STARTED.name):
             return None
 
         session.student = student
@@ -92,15 +97,25 @@ class CheckInSession(models.Model):
         return session
 
     @classmethod
-    def complete_session(cls, session: 'CheckInSession') -> None:
+    def complete_session(cls, session: 'CheckInSession') -> 'CheckInSession' or None:
         """ Assigns current time to `end_time` and `COMPLETED` status. """
+        if not session.is_open:
+            return None
+
         session.end_time = timezone.now().time()
         session.status = cls.Status.COMPLETED.name
+
         session.save()
+        return session
 
     @classmethod
-    def cancel_session(cls, session: 'CheckInSession') -> None:
+    def cancel_session(cls, session: 'CheckInSession') -> 'CheckInSession' or None:
         """ Assigns current time to `end_time` and `CANCELED` status. """
+        if not session.is_open:
+            return None
+
         session.end_time = timezone.now().time()
         session.status = cls.Status.CANCELED.name
+
         session.save()
+        return session
