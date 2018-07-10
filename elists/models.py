@@ -13,15 +13,13 @@ Staff: type = User
 
 class CheckInSession(models.Model):
 
+    # TODO: use `is_open` for checking inside classmethods, write desired tests
+
     class Status(ChoiceEnum):
         STARTED = 'Just STARTED'
         IN_PROGRESS = 'Checking in'
         CANCELED = 'Canceled'
         COMPLETED = 'Completed'
-
-        @classmethod
-        def closed_statuses(cls) -> typing.Tuple[str, str]:
-            return cls.CANCELED.name, cls.COMPLETED.name
 
     student = models.ForeignKey(Student, on_delete=models.CASCADE, null=True)
     staff = models.ForeignKey(Staff, on_delete=models.CASCADE)
@@ -34,21 +32,31 @@ class CheckInSession(models.Model):
 
     @property
     def is_open(self) -> bool:
-        return self.status not in self.Status.closed_statuses()
-
-    # TODO: add methods to modify, with `is_open` check inside, use it methods below
+        return self.status in (
+            self.Status.STARTED.name,
+            self.Status.IN_PROGRESS.name,
+        )
 
     @classmethod
     def staff_has_open_sessions(cls, staff: Staff) -> bool:
         open_sessions = cls.objects.filter(
-            staff=staff, status__in=cls.Status.closed_statuses())
-        return open_sessions.count() > 1
-
+            staff=staff,
+            status__in=(
+                cls.Status.STARTED.name,
+                cls.Status.IN_PROGRESS.name
+            ),
+        )
+        return open_sessions.count()
     @classmethod
-    def student_has_open_sessions(cls, student: Student) -> bool:
-        open_sessions = cls.objects.filter(
-            student=student, status__in=cls.Status.closed_statuses())
-        return open_sessions.count() > 1
+    def student_allowed_to_assign(cls, student: Student) -> bool:
+        return cls.objects.filter(
+            student=student,
+            status__in=(
+                cls.Status.STARTED.name,    # no other sessions
+                cls.Status.IN_PROGRESS.name,  # no other sessions
+                cls.Status.COMPLETED.name,  # can't vote twice
+            ),
+        ).count() == 0
 
     @classmethod
     def start_new_session(cls, staff: Staff) -> 'CheckInSession' or None:
@@ -72,10 +80,10 @@ class CheckInSession(models.Model):
 
     @classmethod
     def assign_student_to_session(cls, session: 'CheckInSession',
-                       student: Student) -> 'CheckInSession' or None:
+                                  student: Student) -> 'CheckInSession' or None:
         """ Checks if `student` has open sessions. Assigns `student` to given
         `session` and updates status to `IN_PROGRESS` value. """
-        if cls.student_has_open_sessions(student):
+        if not cls.student_allowed_to_assign(student):
             return None
 
         session.student = student
@@ -86,13 +94,13 @@ class CheckInSession(models.Model):
     @classmethod
     def complete_session(cls, session: 'CheckInSession') -> None:
         """ Assigns current time to `end_time` and `COMPLETED` status. """
-        session.end_time = timezone.now()
+        session.end_time = timezone.now().time()
         session.status = cls.Status.COMPLETED.name
         session.save()
 
     @classmethod
     def cancel_session(cls, session: 'CheckInSession') -> None:
         """ Assigns current time to `end_time` and `CANCELED` status. """
-        session.end_time = timezone.now()
+        session.end_time = timezone.now().time()
         session.status = cls.Status.CANCELED.name
         session.save()
