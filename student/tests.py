@@ -7,7 +7,7 @@ from .models import Student, StructuralUnit, Specialty
 
 STUDENT_KWARGS = dict(
         full_name="Testing Test Testson",
-        ticket_number="12345678",
+    ticket_number=12345678,
         date_of_birth="1999-07-12",
         form_of_study=1,
         educational_degree=1,
@@ -36,9 +36,20 @@ class TestStudent:
     def test_validation(self):
         s, *_ = create_models(**STUDENT_KWARGS)
 
-        s.ticket_number += 's'
+        s.ticket_number += 1_0000_0000
         s.year += 5
         s.form_of_study = 'new'
         s.educational_degree = 'puple'
         with pytest.raises(exceptions.ValidationError) as excinfo:
             s.full_clean()
+
+    def test_get_student_by_ticket_number(self):
+        s, *_ = create_models(**STUDENT_KWARGS)
+
+        assert Student.get_student_by_ticket_number(STUDENT_KWARGS['ticket_number']) == s
+
+        with pytest.raises(IndexError) as exc:
+            Student.get_student_by_ticket_number('11111111')
+
+        with pytest.raises(ValueError) as exc:
+            Student.get_student_by_ticket_number('12345')

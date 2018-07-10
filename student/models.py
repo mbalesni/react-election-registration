@@ -6,12 +6,14 @@ from django.utils import timezone
 ### validators
 def validate_student_full_name(value: str):
     if not value.istitle():
-        raise exceptions.ValidationError(f'Full name must pass `istitle` check.')
+        raise exceptions.ValidationError(
+            f'Full name must pass `istitle` check.')
 
 
-def validate_student_ticket_number(value: str):
-    if not len(value) == 8 or not value.isdigit():
-        raise exceptions.ValidationError(f'Student ticket number must contain exact 8 digits.')
+def validate_student_ticket_number(value: int):
+    if not 1000_0000 < value < 9999_9999:
+        raise exceptions.ValidationError(
+            f'Student ticket number must contain exactly 8 digits.')
 
 
 ### Actual models
@@ -67,8 +69,8 @@ class Student(models.Model):
         validators=[validate_student_full_name],
         verbose_name='Призвище Ім\'я По-батькові',  # ПІБ
     )
-    ticket_number = models.CharField(
-        max_length=8,
+    ticket_number = models.IntegerField(
+        unique=True,
         validators=[validate_student_ticket_number],
         verbose_name='Номер студентського квитка',  # Номер студентського квитка
     )
@@ -104,7 +106,7 @@ class Student(models.Model):
 
     @classmethod
     def create(cls, full_name: str,
-               ticket_number: str,
+               ticket_number: int,
                date_of_birth: str or timezone.datetime,
                structural_unit: StructuralUnit,
                specialty: Specialty,
@@ -135,6 +137,28 @@ class Student(models.Model):
             raise exceptions.ValidationError('Masters could be only on 1-2 years of study.')
         if educational_degree == 1 and year not in (1, 2, 3, 4):
             raise exceptions.ValidationError('Bachelors could be only on 1-4 years of study.')
+
+    @classmethod
+    def get_student_by_ticket_number(cls, ticket_number_string: str) -> 'Student':
+        """
+        Gets Student by provided ticket number and raises IndexError if failed.
+        Validates input and raises ValuerError if it has wrong format.
+
+        :raises ValueError: if string's format is invalid
+        :raises IndexError: if no student found
+        :param ticket_number_string: 8 digits string
+        :return: Student model
+        """
+        try:
+            ticket_number = int(ticket_number_string)
+            validate_student_ticket_number(ticket_number)
+        except (exceptions.ValidationError, ValueError) as exc:
+            raise ValueError('Wrong format of the ticket number.') from exc
+
+        try:
+            return cls.objects.get(ticket_number=ticket_number)
+        except models.ObjectDoesNotExist:
+            raise IndexError('No student found with provided ticket number')
 
     def get_joined_edu_year_display(self) -> str:
         return f'{self.get_educational_degree_display()}-{self.get_year_display()}'
