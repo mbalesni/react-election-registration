@@ -20,7 +20,7 @@ class TestCheckInSession:
 
         session = CheckInSession.start_new_session(staff)
         assert isinstance(session, CheckInSession)
-        assert session.status == CheckInSession.Status.STARTED.name
+        assert session.status == CheckInSession.STATUS_STARTED
         assert session.is_open
         assert now < session.start_time
         assert session.start_time < timezone.now().time()
@@ -36,7 +36,7 @@ class TestCheckInSession:
         session = CheckInSession.start_new_session(staff)
         CheckInSession.cancel_session(session)
 
-        assert session.status == CheckInSession.Status.CANCELED.name
+        assert session.status == CheckInSession.STATUS_CANCELED
         assert session.end_time < timezone.now().time()
         assert session.start_time < session.end_time
         assert not session.is_open
@@ -50,7 +50,7 @@ class TestCheckInSession:
         session = CheckInSession.assign_student_to_session(session, student)
 
         assert isinstance(session, CheckInSession)
-        assert session.status == CheckInSession.Status.IN_PROGRESS.name
+        assert session.status == CheckInSession.STATUS_IN_PROGRESS
         assert session.start_time < timezone.now().time()
         assert session.end_time is None
         assert session.student == student
@@ -66,7 +66,7 @@ class TestCheckInSession:
         CheckInSession.assign_student_to_session(session, student)
         CheckInSession.cancel_session(session)
 
-        assert session.status == CheckInSession.Status.CANCELED.name
+        assert session.status == CheckInSession.STATUS_CANCELED
         assert session.end_time < timezone.now().time()
         assert session.start_time < session.end_time
         assert not session.is_open
@@ -81,7 +81,7 @@ class TestCheckInSession:
         CheckInSession.assign_student_to_session(session, student)
         CheckInSession.complete_session(session)
 
-        assert session.status == CheckInSession.Status.COMPLETED.name
+        assert session.status == CheckInSession.STATUS_COMPLETED
         assert session.end_time < timezone.now().time()
         assert session.start_time < session.end_time
         assert not session.is_open

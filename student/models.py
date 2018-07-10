@@ -1,35 +1,6 @@
-import enum
-import typing
-
 from django.core import exceptions
 from django.db import models
 from django.utils import timezone
-
-
-### helpers
-class ChoiceEnum(enum.Enum):
-    """ For using enums as choices in Django ORM
-    Stolen from http://anthonyfox.io/2017/02/choices-for-choices-in-django-charfields/ """
-
-    @classmethod
-    def as_choices(cls) -> typing.Tuple[typing.Tuple[str, str], ...]:
-        return tuple((pair.name, pair.value) for pair in cls)
-
-    @classmethod
-    def iter_names(cls) -> typing.Iterable[str]:
-        yield from (p.name for p in cls)
-
-    @classmethod
-    def validate(cls, value: str):
-        if value not in cls.iter_names():
-            raise exceptions.ValidationError(f'{value} not in {list(cls.iter_names())}')
-
-
-def table_to_dict(model: models.Model):
-    return {
-        obj.name: obj
-        for obj in model.objects.all()
-    }
 
 
 ### validators
@@ -69,20 +40,6 @@ class Specialty(models.Model):
 class Student(models.Model):
     """ Represent's student of the university.
     All fields aren't NULL, or blank. """
-
-    class FormOfStudy(ChoiceEnum):
-        EXT = "external"
-        FUL = "full-time"
-
-    class EducationalDegree(ChoiceEnum):
-        MAS = "master"
-        BAC = "bachelor"
-
-    class Year(ChoiceEnum):
-        Y1 = "1"
-        Y2 = "2"
-        Y3 = "3"
-        Y4 = "4"
 
     YEAR_CHOICES = tuple((i, str(i)) for i in (1, 2, 3, 4))
     EDUCATIONAL_DEGREE_CHOICES = tuple((i+1, s) for i, s in enumerate([

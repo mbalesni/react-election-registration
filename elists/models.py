@@ -2,28 +2,56 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 
-from student.models import Student, ChoiceEnum
+from student.models import Student
 
 # for better flexibility
 Staff: type = User
 
 
 class CheckInSession(models.Model):
+    STATUS_STARTED = 1
+    STATUS_IN_PROGRESS = 2
+    STATUS_CANCELED = -1
+    STATUS_COMPLETED = 0
+    STATUS_CHOICES = (
+        (STATUS_STARTED, "started"),
+        (STATUS_IN_PROGRESS, "in_progress"),
+        (STATUS_CANCELED, "canceled"),
+        (STATUS_COMPLETED, "completed"),
+    )
+    """ Open status are natural numbers (positive integers), while 'completed' 
+    is 0 (like exit code) and 'canceled' is -1 (something went wrong). """
 
-    class Status(ChoiceEnum):
-        STARTED = 'Just STARTED'
-        IN_PROGRESS = 'Checking in'
-        CANCELED = 'Canceled'
-        COMPLETED = 'Completed'
+    # references
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name='check_in_session',
+        verbose_name='Student',
+    )
+    staff = models.ForeignKey(
+        Staff,
+        on_delete=models.CASCADE,
+        related_name='check_in_session',
+        verbose_name='Staff',
+    )
 
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, null=True)
-    staff = models.ForeignKey(Staff, on_delete=models.CASCADE)
+    # status
+    status = models.IntegerField(
+        choices=STATUS_CHOICES,
+        verbose_name='Status',
+    )
 
-    status = models.CharField(
-        max_length=20, choices=Status.as_choices(), default=Status.STARTED.name)
-
-    start_time = models.TimeField(auto_now_add=True)
-    end_time = models.TimeField(null=True)
+    # time marks
+    start_time = models.TimeField(
+        auto_now_add=True,
+        verbose_name='Start time',
+    )
+    end_time = models.TimeField(
+        null=True,
+        verbose_name='End time',
+    )
 
     def __repr__(self) -> str:
         return f'<CheckInSession #{self.id} [{self.status}] by "{self.staff}">'
@@ -33,31 +61,15 @@ class CheckInSession(models.Model):
 
     @property
     def is_open(self) -> bool:
-        return self.status in (
-            self.Status.STARTED.name,
-            self.Status.IN_PROGRESS.name,
-        )
+        return self.status > 0
 
     @classmethod
     def staff_has_open_sessions(cls, staff: Staff) -> bool:
-        return cls.objects.filter(
-            staff=staff,
-            status__in=(
-                cls.Status.STARTED.name,
-                cls.Status.IN_PROGRESS.name
-            ),
-        ).count() > 0
+        return cls.objects.filter(staff=staff, status__gt=0).count() > 0
 
     @classmethod
     def student_allowed_to_assign(cls, student: Student) -> bool:
-        return cls.objects.filter(
-            student=student,
-            status__in=(
-                cls.Status.STARTED.name,      # no other sessions
-                cls.Status.IN_PROGRESS.name,  # no other sessions
-                cls.Status.COMPLETED.name,    # can't vote twice
-            ),
-        ).count() == 0
+        return cls.objects.filter(student=student, status__gte=0).count() == 0
 
     @classmethod
     def start_new_session(cls, staff: Staff) -> 'CheckInSession' or None:
@@ -72,7 +84,7 @@ class CheckInSession(models.Model):
             return None
 
         # assigns default status, NULL student_id and end_time
-        new_check_in_session = cls(staff=staff)
+        new_check_in_session = cls(staff=staff, status=cls.STATUS_STARTED)
 
         # nothing to validate
         new_check_in_session.save()
@@ -85,11 +97,11 @@ class CheckInSession(models.Model):
         """ Checks if `student` has open sessions. Assigns `student` to given
         `session` and updates status to `IN_PROGRESS` value. """
         if not (cls.student_allowed_to_assign(student) and
-                session.status == cls.Status.STARTED.name):
+                session.status == cls.STATUS_STARTED):
             return None
 
         session.student = student
-        session.status = cls.Status.IN_PROGRESS.name
+        session.status = cls.STATUS_IN_PROGRESS
         session.save()
         return session
 
@@ -100,7 +112,7 @@ class CheckInSession(models.Model):
             return None
 
         session.end_time = timezone.now().time()
-        session.status = cls.Status.COMPLETED.name
+        session.status = cls.STATUS_COMPLETED
 
         session.save()
         return session
@@ -112,7 +124,7 @@ class CheckInSession(models.Model):
             return None
 
         session.end_time = timezone.now().time()
-        session.status = cls.Status.CANCELED.name
+        session.status = cls.STATUS_CANCELED
 
         session.save()
         return session
