@@ -7,11 +7,11 @@ from .models import Student, StructuralUnit, Specialty
 
 STUDENT_KWARGS = dict(
         full_name="Testing Test Testson",
-        student_ticket_number="12345678",
+        ticket_number="12345678",
         date_of_birth="1999-07-12",
-        form_of_study="FUL",
-        educational_degree="BAC",
-        year="Y3",
+        form_of_study=1,
+        educational_degree=1,
+        year=3,
         specialty='105',
         structural_unit='FRECS',
     )
@@ -31,13 +31,13 @@ class TestStudent:
 
     def test_joined_edu_year(self):
         s, *_ = create_models(**STUDENT_KWARGS)
-        assert s.get_joined_edu_year_display() == 'bachelor-3'
+        assert s.get_joined_edu_year_display() == 'Bachelor-3'
 
     def test_validation(self):
         s, *_ = create_models(**STUDENT_KWARGS)
 
-        s.student_ticket_number += 's'
-        s.year += '5'
+        s.ticket_number += 's'
+        s.year += 5
         s.form_of_study = 'new'
         s.educational_degree = 'puple'
         with pytest.raises(exceptions.ValidationError) as excinfo:

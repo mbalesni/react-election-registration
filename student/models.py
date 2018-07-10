@@ -1,10 +1,9 @@
 import enum
 import typing
 
-from django.db import models
-from django.core import validators
-from django.utils import timezone
 from django.core import exceptions
+from django.db import models
+from django.utils import timezone
 
 
 ### helpers
@@ -24,6 +23,13 @@ class ChoiceEnum(enum.Enum):
     def validate(cls, value: str):
         if value not in cls.iter_names():
             raise exceptions.ValidationError(f'{value} not in {list(cls.iter_names())}')
+
+
+def table_to_dict(model: models.Model):
+    return {
+        obj.name: obj
+        for obj in model.objects.all()
+    }
 
 
 ### validators
@@ -78,40 +84,70 @@ class Student(models.Model):
         Y3 = "3"
         Y4 = "4"
 
+    YEAR_CHOICES = tuple((i, str(i)) for i in (1, 2, 3, 4))
+    EDUCATIONAL_DEGREE_CHOICES = tuple((i+1, s) for i, s in enumerate([
+        'Bachelor',  # Бакалавр
+        'Master',    # Магістр
+    ]))
+    FORM_OF_STUDY_CHOICES = tuple((i+1, s) for i, s in enumerate([
+        'External',   # Заочна
+        'Full-time',  # денна
+    ]))
+
     # identifiers
     full_name = models.CharField(
-        max_length=100, validators=[validate_student_full_name])
-    student_ticket_number = models.CharField(
-        max_length=8, validators=[validate_student_ticket_number])
-    date_of_birth = models.DateField()
+        max_length=100,
+        validators=[validate_student_full_name],
+        verbose_name='Full name',  # ПІБ
+    )
+    ticket_number = models.CharField(
+        max_length=8,
+        validators=[validate_student_ticket_number],
+        verbose_name='Student ticket number',  # Номер студентського квитка
+    )
+    date_of_birth = models.DateField(
+        verbose_name='Date of birth',  # Дата народження
+    )
 
     # foreign keys
     structural_unit = models.ForeignKey(
-        StructuralUnit, on_delete=models.CASCADE)
+        StructuralUnit,
+        on_delete=models.PROTECT,
+        verbose_name='Structural unit (faculty/institute)',  # Структурний підрозділ (факультет/інститут)
+    )
     specialty = models.ForeignKey(
-        Specialty, on_delete=models.CASCADE)
+        Specialty,
+        on_delete=models.PROTECT,
+        verbose_name='Specialty',  # Спеціальність
+    )
 
-    # enums
-    form_of_study = models.CharField(
-        max_length=3, choices=FormOfStudy.as_choices())
-    educational_degree = models.CharField(
-        max_length=3, choices=EducationalDegree.as_choices())
-    year = models.CharField(
-        max_length=3, choices=Year.as_choices())
+    # constant choices
+    form_of_study = models.IntegerField(
+        choices=FORM_OF_STUDY_CHOICES,
+        verbose_name='Form of study',  # Форма навчання
+    )
+    educational_degree = models.IntegerField(
+        choices=EDUCATIONAL_DEGREE_CHOICES,
+        verbose_name='Educational degree',  # Освітній ступінь
+    )
+    year = models.IntegerField(
+        choices=YEAR_CHOICES,
+        verbose_name='Year',  # Курс
+    )
 
     @classmethod
     def create(cls, full_name: str,
-               student_ticket_number: str,
+               ticket_number: str,
                date_of_birth: str or timezone.datetime,
                structural_unit: StructuralUnit,
                specialty: Specialty,
-               form_of_study: str,
-               educational_degree: str,
-               year: str):
+               form_of_study: int,
+               educational_degree: int,
+               year: int):
         m = cls()
 
         m.full_name = full_name
-        m.student_ticket_number = student_ticket_number
+        m.ticket_number = ticket_number
         m.date_of_birth = date_of_birth
         m.structural_unit = structural_unit
         m.specialty = specialty
@@ -127,13 +163,11 @@ class Student(models.Model):
         self.validate_educational_degree_with_year(self.educational_degree, self.year)
 
     @classmethod
-    def validate_educational_degree_with_year(cls, educational_degree: str, year: str):
-        if educational_degree == cls.EducationalDegree.MAS.name and \
-                year not in list(cls.Year.iter_names())[:2]:
+    def validate_educational_degree_with_year(cls, educational_degree: int, year: int):
+        if educational_degree == 2 and year not in (1, 2):
             raise exceptions.ValidationError('Masters could be only on 1-2 years of study.')
-        if educational_degree == cls.EducationalDegree.BAC.name and \
-                year not in list(cls.Year.iter_names()):
-            raise exceptions.ValidationError('Masters could be only on 1-4 years of study.')
+        if educational_degree == 1 and year not in (1, 2, 3, 4):
+            raise exceptions.ValidationError('Bachelors could be only on 1-4 years of study.')
 
     def get_joined_edu_year_display(self) -> str:
         return f'{self.get_educational_degree_display()}-{self.get_year_display()}'
