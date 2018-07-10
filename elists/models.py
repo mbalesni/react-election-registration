@@ -1,11 +1,8 @@
-import typing
-
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import User
 
 from student.models import Student, ChoiceEnum
-
 
 # for better flexibility
 Staff: type = User
@@ -23,7 +20,7 @@ class CheckInSession(models.Model):
     staff = models.ForeignKey(Staff, on_delete=models.CASCADE)
 
     status = models.CharField(
-        max_length=3, choices=Status.as_choices(), default=Status.STARTED.name)
+        max_length=20, choices=Status.as_choices(), default=Status.STARTED.name)
 
     start_time = models.TimeField(auto_now_add=True)
     end_time = models.TimeField(null=True)
@@ -99,7 +96,7 @@ class CheckInSession(models.Model):
     @classmethod
     def complete_session(cls, session: 'CheckInSession') -> 'CheckInSession' or None:
         """ Assigns current time to `end_time` and `COMPLETED` status. """
-        if not session.is_open:
+        if not session.is_open or session.student is None:
             return None
 
         session.end_time = timezone.now().time()

@@ -1,6 +1,4 @@
 import pytest
-
-from django.core import exceptions
 from django.utils import timezone
 
 from student.tests import STUDENT_KWARGS, create_models as create_student_models
@@ -89,6 +87,21 @@ class TestCheckInSession:
         assert not session.is_open
         assert not CheckInSession.staff_has_open_sessions(staff)
         assert not CheckInSession.student_allowed_to_assign(student)
+
+    def test_complete_canceled_session(self):
+        staff = create_staff_account()
+
+        session = CheckInSession.start_new_session(staff)
+        # if `cancel_session` works fine, than we don't need to test case when
+        # student was assigned before canceling
+        CheckInSession.cancel_session(session)
+        assert CheckInSession.complete_session(session) is None
+
+    def test_complete_fresh_session(self):
+        staff = create_staff_account()
+
+        session = CheckInSession.start_new_session(staff)
+        assert CheckInSession.complete_session(session) is None
 
     def test_staff_has_open_sessions(self):
         staff = create_staff_account()
