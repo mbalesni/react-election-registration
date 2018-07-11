@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from django.conf import settings
 from django.contrib import admin
 from django.http import HttpRequest
 
@@ -49,6 +50,8 @@ class CheckInSessionAdmin(admin.ModelAdmin):
     )
 
     def get_actions(self, request):
+        if request.user.is_superuser and settings.DEBUG:
+            return super().get_actions(request)
         return OrderedDict()
 
     def get_fieldsets(self, request: HttpRequest, obj: CheckInSession = None):
