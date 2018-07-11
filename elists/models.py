@@ -58,7 +58,7 @@ class CheckInSession(models.Model):
         return f'<CheckInSession #{self.id} [{self.status}] by "{self.staff}">'
 
     def __str__(self) -> str:
-        return f'Сесія [{self.get_status_display()}] почата "{self.staff}" о {self.start_time}'
+        return f'Сесія [{self.get_status_display()}] почата "{self.staff}" о {self.start_time.strftime("%H:%M")}'
 
     @property
     def is_open(self) -> bool:
