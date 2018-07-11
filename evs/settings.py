@@ -43,6 +43,11 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    # Simplified static file serving.
+    # https://warehouse.python.org/project/whitenoise/
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+
+    # Default Django middleware
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -128,11 +133,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# Simplified static file serving.
+# https://warehouse.python.org/project/whitenoise/
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Configure Django App for Heroku.
-# import django_heroku
-#
-# django_heroku.settings(locals())
+# Configure database connection for Heroku.
 import dj_database_url
 
 try:
