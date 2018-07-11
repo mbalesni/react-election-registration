@@ -5,12 +5,15 @@ from django.views.decorators.http import require_POST
 
 from .models import CheckInSession, Student, Staff
 
+
 # FIXME: get Staff object from session
-staff = Staff.objects.first()
+def get_staff():
+    return Staff.objects.first()
 
 
 @require_POST
 def start_new_session(request: HttpRequest):
+    staff = get_staff()
     session = CheckInSession.start_new_session(staff)
     if session:
         return JsonResponse({})
@@ -20,6 +23,7 @@ def start_new_session(request: HttpRequest):
 
 @require_POST
 def get_student_by_ticket_number(request: HttpRequest):
+    staff = get_staff()
     session = CheckInSession.get_session_by_staff(staff)
     if session is None:
         return HttpResponseBadRequest(b'No session assigned.')
@@ -37,6 +41,7 @@ def get_student_by_ticket_number(request: HttpRequest):
 
 @require_POST
 def complete_session(request: HttpRequest):
+    staff = get_staff()
     session = CheckInSession.get_session_by_staff(staff)
     if session is None:
         return HttpResponseBadRequest(b'No session assigned.')
@@ -50,6 +55,7 @@ def complete_session(request: HttpRequest):
 
 @require_POST
 def cancel_session(request: HttpRequest):
+    staff = get_staff()
     session = CheckInSession.get_session_by_staff(staff)
     if session is None:
         return HttpResponseBadRequest(b'No session assigned.')
