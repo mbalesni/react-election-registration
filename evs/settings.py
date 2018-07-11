@@ -130,6 +130,14 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Configure Django App for Heroku.
-import django_heroku
+# import django_heroku
+#
+# django_heroku.settings(locals())
+import dj_database_url
 
-django_heroku.settings(locals())
+try:
+    os.environ['DATABASE_URL']
+except:
+    pass
+else:
+    DATABASES['default'] = dj_database_url.config()
