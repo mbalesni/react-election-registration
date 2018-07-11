@@ -36,6 +36,7 @@ ALLOWED_HOSTS = ['elists-dev.herokuapp.com', '127.0.0.1', 'localhost']
 INSTALLED_APPS = [
     'raven.contrib.django.raven_compat',
     'grappelli',
+    'corsheaders',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -52,6 +53,9 @@ MIDDLEWARE = [
     # Simplified static file serving.
     # https://warehouse.python.org/project/whitenoise/
     'whitenoise.middleware.WhiteNoiseMiddleware',
+
+    # django-cors-headers
+    'corsheaders.middleware.CorsMiddleware',
 
     # Default Django middleware
     'django.middleware.security.SecurityMiddleware',
@@ -164,3 +168,6 @@ RAVEN_CONFIG = {
     # release based on the git info.
     'release': raven.fetch_git_sha(BASE_DIR),
 }
+
+# CORS headers
+CORS_ORIGIN_ALLOW_ALL = True
