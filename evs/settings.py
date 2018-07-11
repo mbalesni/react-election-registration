@@ -25,7 +25,7 @@ SECRET_KEY = '(8wll5+ismoskrnfao(=s7)j)r8!*s*&-dm2=dj-(q%__u)m79'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['elists-dev.herokuapp.com']
 
 
 # Application definition
