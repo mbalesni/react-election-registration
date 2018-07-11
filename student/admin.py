@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django.contrib import admin
 
 from .models import Student, StructuralUnit, Specialty
@@ -8,6 +10,7 @@ admin.site.register([StructuralUnit, Specialty])
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
+
     change_list_filter_template = "admin/filter_listing.html"
     change_list_template = "admin/change_list_filter_sidebar.html"
     view_on_site = False
@@ -66,3 +69,6 @@ class StudentAdmin(admin.ModelAdmin):
             return ()
         else:
             return self.readonly_fields
+
+    def get_actions(self, request):
+        return OrderedDict()

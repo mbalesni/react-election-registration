@@ -28,13 +28,11 @@ class CheckInSession(models.Model):
         Student,
         on_delete=models.CASCADE,
         null=True,
-        related_name='check_in_session',
-        verbose_name='Студент',
+        verbose_name='Виборець',
     )
     staff = models.ForeignKey(
         Staff,
         on_delete=models.CASCADE,
-        related_name='check_in_session',
         verbose_name='Член ВКС',
     )
 
