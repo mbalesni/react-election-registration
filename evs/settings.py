@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 
+import dj_database_url
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -25,7 +27,7 @@ SECRET_KEY = '(8wll5+ismoskrnfao(=s7)j)r8!*s*&-dm2=dj-(q%__u)m79'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['elists-dev.herokuapp.com', '127.0.0.1']
+ALLOWED_HOSTS = ['elists-dev.herokuapp.com', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -137,8 +139,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# =============================================================================
 # Configure database connection for Heroku.
-import dj_database_url
 
 try:
     os.environ['DATABASE_URL']
@@ -146,3 +148,7 @@ except:
     pass
 else:
     DATABASES['default'] = dj_database_url.config()
+
+# Grappelli
+
+GRAPPELLI_SWITCH_USER = True
