@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import os
 
 import dj_database_url
+import raven
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -33,13 +34,16 @@ ALLOWED_HOSTS = ['elists-dev.herokuapp.com', '127.0.0.1', 'localhost']
 # Application definition
 
 INSTALLED_APPS = [
+    'raven.contrib.django.raven_compat',
     'grappelli',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'student.apps.StudentConfig',
     'elists.apps.ElistsConfig',
 ]
@@ -139,9 +143,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# =============================================================================
-# Configure database connection for Heroku.
 
+# =============================================================================
+
+# Configure database connection for Heroku.
 try:
     os.environ['DATABASE_URL']
 except:
@@ -150,5 +155,12 @@ else:
     DATABASES['default'] = dj_database_url.config()
 
 # Grappelli
-
 GRAPPELLI_SWITCH_USER = True
+
+# Sentry
+RAVEN_CONFIG = {
+    'dsn': 'https://6114eea799a146298b71db08a24d036d:5dbe0913367a4056b25acad5bd4664c3@sentry.io/1241630',
+    # If you are using git, you can also automatically configure the
+    # release based on the git info.
+    'release': raven.fetch_git_sha(BASE_DIR),
+}
