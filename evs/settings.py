@@ -164,10 +164,13 @@ GRAPPELLI_SWITCH_USER = True
 # Sentry
 RAVEN_CONFIG = {
     'dsn': 'https://6114eea799a146298b71db08a24d036d:5dbe0913367a4056b25acad5bd4664c3@sentry.io/1241630',
+}
+try:
     # If you are using git, you can also automatically configure the
     # release based on the git info.
-    'release': raven.fetch_git_sha(BASE_DIR),
-}
+    RAVEN_CONFIG['release'] = raven.fetch_git_sha(BASE_DIR)
+except:
+    RAVEN_CONFIG['release'] = 'onHeroku'
 
 # CORS headers
 CORS_ORIGIN_ALLOW_ALL = True
