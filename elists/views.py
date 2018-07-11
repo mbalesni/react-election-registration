@@ -40,7 +40,11 @@ def get_student_by_ticket_number(request: HttpRequest):
         return json_error(str(exc))
     session = CheckInSession.assign_student_to_session(session, student)
     if session:
-        return JsonResponse({})
+        return JsonResponse({
+            "full_name": student.full_name,
+            "educational_degree": student.educational_degree,
+            "year": student.year,
+        })
     else:
         return json_error('Student not allowed to assign or session status is wrong.')
 
