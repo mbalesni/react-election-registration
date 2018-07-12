@@ -112,9 +112,9 @@ class CheckInSession(models.Model):
         try:
             query: dict = signing.loads(token, max_age=cls.get_token_max_age())
         except signing.SignatureExpired:
-            raise TimeoutError('Check-in session expired.')
+            raise TimeoutError('Provided check-in session token expired.')
         except signing.BadSignature:
-            raise RuntimeError('Bad session token signature.')
+            raise RuntimeError('Bad check-in session token signature.')
 
         # if we had given that token, than object must exist
         return cls.objects.get(**query)

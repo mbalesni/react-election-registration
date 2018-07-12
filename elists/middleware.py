@@ -40,7 +40,16 @@ class EListsCheckInSessionInfo:
         if token is None:
             raise PermissionError(
                 f'Provide "{REQUEST_TOKEN}" field to perform this action.')
-        session = CheckInSession.get_session_by_token(token)
+        try:
+            session = CheckInSession.get_session_by_token(token)
+        except TimeoutError:
+            # because there must be no more than 1 open session
+            CheckInSession.close_sessions(self.staff)
+            # session = CheckInSession.get_session_by_staff(self.staff)
+            # if session:
+            #     session.cancel()
+            raise
+
         self.session = session
         return session
 
@@ -69,7 +78,9 @@ class EListsMiddleware:
                 getattr(view_func, self.MARK_ATTR_NAME)):
             return None
 
-        data = json.loads(request.body)
+        # read body
+        request_body = request.body
+        data = json.loads(request_body)
         staff = get_staff()
         request.elists_cisi = EListsCheckInSessionInfo(staff, data)
 
