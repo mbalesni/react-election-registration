@@ -164,3 +164,9 @@ class TestCheckInSession:
         assert CheckInSession.objects.get(id=s2.id).status == CheckInSession.STATUS_CANCELED
         assert not CheckInSession.staff_has_open_sessions(staff)
         assert CheckInSession.get_session_by_staff(staff) is None
+
+    def test_token(self):
+        staff = create_staff_account()
+        session = CheckInSession.start_new_session(staff)
+        token = session.create_token()
+        assert CheckInSession.get_session_by_token(token) == session

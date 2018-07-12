@@ -1,6 +1,8 @@
 import time
 
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.core import signing
 from django.db import models
 from django.utils import timezone
 
@@ -69,6 +71,10 @@ class CheckInSession(models.Model):
         return dict(self.STATUS_CHOICES)[self.status]
 
     @classmethod
+    def get_token_max_age(cls):
+        return settings.ELISTS_CHECKINSESSION_TOKEN_EXPIRE
+
+    @classmethod
     def student_allowed_to_assign(cls, student: Student) -> bool:
         return cls.objects.filter(student=student, status__gte=0).count() == 0
 
@@ -106,6 +112,18 @@ class CheckInSession(models.Model):
         new_check_in_session.save()
         return new_check_in_session
 
+    @classmethod
+    def get_session_by_token(cls, token: str) -> 'CheckInSession':
+        try:
+            query: dict = signing.loads(token, max_age=cls.get_token_max_age())
+        except signing.SignatureExpired:
+            raise TimeoutError('Check-in session expired.')
+        except signing.BadSignature:
+            raise RuntimeError('Bad session token signature.')
+
+        # if we had given that token, than object must exist
+        return cls.objects.get(**query)
+
     def assign_student(self, student: Student) -> 'CheckInSession':
         """ Checks if `student` has open sessions. Assigns `student` to given
         `session` and updates status to `IN_PROGRESS` value. """
@@ -130,6 +148,9 @@ class CheckInSession(models.Model):
 
         self.save()
         return self
+
+    def create_token(self) -> str:
+        return signing.dumps(dict(id=self.id))
 
     @staticmethod
     def get_naive_time() -> time:

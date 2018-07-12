@@ -176,3 +176,6 @@ except:
 
 # CORS headers
 CORS_ORIGIN_ALLOW_ALL = True
+
+# ELists APP
+ELISTS_CHECKINSESSION_TOKEN_EXPIRE = 2*60  # 120 seconds == 2 minutes
