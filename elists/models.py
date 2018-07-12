@@ -62,6 +62,10 @@ class CheckInSession(models.Model):
     def is_open(self) -> bool:
         return self.status > 0
 
+    @property
+    def status_verbose(self) -> str:
+        return dict(self.STATUS_CHOICES)[self.status]
+
     @classmethod
     def student_allowed_to_assign(cls, student: Student) -> bool:
         return cls.objects.filter(student=student, status__gte=0).count() == 0
@@ -87,7 +91,7 @@ class CheckInSession(models.Model):
         :return: model if everything was OK, else returns None
         """
         if cls.staff_has_open_sessions(staff):
-            return None
+            raise PermissionError('Staff already has open session.')
 
         # assigns default status, NULL student_id and end_time
         new_check_in_session = cls(staff=staff, status=cls.STATUS_STARTED)
@@ -102,9 +106,14 @@ class CheckInSession(models.Model):
                                   student: Student) -> 'CheckInSession' or None:
         """ Checks if `student` has open sessions. Assigns `student` to given
         `session` and updates status to `IN_PROGRESS` value. """
-        if not (cls.student_allowed_to_assign(student) and
-                session.status == cls.STATUS_STARTED):
-            return None
+        if not cls.student_allowed_to_assign(student):
+            if cls.objects.filter(student=student, status=0):
+                raise ValueError('Student had already voted.')
+            else:
+                raise ValueError('Student has open session(s).')
+        if session.status != cls.STATUS_STARTED:
+            raise PermissionError(
+                f'Wrong session status: [{session.status}] "{session.status_verbose}".')
 
         session.student = student
         session.status = cls.STATUS_IN_PROGRESS
@@ -114,8 +123,10 @@ class CheckInSession(models.Model):
     @classmethod
     def complete_session(cls, session: 'CheckInSession') -> 'CheckInSession' or None:
         """ Assigns current time to `end_time` and `COMPLETED` status. """
-        if not session.is_open or session.student is None:
-            return None
+        if session.student is None:
+            raise ValueError('No student assigned.')
+        if not session.is_open:
+            raise ValueError('Session is already closed.')
 
         session.end_time = timezone.now().time()
         session.status = cls.STATUS_COMPLETED
@@ -127,7 +138,7 @@ class CheckInSession(models.Model):
     def cancel_session(cls, session: 'CheckInSession') -> 'CheckInSession' or None:
         """ Assigns current time to `end_time` and `CANCELED` status. """
         if not session.is_open:
-            return None
+            raise ValueError('Session is already closed.')
 
         session.end_time = timezone.now().time()
         session.status = cls.STATUS_CANCELED
