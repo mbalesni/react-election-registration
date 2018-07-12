@@ -1,15 +1,10 @@
-import time
-
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.core import signing
 from django.db import models
-from django.utils import timezone
 
 from student.models import Student
-
-# for better flexibility
-Staff = User
+from .constants import Staff
+from .utils import get_current_naive_time
 
 
 class CheckInSession(models.Model):
@@ -135,7 +130,7 @@ class CheckInSession(models.Model):
 
     def complete(self) -> 'CheckInSession':
         """ Assigns current time to `end_time` and `COMPLETED` status. """
-        self.end_time = self.get_naive_time()
+        self.end_time = get_current_naive_time()
         self.status = self.STATUS_COMPLETED
 
         self.save()
@@ -143,7 +138,7 @@ class CheckInSession(models.Model):
 
     def cancel(self) -> 'CheckInSession':
         """ Assigns current time to `end_time` and `CANCELED` status. """
-        self.end_time = self.get_naive_time()
+        self.end_time = get_current_naive_time()
         self.status = self.STATUS_CANCELED
 
         self.save()
@@ -151,7 +146,3 @@ class CheckInSession(models.Model):
 
     def create_token(self) -> str:
         return signing.dumps(dict(id=self.id))
-
-    @staticmethod
-    def get_naive_time() -> time:
-        return timezone.make_naive(timezone.now()).time()

@@ -1,7 +1,10 @@
 import pytest
 
+from student.models import Student
 from student.tests import STUDENT_KWARGS, create_models as create_student_models
-from .models import CheckInSession, Staff, Student
+from .constants import Staff
+from .models import CheckInSession
+from .utils import get_current_naive_time
 
 
 def create_staff_account() -> Staff:
@@ -14,11 +17,13 @@ def create_staff_account() -> Staff:
 class TestCheckInSession:
 
     def test_start_new_session(self):
+        time_before = get_current_naive_time()
         staff = create_staff_account()
 
         session = CheckInSession.start_new_session(staff)
         assert isinstance(session, CheckInSession)
         assert session.status == CheckInSession.STATUS_STARTED
+        assert time_before < session.start_time < get_current_naive_time()
         assert session.is_open
         assert session.end_time is None
         assert session.student is None
@@ -33,7 +38,7 @@ class TestCheckInSession:
         session.cancel()
 
         assert session.status == CheckInSession.STATUS_CANCELED
-        assert session.start_time < session.end_time
+        assert session.start_time < session.end_time < get_current_naive_time()
         assert not session.is_open
         assert not CheckInSession.staff_has_open_sessions(staff)
 
@@ -61,7 +66,7 @@ class TestCheckInSession:
         session.cancel()
 
         assert session.status == CheckInSession.STATUS_CANCELED
-        assert session.start_time < session.end_time
+        assert session.start_time < session.end_time < get_current_naive_time()
         assert not session.is_open
         assert not CheckInSession.staff_has_open_sessions(staff)
         assert CheckInSession.student_allowed_to_assign(student)
@@ -75,7 +80,7 @@ class TestCheckInSession:
         session.complete()
 
         assert session.status == CheckInSession.STATUS_COMPLETED
-        assert session.start_time < session.end_time
+        assert session.start_time < session.end_time < get_current_naive_time()
         assert not session.is_open
         assert not CheckInSession.staff_has_open_sessions(staff)
         assert not CheckInSession.student_allowed_to_assign(student)
