@@ -61,11 +61,6 @@ class EListsMiddleware:
         self.get_response = get_response
 
     def __call__(self, request: Request):
-        data = json.loads(request.body)
-        staff = get_staff()
-
-        request.elists_cisi = EListsCheckInSessionInfo(staff, data)
-
         response = self.get_response(request)
         return response
 
@@ -74,9 +69,13 @@ class EListsMiddleware:
                 getattr(view_func, self.MARK_ATTR_NAME)):
             return None
 
+        data = json.loads(request.body)
+        staff = get_staff()
+        request.elists_cisi = EListsCheckInSessionInfo(staff, data)
+
         try:
             if getattr(view_func, self.REQUIRE_SESSION_MARK):
-                request.elists_cisi.retrieve_session()
+                session = request.elists_cisi.retrieve_session()
 
             data = view_func(request, *view_args, **view_kwargs)
         except Exception as exc:
