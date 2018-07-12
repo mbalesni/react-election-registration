@@ -1,3 +1,5 @@
+import time
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
@@ -82,6 +84,13 @@ class CheckInSession(models.Model):
         return cls.get_session_by_staff(staff) is not None
 
     @classmethod
+    def clear_sessions(cls, staff: Staff):
+        """ Ensures that `staff` doesn't have open sessions, cancels them. """
+        session = cls.get_session_by_staff(staff)
+        if session:
+            session.cancel()
+
+    @classmethod
     def start_new_session(cls, staff: Staff) -> 'CheckInSession' or None:
         """ Checks if `staff` has open sessions. Starts new session for `staff`.
         Records `start_time`, assigns `Status.std` status and lefts `student`
@@ -90,58 +99,38 @@ class CheckInSession(models.Model):
         :param staff: logged in staff
         :return: model if everything was OK, else returns None
         """
-        if cls.staff_has_open_sessions(staff):
-            raise PermissionError('Staff already has open session.')
-
-        # assigns default status, NULL student_id and end_time
+        # assigns default "STARTED" status, NULL student_id and NULL end_time
         new_check_in_session = cls(staff=staff, status=cls.STATUS_STARTED)
 
         # nothing to validate
         new_check_in_session.save()
-
         return new_check_in_session
 
-    @classmethod
-    def assign_student_to_session(cls, session: 'CheckInSession',
-                                  student: Student) -> 'CheckInSession' or None:
+    def assign_student(self, student: Student) -> 'CheckInSession':
         """ Checks if `student` has open sessions. Assigns `student` to given
         `session` and updates status to `IN_PROGRESS` value. """
-        if not cls.student_allowed_to_assign(student):
-            if cls.objects.filter(student=student, status=0):
-                raise ValueError('Student had already voted.')
-            else:
-                raise ValueError('Student has open session(s).')
-        if session.status != cls.STATUS_STARTED:
-            raise PermissionError(
-                f'Wrong session status: [{session.status}] "{session.status_verbose}".')
+        self.student = student
+        self.status = self.STATUS_IN_PROGRESS
 
-        session.student = student
-        session.status = cls.STATUS_IN_PROGRESS
-        session.save()
-        return session
+        self.save()
+        return self
 
-    @classmethod
-    def complete_session(cls, session: 'CheckInSession') -> 'CheckInSession' or None:
+    def complete(self) -> 'CheckInSession':
         """ Assigns current time to `end_time` and `COMPLETED` status. """
-        if session.student is None:
-            raise ValueError('No student assigned.')
-        if not session.is_open:
-            raise ValueError('Session is already closed.')
+        self.end_time = self.get_naive_time()
+        self.status = self.STATUS_COMPLETED
 
-        session.end_time = timezone.now().time()
-        session.status = cls.STATUS_COMPLETED
+        self.save()
+        return self
 
-        session.save()
-        return session
-
-    @classmethod
-    def cancel_session(cls, session: 'CheckInSession') -> 'CheckInSession' or None:
+    def cancel(self) -> 'CheckInSession':
         """ Assigns current time to `end_time` and `CANCELED` status. """
-        if not session.is_open:
-            raise ValueError('Session is already closed.')
+        self.end_time = self.get_naive_time()
+        self.status = self.STATUS_CANCELED
 
-        session.end_time = timezone.now().time()
-        session.status = cls.STATUS_CANCELED
+        self.save()
+        return self
 
-        session.save()
-        return session
+    @staticmethod
+    def get_naive_time() -> time:
+        return timezone.make_naive(timezone.now()).time()

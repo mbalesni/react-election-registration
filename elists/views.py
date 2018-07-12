@@ -67,28 +67,33 @@ class EListsMiddleware:
                 getattr(view_func, self.MARK_ATTR_NAME)):
             return None
 
-        data, error = None, None
         try:
             if getattr(view_func, self.REQUIRE_SESSION_MARK):
                 if request.elists_cisi.session is None:
                     raise PermissionError('No session assigned.')
+
             data = view_func(request, *view_args, **view_kwargs)
         except Exception as exc:
-            status_code = 400
-            error = {
-                'message': str(exc),
-                'type': str(type(exc).__name__),
-            }
+            response_status_code = 400
+            data = None
+            error = self._convert_exception(exc)
         else:
-            status_code = 200
+            response_status_code = 200
+            error = None
 
         response = JsonResponse({
             'data': data,
             'error': error,
-            'status': request.elists_cisi.get_status_dict()
+            'status': request.elists_cisi.get_status_dict(),
         })
-        response.status_code = status_code
+        response.status_code = response_status_code
         return response
+
+    def _convert_exception(self, exc: Exception) -> dict:
+        return {
+            'message': str(exc),
+            'type'   : str(type(exc).__name__),
+        }
 
     @classmethod
     def mark(cls, *, require_session=True):
@@ -113,7 +118,17 @@ def get_student_by_ticket_number(request: Request):
 
     ticket_number = json.loads(request.body)['ticket_number']
     student = Student.get_student_by_ticket_number(ticket_number)
-    CheckInSession.assign_student_to_session(session, student)
+
+    if not CheckInSession.student_allowed_to_assign(student):
+        if CheckInSession.objects.filter(student=student, status=0):
+            raise ValueError('Student had already voted.')
+        else:
+            raise ValueError('Student has open session(s).')
+    if session.status != CheckInSession.STATUS_STARTED:
+        raise PermissionError(
+            f'Wrong session status: [{session.status}] "{session.status_verbose}".')
+
+    session.assign_student(student)
 
     return {
         "full_name": student.full_name,
@@ -125,10 +140,20 @@ def get_student_by_ticket_number(request: Request):
 @EListsMiddleware.mark()
 def complete_session(request: Request):
     session = request.elists_cisi.session
-    CheckInSession.complete_session(session)
+
+    if session.student is None:
+        raise ValueError('No student assigned.')
+    if not session.is_open:
+        raise ValueError('Session is already closed.')
+
+    session.complete()
 
 
 @EListsMiddleware.mark()
 def cancel_session(request: Request):
     session = request.elists_cisi.session
-    CheckInSession.cancel_session(session)
+
+    if not session.is_open:
+        raise ValueError('Session is already closed.')
+
+    session.cancel()
