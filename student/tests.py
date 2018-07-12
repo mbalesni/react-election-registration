@@ -53,3 +53,8 @@ class TestStudent:
 
         with pytest.raises(ValueError) as exc:
             Student.get_student_by_ticket_number('12345')
+
+    def test_token(self):
+        student = create_models(**STUDENT_KWARGS)[0]
+        token = student.create_token()
+        assert Student.get_student_by_token(token) == student

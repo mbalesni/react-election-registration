@@ -1,4 +1,4 @@
-from django.core import exceptions
+from django.core import exceptions, signing
 from django.db import models
 from django.utils import timezone
 
@@ -139,6 +139,17 @@ class Student(models.Model):
             raise exceptions.ValidationError('Bachelors could be only on 1-4 years of study.')
 
     @classmethod
+    def search_for_students(cls, search_query: str, educational_degree: int, year: int):
+        raise NotImplementedError("Need to implement search with query...")
+        return cls.objects.filter(
+            ticket_number__isnull=False,
+            educational_degree=educational_degree,
+            year=year,
+            checkinsession__status__lt=0,
+            # FIXME: ### full_name__trigram_similar=search_query,
+        )
+
+    @classmethod
     def get_student_by_ticket_number(cls, ticket_number_string: str) -> 'Student':
         """
         Gets Student by provided ticket number and raises IndexError if failed.
@@ -159,6 +170,19 @@ class Student(models.Model):
             return cls.objects.get(ticket_number=ticket_number)
         except models.ObjectDoesNotExist:
             raise IndexError('No student found with provided ticket number')
+
+    @classmethod
+    def get_student_by_token(cls, token: str):
+        try:
+            student_ticket_number: str = signing.Signer().unsign(token)
+        except signing.BadSignature:
+            raise RuntimeError('Bad student token signature.')
+
+        # if we had given that token, than object must exist, and be valid
+        return cls.objects.get(ticket_number=int(student_ticket_number))
+
+    def create_token(self) -> str:
+        return signing.Signer().sign(str(self.ticket_number))
 
     def get_joined_edu_year_display(self) -> str:
         return f'{self.get_educational_degree_display()}-{self.get_year_display()}'
