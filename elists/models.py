@@ -90,7 +90,7 @@ class CheckInSession(models.Model):
         return cls.get_session_by_staff(staff) is not None
 
     @classmethod
-    def clear_sessions(cls, staff: Staff):
+    def close_sessions(cls, staff: Staff):
         """ Ensures that `staff` doesn't have open sessions, cancels them. """
         session = cls.get_session_by_staff(staff)
         if session:

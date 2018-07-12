@@ -148,11 +148,11 @@ class TestCheckInSession:
         s2.complete()
         assert CheckInSession.get_session_by_staff(staff) is None
 
-    def test_clear_sessions(self):
+    def test_close_sessions(self):
         staff = create_staff_account()
 
         s1 = CheckInSession.start_new_session(staff)
-        CheckInSession.clear_sessions(staff)
+        CheckInSession.close_sessions(staff)
         assert CheckInSession.objects.get(id=s1.id).status == CheckInSession.STATUS_CANCELED
         assert not CheckInSession.staff_has_open_sessions(staff)
         assert CheckInSession.get_session_by_staff(staff) is None
@@ -160,7 +160,7 @@ class TestCheckInSession:
         s2 = CheckInSession.start_new_session(staff)
         student: Student = create_student_models(**STUDENT_KWARGS)[0]
         s2.assign_student(student)
-        CheckInSession.clear_sessions(staff)
+        CheckInSession.close_sessions(staff)
         assert CheckInSession.objects.get(id=s2.id).status == CheckInSession.STATUS_CANCELED
         assert not CheckInSession.staff_has_open_sessions(staff)
         assert CheckInSession.get_session_by_staff(staff) is None
