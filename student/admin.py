@@ -23,7 +23,6 @@ class StudentAdmin(admin.ModelAdmin):
         'specialty',
         'educational_degree',
         'year',
-        'date_of_birth',
         'form_of_study',
     )
     list_display = (
@@ -57,10 +56,6 @@ class StudentAdmin(admin.ModelAdmin):
         ('Документи', {
             'fields' : ('ticket_number',),
             'classes': ('grp-collapse grp-open',),
-        }),
-        ('Конфіденційна інформація', {
-            'fields' : ('date_of_birth',),
-            'classes': ('grp-collapse grp-closed',),
         }),
     )
 

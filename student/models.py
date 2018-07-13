@@ -1,6 +1,5 @@
 from django.core import exceptions, signing
 from django.db import models
-from django.utils import timezone
 
 
 ### validators
@@ -74,9 +73,6 @@ class Student(models.Model):
         validators=[validate_student_ticket_number],
         verbose_name='Номер студентського квитка',  # Номер студентського квитка
     )
-    date_of_birth = models.DateField(
-        verbose_name='Дата народження',  # Дата народження
-    )
 
     # foreign keys
     structural_unit = models.ForeignKey(
@@ -107,7 +103,6 @@ class Student(models.Model):
     @classmethod
     def create(cls, full_name: str,
                ticket_number: int,
-               date_of_birth: str or timezone.datetime,
                structural_unit: StructuralUnit,
                specialty: Specialty,
                form_of_study: int,
@@ -117,7 +112,6 @@ class Student(models.Model):
 
         m.full_name = full_name
         m.ticket_number = ticket_number
-        m.date_of_birth = date_of_birth
         m.structural_unit = structural_unit
         m.specialty = specialty
         m.form_of_study = form_of_study
