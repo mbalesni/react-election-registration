@@ -159,15 +159,24 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # =============================================================================
 
 # Configure database connection for Heroku.
-try:
-    os.environ['DATABASE_URL']
-except:
-    pass
-else:
+if os.environ.get('DATABASE_URL', None):
     DATABASES['default'] = dj_database_url.config()
 
+# Sessions & Cookies
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_AGE = 30 * 60  # 1800 seconds == 30 minutes
+
+
+# ELists APP
+ELISTS_CHECKINSESSION_TOKEN_EXPIRE = 2 * 60  # 120 seconds == 2 minutes
+
 # Grappelli
-GRAPPELLI_SWITCH_USER = True
+GRAPPELLI_SWITCH_USER = False
+GRAPPELLI_ADMIN_TITLE = 'EVS Адміністрування'
 
 # Sentry
 RAVEN_CONFIG = {
@@ -191,15 +200,11 @@ CORS_ORIGIN_WHITELIST = [
     '127.0.0.1:3000',
 ]
 
-# Sessions & Cookies
-SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
-SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_AGE = 24 * 60 * 60
-#SESSION_COOKIE_SECURE = True
-#SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-#SESSION_COOKIE_AGE = 30 * 60  # 1800 seconds == 30 minutes
 
-
-# ELists APP
-ELISTS_CHECKINSESSION_TOKEN_EXPIRE = None
-#ELISTS_CHECKINSESSION_TOKEN_EXPIRE = 2 * 60  # 120 seconds == 2 minutes
+if DEBUG:
+    ELISTS_CHECKINSESSION_TOKEN_EXPIRE = None
+    SESSION_COOKIE_AGE = 12 * 60 * 60  # 12 hours
+    SESSION_COOKIE_SECURE = False
+    SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+    SESSION_SAVE_EVERY_REQUEST = False
+    GRAPPELLI_SWITCH_USER = True
