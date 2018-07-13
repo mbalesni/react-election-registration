@@ -48,7 +48,6 @@ class StudentAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
             'fields': (
-                'show_registration_time',
                 'full_name',
                 'structural_unit',
                 'specialty',
@@ -67,6 +66,12 @@ class StudentAdmin(admin.ModelAdmin):
             return ('show_registration_time', )
         else:
             return self.readonly_fields
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = self.fieldsets
+        if obj is not None:
+            fieldsets[0][1]['fields'] = tuple(['show_registration_time', *fieldsets[0][1]['fields']])
+        return fieldsets
 
     def get_actions(self, request):
         return OrderedDict()
