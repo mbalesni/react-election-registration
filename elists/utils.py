@@ -17,7 +17,7 @@ def time_diff_formatted(start: time, end: time) -> str:
     diff: timedelta = time_diff(start, end)
     minutes = diff.seconds // 60
     seconds = diff.seconds % 60
-    string = f'{seconds}s'
+    string = f'{seconds}с.'
     if minutes > 0:
-        string = f'{minutes}m ' + string
+        string = f'{minutes}хв. ' + string
     return string

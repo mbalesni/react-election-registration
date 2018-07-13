@@ -9,6 +9,10 @@ from .utils import get_current_naive_time, time_diff_formatted
 
 class CheckInSession(models.Model):
 
+    class Meta:
+        verbose_name = 'Чек-ін сесія'
+        verbose_name_plural = 'Чек-ін сесії'
+
     TIME_FMT = '%H:%M:%S'
 
     STATUS_STARTED = 1
@@ -57,7 +61,7 @@ class CheckInSession(models.Model):
         return f'<CheckInSession #{self.id} [{self.status}] by "{self.staff}">'
 
     def __str__(self) -> str:
-        return f'Сесія [{self.get_status_display()}] почата "{self.staff}" о {self.start_time.strftime("%H:%M")}'
+        return f'Чек-ін сесія {self.show_time_summary().lower()} під контролем @{self.staff.username}'
 
     @property
     def is_open(self) -> bool:
@@ -67,14 +71,19 @@ class CheckInSession(models.Model):
     def status_verbose(self) -> str:
         return dict(self.STATUS_CHOICES)[self.status]
 
+    @property
+    def time_duration(self) -> str:
+        return time_diff_formatted(self.start_time, self.end_time)
+
     def show_time_summary(self) -> str:
         parts = [f'Почата о {self.start_time.strftime(self.TIME_FMT)}']
         if not self.is_open:
             parts.append(
-                f'тривала {time_diff_formatted(self.start_time, self.end_time)} '
+                f'тривала {self.time_duration} '
                 f'і була закрита о {self.end_time.strftime(self.TIME_FMT)}'
             )
         return ' '.join(parts)
+    show_time_summary.short_description = 'Заключення'
 
     @classmethod
     def get_token_max_age(cls):
