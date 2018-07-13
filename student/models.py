@@ -74,8 +74,9 @@ class Student(models.Model):
         validators=[validate_student_ticket_number],
         verbose_name='Номер студентського квитка',  # Номер студентського квитка
     )
-    date_of_birth = models.DateField(
-        verbose_name='Дата народження',  # Дата народження
+    registered_datetime = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата і час реєстрації',
     )
 
     # foreign keys
@@ -107,7 +108,6 @@ class Student(models.Model):
     @classmethod
     def create(cls, full_name: str,
                ticket_number: int,
-               date_of_birth: str or timezone.datetime,
                structural_unit: StructuralUnit,
                specialty: Specialty,
                form_of_study: int,
@@ -117,7 +117,6 @@ class Student(models.Model):
 
         m.full_name = full_name
         m.ticket_number = ticket_number
-        m.date_of_birth = date_of_birth
         m.structural_unit = structural_unit
         m.specialty = specialty
         m.form_of_study = form_of_study
@@ -183,6 +182,15 @@ class Student(models.Model):
 
     def create_token(self) -> str:
         return signing.Signer().sign(str(self.ticket_number))
+
+    def show_registration_time(self) -> str:
+        yesterday = timezone.datetime.today() - timezone.timedelta(1)
+        edge = timezone.datetime(yesterday.year, yesterday.month, yesterday.day, 23, 59, 59)
+        if self.registered_datetime < timezone.make_aware(edge):
+            return 'Зареєстрований завчасно'
+        else:
+            return f'Зареєстрований о {self.registered_datetime.strftime("%H:%M:%S")}'
+    show_registration_time.short_description = 'Час реєстрації'
 
     def get_joined_edu_year_display(self) -> str:
         return f'{self.get_educational_degree_display()}-{self.get_year_display()}'
