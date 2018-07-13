@@ -25,11 +25,15 @@ class StudentAdmin(admin.ModelAdmin):
         'educational_degree',
         'year',
         'form_of_study',
+        'status',
+        'status_update_time',
     )
     list_display = (
         'full_name',
         'ticket_number',
         'show_registration_time',
+        'status',
+        'status_update_time',
         'structural_unit',
         'specialty',
         'educational_degree',
@@ -42,6 +46,8 @@ class StudentAdmin(admin.ModelAdmin):
         'educational_degree',
         'year',
         'form_of_study',
+        'status',
+        'status_update_time',
     )
     ordering = tuple([*list_filter, 'full_name'])
     search_fields = ('full_name', 'ticket_number',)
@@ -70,7 +76,11 @@ class StudentAdmin(admin.ModelAdmin):
     def get_fieldsets(self, request, obj=None):
         fieldsets = self.fieldsets
         if obj is not None:
-            fieldsets[0][1]['fields'] = tuple(['show_registration_time', *fieldsets[0][1]['fields']])
+            fieldsets[0][1]['fields'] = tuple([
+                'show_registration_time',
+                ('status', 'status_update_time', ),
+                *fieldsets[0][1]['fields']
+            ])
         return fieldsets
 
     def get_actions(self, request):

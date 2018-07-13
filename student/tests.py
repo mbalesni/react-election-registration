@@ -57,3 +57,25 @@ class TestStudent:
         student = create_models(**STUDENT_KWARGS)[0]
         token = student.create_token()
         assert Student.get_student_by_token(token) == student
+
+    def test_update_status(self):
+        student = create_models(**STUDENT_KWARGS)[0]
+        student.update_status(student.STATUS_IN_PROGRESS)
+        assert student.status == student.STATUS_IN_PROGRESS
+
+        student.update_status(student.STATUS_FREE)
+        assert student.status == student.STATUS_FREE
+
+        with pytest.raises(ValueError) as exc:
+            student.update_status(student.STATUS_FREE)
+        with pytest.raises(ValueError) as exc:
+            student.update_status(student.STATUS_VOTED)
+
+        student.update_status(student.STATUS_IN_PROGRESS)
+        student.update_status(student.STATUS_VOTED)
+        assert student.status == student.STATUS_VOTED
+
+        with pytest.raises(ValueError) as exc:
+            student.update_status(student.STATUS_IN_PROGRESS)
+        with pytest.raises(ValueError) as exc:
+            student.update_status(student.STATUS_FREE)

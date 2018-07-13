@@ -83,9 +83,21 @@ class Student(models.Model):
         validators=[validate_student_ticket_number],
         verbose_name='Номер студентського квитка',  # Номер студентського квитка
     )
+
+    # meta
     registered_datetime = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Дата і час реєстрації',
+    )
+    status = models.IntegerField(
+        choices=STATUS_CHOICES,
+        default=STATUS_FREE,
+        verbose_name='Статус',
+    )
+    status_update_time = models.TimeField(
+        null=True,
+        blank=True,
+        verbose_name='Час останнього оновлення',
     )
 
     # foreign keys
@@ -139,6 +151,10 @@ class Student(models.Model):
     def clean(self) -> None:
         self.validate_educational_degree_with_year(self.educational_degree, self.year)
 
+    @property
+    def status_verbose(self) -> str:
+        return dict(self.STATUS_CHOICES)[self.status]
+
     @classmethod
     def validate_educational_degree_with_year(cls, educational_degree: int, year: int):
         if educational_degree == 2 and year not in (1, 2):
@@ -191,6 +207,25 @@ class Student(models.Model):
 
     def create_token(self) -> str:
         return signing.Signer().sign(str(self.ticket_number))
+
+    def update_status(self, status: int):
+        assert status in dict(self.STATUS_CHOICES).keys()
+
+        if self.status == status:
+            raise ValueError(
+                f'Would not update status to same value.'
+            )
+        if self.status == self.STATUS_VOTED:
+            raise ValueError(
+                f'Can not change status from "{self.status_verbose}".')
+        if self.status == self.STATUS_FREE and status == self.STATUS_VOTED:
+            raise ValueError(
+                f'Can not change status from [{self.STATUS_FREE}] '
+                f'to [{self.STATUS_VOTED}].')
+
+        self.status = status
+        self.status_update_time = timezone.make_naive(timezone.now()).time()
+        self.save()
 
     def show_registration_time(self) -> str:
         yesterday = timezone.datetime.today() - timezone.timedelta(1)
