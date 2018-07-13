@@ -10,7 +10,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
+#build/
 develop-eggs/
 dist/
 downloads/
@@ -170,3 +170,5 @@ fabric.properties
 # Editor-based Rest Client
 .idea/httpRequests
 
+staticfiles/
+!/build/
