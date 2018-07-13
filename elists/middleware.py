@@ -1,11 +1,10 @@
 import json
 
-from django.http import JsonResponse, HttpRequest
+from django.http import JsonResponse, HttpRequest, HttpResponseForbidden
 from django.views.decorators.http import require_POST
 
 from .constants import REQUEST_TOKEN, Staff
 from .models import CheckInSession
-from .utils import get_staff
 
 
 class EListsCheckInSessionInfo:
@@ -58,6 +57,7 @@ class EListsCheckInSessionInfo:
 class Request(HttpRequest):
     def __init__(self):
         self.elists_cisi = EListsCheckInSessionInfo(Staff(), {})
+        self.user = Staff
         super().__init__()
 
 
@@ -78,10 +78,13 @@ class EListsMiddleware:
                 getattr(view_func, self.MARK_ATTR_NAME)):
             return None
 
+        staff = request.user
+        if not staff.is_staff:
+            return HttpResponseForbidden(b'Please, log in to access this page')
+
         # read body
         request_body = request.body
         data = json.loads(request_body)
-        staff = get_staff()
         request.elists_cisi = EListsCheckInSessionInfo(staff, data)
 
         try:
