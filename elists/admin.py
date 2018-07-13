@@ -24,6 +24,8 @@ class CheckInSessionAdmin(admin.ModelAdmin):
         'status',
         'staff',
         'student',
+        'doc_type',
+        'doc_num',
         'end_time',
         #'student__full_name',
         #'student__structural_unit',
@@ -38,10 +40,15 @@ class CheckInSessionAdmin(admin.ModelAdmin):
         'status',
         'staff',
         'student',
+        'doc_type',
         'end_time',
     )
     list_display_links = ('show_time_summary',)
-    list_filter = ('status', 'staff', 'student', 'student__structural_unit')
+    list_filter = (
+        'status', 'staff', 'doc_type', 'student',
+        'student__structural_unit', 'student__educational_degree',
+        'student__year', 'student__form_of_study',
+    )
 
     READONLY_FIELDSETS = (
         (None, {
@@ -59,6 +66,8 @@ class CheckInSessionAdmin(admin.ModelAdmin):
         ('Про виборця', {
             'fields': (
                 'student',
+                'doc_type',
+                'doc_num',
                 #'student__full_name',
                 #'student__structural_unit',
                 #'student__specialty',
