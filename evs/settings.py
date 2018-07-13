@@ -175,7 +175,14 @@ except:
     RAVEN_CONFIG['release'] = 'onHeroku'
 
 # CORS headers
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_WHITELIST = [
+    'localhost:8000',
+    'localhost:3000',
+    '127.0.0.1:8000',
+    '127.0.0.1:3000',
+    'elists-dev.herokuapp.com',
+]
 
 # ELists APP
 ELISTS_CHECKINSESSION_TOKEN_EXPIRE = 2*60  # 120 seconds == 2 minutes
