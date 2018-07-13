@@ -1,8 +1,8 @@
 from collections import OrderedDict
 
 from django.conf import settings
-from django.contrib import admin
-from django.http import HttpRequest
+from django.contrib import admin, messages
+from django.http import HttpRequest, HttpResponseRedirect
 
 from .models import CheckInSession
 
@@ -55,21 +55,8 @@ class CheckInSessionAdmin(admin.ModelAdmin):
         return OrderedDict()
 
     def get_fieldsets(self, request: HttpRequest, obj: CheckInSession = None):
-        # TODO: if `obj is None` -> redirect to list with error message
-        return self.READONLY_FIELDSETS
+        return self.READONLY_FIELDSETSx
 
-    def show_is_open(self, obj: CheckInSession) -> str:
-        return "Відкрита" if obj.is_open else "Закрита о"
-    show_is_open.short_description = "Відкрита/Закрита"
-
-    def show_start_time(self, obj: CheckInSession) -> str:
-        return obj.start_time.strftime(self.time_fmt)
-    show_start_time.short_description = 'Час початку'
-
-    def show_end_time(self, obj: CheckInSession) -> str:
-        time = obj.end_time
-        if time is None:
-            return self.empty_value_display
-        else:
-            return obj.end_time.strftime(self.time_fmt)
-    show_end_time.short_description = 'Час завершення'
+    def add_view(self, request, form_url='', extra_context=None):
+        messages.error(request, 'CheckInSession object can not be manually created.')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
