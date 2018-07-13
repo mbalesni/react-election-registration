@@ -65,3 +65,8 @@ def cancel_session(request: Request):
 def close_sessions(request: Request):
     staff = request.elists_cisi.staff
     CheckInSession.close_sessions(staff)
+
+
+@EListsMiddleware.mark(require_session=False)
+def refresh_auth(request: Request):
+    return {'logged_in': 'yes'}
