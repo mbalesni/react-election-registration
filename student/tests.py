@@ -7,8 +7,7 @@ from .models import Student, StructuralUnit, Specialty
 
 STUDENT_KWARGS = dict(
         full_name="Testing Test Testson",
-    ticket_number=12345678,
-        date_of_birth="1999-07-12",
+        ticket_number=12345678,
         form_of_study=1,
         educational_degree=1,
         year=3,
