@@ -4,20 +4,22 @@ from django.db import models
 
 from student.models import Student
 from .constants import Staff
-from .utils import get_current_naive_time
+from .utils import get_current_naive_time, time_diff_formatted
 
 
 class CheckInSession(models.Model):
+
+    TIME_FMT = '%H:%M:%S'
 
     STATUS_STARTED = 1
     STATUS_IN_PROGRESS = 2
     STATUS_CANCELED = -1
     STATUS_COMPLETED = 0
     STATUS_CHOICES = (
-        (STATUS_STARTED, "started"),
-        (STATUS_IN_PROGRESS, "in_progress"),
-        (STATUS_CANCELED, "canceled"),
-        (STATUS_COMPLETED, "completed"),
+        (STATUS_STARTED, "Відкрита"),
+        (STATUS_IN_PROGRESS, "В процесі"),
+        (STATUS_CANCELED, "Відмінена"),
+        (STATUS_COMPLETED, "Завершена"),
     )
     """ Open status are natural numbers (positive integers), while 'completed' 
     is 0 (like exit code) and 'canceled' is -1 (something went wrong). """
@@ -27,12 +29,12 @@ class CheckInSession(models.Model):
         Student,
         on_delete=models.CASCADE,
         null=True,
-        verbose_name='Виборець',
+        verbose_name='Студент',
     )
     staff = models.ForeignKey(
         Staff,
         on_delete=models.CASCADE,
-        verbose_name='Член ВКС',
+        verbose_name='Персонал',
     )
 
     # status
@@ -64,6 +66,15 @@ class CheckInSession(models.Model):
     @property
     def status_verbose(self) -> str:
         return dict(self.STATUS_CHOICES)[self.status]
+
+    def show_time_summary(self) -> str:
+        parts = [f'Почата о {self.start_time.strftime(self.TIME_FMT)}']
+        if not self.is_open:
+            parts.append(
+                f'тривала {time_diff_formatted(self.start_time, self.end_time)} '
+                f'і була закрита о {self.end_time.strftime(self.TIME_FMT)}'
+            )
+        return ' '.join(parts)
 
     @classmethod
     def get_token_max_age(cls):

@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from django.conf import settings
 from django.contrib import admin, messages
-from django.http import HttpRequest, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponseRedirect, HttpResponse
 
 from .models import CheckInSession
 
@@ -19,44 +19,63 @@ class CheckInSessionAdmin(admin.ModelAdmin):
     ordering = ('-status', '-start_time')
     search_fields = ('student__full_name',)
     readonly_fields = (
+        'show_time_summary',
         'start_time',
         'status',
         'staff',
         'student',
-        'show_is_open',
         'end_time',
+        #'student__full_name',
+        #'student__structural_unit',
+        #'student__specialty',
+        #'student__educational_degree',
+        #'student__year',
     )
 
     list_display = (
+        'show_time_summary',
         'start_time',
         'status',
         'staff',
         'student',
-        'show_is_open',
         'end_time',
     )
-    list_display_links = ('start_time',)
-    list_filter = ('status', 'staff', 'student')
+    list_display_links = ('show_time_summary',)
+    list_filter = ('status', 'staff', 'student', 'student__structural_unit')
 
     READONLY_FIELDSETS = (
         (None, {
             'fields': (
-                ('staff', 'start_time'),
-                ('show_is_open', 'end_time'),
+                'show_time_summary',
+                ('start_time', 'end_time'),
                 'status',
+            ),
+        }),
+        ('Про члена ВКС', {
+            'fields': (
+                'staff',
+            ),
+        }),
+        ('Про виборця', {
+            'fields': (
                 'student',
-            )
+                #'student__full_name',
+                #'student__structural_unit',
+                #'student__specialty',
+                #('student__educational_degree', 'student__year'),
+                # TODO: add 'student__registered_at'
+            ),
         }),
     )
 
-    def get_actions(self, request):
+    def get_actions(self, request) -> OrderedDict:
         if request.user.is_superuser and settings.DEBUG:
             return super().get_actions(request)
         return OrderedDict()
 
-    def get_fieldsets(self, request: HttpRequest, obj: CheckInSession = None):
-        return self.READONLY_FIELDSETSx
+    def get_fieldsets(self, request: HttpRequest, obj: CheckInSession = None) -> tuple:
+        return self.READONLY_FIELDSETS
 
-    def add_view(self, request, form_url='', extra_context=None):
+    def add_view(self, request, form_url='', extra_context=None) -> HttpResponse:
         messages.error(request, 'CheckInSession object can not be manually created.')
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
