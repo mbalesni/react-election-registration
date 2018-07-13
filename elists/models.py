@@ -151,7 +151,20 @@ class CheckInSession(models.Model):
 
     @classmethod
     def student_allowed_to_assign(cls, student: Student) -> bool:
-        return cls.objects.filter(student=student, status__gte=0).count() == 0
+        return not (cls.student_has_voted(student) or cls.student_has_open_sessions(student))
+
+    @classmethod
+    def student_has_voted(cls, student: Student) -> bool:
+        try:
+            cls.objects.get(student=student, status=0)
+        except models.ObjectDoesNotExist:
+            return False
+        else:
+            return True
+
+    @classmethod
+    def student_has_open_sessions(cls, student: Student) -> bool:
+        return cls.objects.filter(student=student, status__gte=0).count() != 0
 
     @classmethod
     def get_session_by_staff(cls, staff) -> 'CheckInSession' or None:

@@ -63,6 +63,15 @@ class Student(models.Model):
         'Заочна',
     ]))
 
+    STATUS_FREE = 0
+    STATUS_IN_PROGRESS = 1
+    STATUS_VOTED = 2
+    STATUS_CHOICES = (
+        (STATUS_FREE, 'Вільний'),
+        (STATUS_IN_PROGRESS, 'В процесі'),
+        (STATUS_VOTED, 'Проголосував'),
+    )
+
     # identifiers
     full_name = models.CharField(
         max_length=100,
