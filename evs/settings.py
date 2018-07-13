@@ -177,12 +177,23 @@ except:
 # CORS headers
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = [
+    'elists-dev.herokuapp.com',
+    # Unsafe origins
     'localhost:8000',
     'localhost:3000',
     '127.0.0.1:8000',
     '127.0.0.1:3000',
-    'elists-dev.herokuapp.com',
 ]
 
+# Sessions & Cookies
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_AGE = 24 * 60 * 60
+#SESSION_COOKIE_SECURE = True
+#SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+#SESSION_COOKIE_AGE = 30 * 60  # 1800 seconds == 30 minutes
+
+
 # ELists APP
-ELISTS_CHECKINSESSION_TOKEN_EXPIRE = 2*60  # 120 seconds == 2 minutes
+ELISTS_CHECKINSESSION_TOKEN_EXPIRE = None
+#ELISTS_CHECKINSESSION_TOKEN_EXPIRE = 2 * 60  # 120 seconds == 2 minutes
