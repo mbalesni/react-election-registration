@@ -19,6 +19,7 @@ class StudentAdmin(admin.ModelAdmin):
     readonly_fields = (
         'full_name',
         'ticket_number',
+        'show_registration_time',
         'structural_unit',
         'specialty',
         'educational_degree',
@@ -28,6 +29,7 @@ class StudentAdmin(admin.ModelAdmin):
     list_display = (
         'full_name',
         'ticket_number',
+        'show_registration_time',
         'structural_unit',
         'specialty',
         'educational_degree',
@@ -46,6 +48,7 @@ class StudentAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
             'fields': (
+                'show_registration_time',
                 'full_name',
                 'structural_unit',
                 'specialty',
@@ -61,7 +64,7 @@ class StudentAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser or obj is None:
-            return ()
+            return ('show_registration_time', )
         else:
             return self.readonly_fields
 

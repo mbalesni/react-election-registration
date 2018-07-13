@@ -1,5 +1,6 @@
 from django.core import exceptions, signing
 from django.db import models
+from django.utils import timezone
 
 
 ### validators
@@ -72,6 +73,10 @@ class Student(models.Model):
         unique=True,
         validators=[validate_student_ticket_number],
         verbose_name='Номер студентського квитка',  # Номер студентського квитка
+    )
+    registered_datetime = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата і час реєстрації',
     )
 
     # foreign keys
@@ -177,6 +182,15 @@ class Student(models.Model):
 
     def create_token(self) -> str:
         return signing.Signer().sign(str(self.ticket_number))
+
+    def show_registration_time(self) -> str:
+        yesterday = timezone.datetime.today() - timezone.timedelta(1)
+        edge = timezone.datetime(yesterday.year, yesterday.month, yesterday.day, 23, 59, 59)
+        if self.registered_datetime < timezone.make_aware(edge):
+            return 'Зареєстрований завчасно'
+        else:
+            return f'Зареєстрований о {self.registered_datetime.strftime("%H:%M:%S")}'
+    show_registration_time.short_description = 'Час реєстрації'
 
     def get_joined_edu_year_display(self) -> str:
         return f'{self.get_educational_degree_display()}-{self.get_year_display()}'
