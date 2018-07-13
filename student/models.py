@@ -149,7 +149,7 @@ class Student(models.Model):
         )
 
     @classmethod
-    def get_student_by_ticket_number(cls, ticket_number_string: str) -> 'Student':
+    def search_by_ticket_number(cls, ticket_number_string: str) -> 'Student':
         """
         Gets Student by provided ticket number and raises IndexError if failed.
         Validates input and raises ValuerError if it has wrong format.

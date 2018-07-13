@@ -199,13 +199,15 @@ class CheckInSession(models.Model):
         # if we had given that token, than object must exist
         return cls.objects.get(**query)
 
-    def assign_student(self, student: Student, doc_type: int, doc_num: str) -> 'CheckInSession':
+    def assign_student(self, student: Student, doc_type: str, doc_num: str) -> 'CheckInSession':
         """ Checks if `student` has open sessions. Assigns `student` to given
         `session` and updates status to `IN_PROGRESS` value. """
         try:
-            self.validate_doc_type_num_pair(doc_type, doc_num)
+            self.validate_doc_type_num_pair(int(doc_type), doc_num)
         except exceptions.ValidationError as exc:
             raise ValueError(str(exc))
+        except TypeError:
+            raise ValueError('`doc_type` must be an integer of [0, 1, 2] value.')
 
         self.student = student
         self.doc_type = doc_type

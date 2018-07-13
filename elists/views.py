@@ -1,4 +1,7 @@
-from .constants import RESPONSE_TOKEN
+from .constants import (
+    RESPONSE_TOKEN, REQUEST_TICKET_NUMBER, REQUEST_DOC_NUM, REQUEST_DOC_TYPE,
+    REQUEST_STUDENT_TOKEN,
+)
 from .middleware import EListsMiddleware, Request
 from .models import CheckInSession, Student
 
@@ -16,10 +19,10 @@ def start_new_session(request: Request):
 
 
 @EListsMiddleware.mark()
-def get_student_by_ticket_number(request: Request):
+def search_student_by_ticket_number(request: Request):
     session = request.elists_cisi.session
-    ticket_number = request.elists_cisi.data['student_ticket_number']
-    student = Student.get_student_by_ticket_number(ticket_number)
+    ticket_number = request.elists_cisi.data[REQUEST_TICKET_NUMBER]
+    student = Student.search_by_ticket_number(ticket_number)
 
     if not CheckInSession.student_allowed_to_assign(student):
         if CheckInSession.objects.filter(student=student, status=0):
@@ -30,13 +33,30 @@ def get_student_by_ticket_number(request: Request):
         raise PermissionError(
             f'Wrong session status: [{session.status}] "{session.status_verbose}".')
 
-    session.assign_student(student)
+
     return {
         "full_name": student.full_name,
         "educational_degree": student.educational_degree,
         "year": student.year,
+        "form_of_study": student.form_of_study,
+        REQUEST_STUDENT_TOKEN: student.create_token(),
         RESPONSE_TOKEN: session.create_token(),
     }
+
+
+@EListsMiddleware.mark()
+def submit_student(request: Request):
+    session = request.elists_cisi.session
+    student_token = request.elists_cisi.data[REQUEST_STUDENT_TOKEN]
+    doc_type = request.elists_cisi.data[REQUEST_DOC_TYPE]
+    doc_num = request.elists_cisi.data[REQUEST_DOC_NUM]
+
+    student = Student.get_student_by_token(student_token)
+    session.assign_student(
+        student=student,
+        doc_type=doc_type,
+        doc_num=doc_num,
+    )
 
 
 @EListsMiddleware.mark()
