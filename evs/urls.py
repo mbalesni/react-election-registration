@@ -14,12 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include, re_path
-from django.views.generic import TemplateView
+from django.urls import path, include
+from django.views.generic import TemplateView, RedirectView
 
 urlpatterns = [
     path('grappelli/', include('grappelli.urls')),  # grappelli URLS
     path('admin/', admin.site.urls),                # admin site
     path('api/elists/', include('elists.urls')),
-    re_path('.*', TemplateView.as_view(template_name='index.html')),  # React front
+    path('elists/front', TemplateView.as_view(template_name='index.html'), name='elists_front'),  # React front
+    path('', RedirectView.as_view(url='elists/front'))
 ]
