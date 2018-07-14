@@ -21,17 +21,12 @@ def start_new_session(request: Request):
 @EListsMiddleware.mark()
 def search_student_by_ticket_number(request: Request):
     session = request.elists_cisi.session
-    if session.status != CheckInSession.STATUS_STARTED:
+    if not session.just_started:
         raise PermissionError(
             f'Wrong session status: [{session.status}] "{session.status_verbose}".')
 
     ticket_number = request.elists_cisi.data[REQUEST_TICKET_NUMBER]
     student = Student.search_by_ticket_number(ticket_number)
-    student_status_code = Student.STATUS_FREE
-    if CheckInSession.student_has_voted(student):
-        student_status_code = Student.STATUS_VOTED
-    if CheckInSession.student_has_open_sessions(student):
-        student_status_code = Student.STATUS_IN_PROGRESS
 
     return {
         "full_name": student.full_name,
@@ -39,8 +34,8 @@ def search_student_by_ticket_number(request: Request):
         "year": student.year,
         "form_of_study": student.form_of_study,
         RESPONSE_STUDENT_STATUS: {
-            RESPONSE_STUDENT_STATUS_CODE: student_status_code,
-            RESPONSE_STUDENT_STATUS_NAME: Student.STATUS_CHOICES[student_status_code],
+            RESPONSE_STUDENT_STATUS_CODE: student.status,
+            RESPONSE_STUDENT_STATUS_NAME: student.status_verbose,
         },
         REQUEST_STUDENT_TOKEN: student.create_token(),
         RESPONSE_TOKEN: session.create_token(),
@@ -55,11 +50,9 @@ def submit_student(request: Request):
     doc_num = request.elists_cisi.data[REQUEST_DOC_NUM]
 
     student = Student.get_student_by_token(student_token)
-    if CheckInSession.student_has_voted(student):
-        raise ValueError('Student had already voted.')
-    if CheckInSession.student_has_open_sessions(student):
-        raise ValueError('Student has open session(s).')
-    if session.status != CheckInSession.STATUS_STARTED:
+    if not student.allowed_to_assign:
+        raise PermissionError(f'This student is not allowed to assign.')
+    if not session.just_started:
         raise PermissionError(
             f'Wrong session status: [{session.status}] "{session.status_verbose}".')
 

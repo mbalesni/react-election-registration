@@ -155,6 +155,18 @@ class Student(models.Model):
     def status_verbose(self) -> str:
         return dict(self.STATUS_CHOICES)[self.status]
 
+    @property
+    def has_voted(self) -> bool:
+        return self.status == self.STATUS_VOTED
+
+    @property
+    def has_open_session(self) -> bool:
+        return self.status == self.STATUS_IN_PROGRESS
+
+    @property
+    def allowed_to_assign(self) -> bool:
+        return self.status == self.STATUS_FREE
+
     @classmethod
     def validate_educational_degree_with_year(cls, educational_degree: int, year: int):
         if educational_degree == 2 and year not in (1, 2):
