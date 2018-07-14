@@ -2,11 +2,11 @@ from .constants import (
     RESPONSE_TOKEN, REQUEST_TICKET_NUMBER, REQUEST_DOC_NUM, REQUEST_DOC_TYPE,
     REQUEST_STUDENT_TOKEN,
 )
-from .middleware import EListsMiddleware, Request
+from .middleware import Request, mark
 from .models import CheckInSession, Student
 
 
-@EListsMiddleware.mark(require_session=False)
+@mark(require_session=False)
 def start_new_session(request: Request):
     staff = request.elists_cisi.staff
 
@@ -18,7 +18,7 @@ def start_new_session(request: Request):
     return {RESPONSE_TOKEN: session.create_token()}
 
 
-@EListsMiddleware.mark()
+@mark()
 def search_student_by_ticket_number(request: Request):
     session = request.elists_cisi.session
     ticket_number = request.elists_cisi.data[REQUEST_TICKET_NUMBER]
@@ -44,7 +44,7 @@ def search_student_by_ticket_number(request: Request):
     }
 
 
-@EListsMiddleware.mark()
+@mark()
 def submit_student(request: Request):
     session = request.elists_cisi.session
     student_token = request.elists_cisi.data[REQUEST_STUDENT_TOKEN]
@@ -59,7 +59,7 @@ def submit_student(request: Request):
     )
 
 
-@EListsMiddleware.mark()
+@mark()
 def complete_session(request: Request):
     session = request.elists_cisi.session
 
@@ -71,7 +71,7 @@ def complete_session(request: Request):
     session.complete()
 
 
-@EListsMiddleware.mark()
+@mark()
 def cancel_session(request: Request):
     session = request.elists_cisi.session
 
@@ -81,12 +81,12 @@ def cancel_session(request: Request):
     session.cancel()
 
 
-@EListsMiddleware.mark(require_session=False)
+@mark(require_session=False)
 def close_sessions(request: Request):
     staff = request.elists_cisi.staff
     CheckInSession.close_sessions(staff)
 
 
-@EListsMiddleware.mark(require_session=False)
+@mark(require_session=False)
 def refresh_auth(request: Request):
     return {'logged_in': 'yes'}

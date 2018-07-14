@@ -6,6 +6,15 @@ from django.views.decorators.http import require_POST
 from .constants import REQUEST_TOKEN, Staff
 from .models import CheckInSession
 
+REQUIRE_SESSION_MARK = 'elists__require_session'
+
+
+def convert_exception(exc: Exception) -> dict:
+    return {
+        'message': str(exc),
+        'type'   : str(type(exc).__name__),
+    }
+
 
 class EListsCheckInSessionInfo:
 
@@ -61,68 +70,53 @@ class Request(HttpRequest):
         super().__init__()
 
 
-class EListsMiddleware:
+def process_view(request: Request, view_func, view_args, view_kwargs):
+    staff = request.user
+    if not staff.is_staff:
+        return HttpResponseForbidden(b'Please, log in to access this page')
 
-    MARK_ATTR_NAME = 'elists_mark'
-    REQUIRE_SESSION_MARK = 'elists__require_session'
+    # read body
+    request_body = request.body
+    data = json.loads(request_body)
+    request.elists_cisi = EListsCheckInSessionInfo(staff, data)
 
-    def __init__(self, get_response):
-        self.get_response = get_response
+    try:
+        if getattr(view_func, REQUIRE_SESSION_MARK):
+            session = request.elists_cisi.retrieve_session()
 
-    def __call__(self, request: Request):
-        response = self.get_response(request)
-        return response
+        data = view_func(request, *view_args, **view_kwargs)
+    except Exception as exc:
+        response_status_code = 400
+        data = None
+        error = convert_exception(exc)
+    else:
+        response_status_code = 200
+        error = None
 
-    def process_view(self, request: Request, view_func, view_args, view_kwargs):
-        if not (hasattr(view_func, self.MARK_ATTR_NAME) and
-                getattr(view_func, self.MARK_ATTR_NAME)):
-            return None
+    resp = {}
+    if request.elists_cisi.session:
+        resp['status'] = request.elists_cisi.get_status_dict()
+    if error:
+        resp['error'] = error
+    if data:
+        resp['data'] = data
 
-        staff = request.user
-        if not staff.is_staff:
-            return HttpResponseForbidden(b'Please, log in to access this page')
+    response = JsonResponse(resp)
+    response.status_code = response_status_code
+    return response
 
-        # read body
-        request_body = request.body
-        data = json.loads(request_body)
-        request.elists_cisi = EListsCheckInSessionInfo(staff, data)
 
-        try:
-            if getattr(view_func, self.REQUIRE_SESSION_MARK):
-                session = request.elists_cisi.retrieve_session()
+def mark(*, require_session=True):
+    def decorator(view):
+        setattr(view, REQUIRE_SESSION_MARK, require_session)
 
-            data = view_func(request, *view_args, **view_kwargs)
-        except Exception as exc:
-            response_status_code = 400
-            data = None
-            error = self._convert_exception(exc)
-        else:
-            response_status_code = 200
-            error = None
+        def decorated(request, *view_args, **view_kwargs):
+            r = process_view(request, view, view_args, view_kwargs)
+            if r:
+                return r
+            return view(request, *view_args, **view_kwargs)
 
-        resp = {}
-        if request.elists_cisi.session:
-            resp['status'] = request.elists_cisi.get_status_dict()
-        if error:
-            resp['error'] = error
-        if data:
-            resp['data'] = data
+        decorated = require_POST(decorated)
+        return decorated
 
-        response = JsonResponse(resp)
-        response.status_code = response_status_code
-        return response
-
-    def _convert_exception(self, exc: Exception) -> dict:
-        return {
-            'message': str(exc),
-            'type'   : str(type(exc).__name__),
-        }
-
-    @classmethod
-    def mark(cls, *, require_session=True):
-        def wrapper(view):
-            view = require_POST(view)
-            setattr(view, cls.MARK_ATTR_NAME, True)
-            setattr(view, cls.REQUIRE_SESSION_MARK, require_session)
-            return view
-        return wrapper
+    return decorator
