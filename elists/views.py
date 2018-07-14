@@ -1,6 +1,6 @@
 from .constants import (
     RESPONSE_TOKEN, REQUEST_TICKET_NUMBER, REQUEST_DOC_NUM, REQUEST_DOC_TYPE,
-    REQUEST_STUDENT_TOKEN,
+    REQUEST_STUDENT_TOKEN, RESPONSE_STUDENT_STATUS, RESPONSE_STUDENT_STATUS_CODE, RESPONSE_STUDENT_STATUS_NAME,
 )
 from .middleware import Request, mark
 from .models import CheckInSession, Student
@@ -21,24 +21,22 @@ def start_new_session(request: Request):
 @mark()
 def search_student_by_ticket_number(request: Request):
     session = request.elists_cisi.session
-    ticket_number = request.elists_cisi.data[REQUEST_TICKET_NUMBER]
-    student = Student.search_by_ticket_number(ticket_number)
-
-    if not CheckInSession.student_allowed_to_assign(student):
-        if CheckInSession.objects.filter(student=student, status=0):
-            raise ValueError('Student had already voted.')
-        else:
-            raise ValueError('Student has open session(s).')
-    if session.status != CheckInSession.STATUS_STARTED:
+    if not session.just_started:
         raise PermissionError(
             f'Wrong session status: [{session.status}] "{session.status_verbose}".')
 
+    ticket_number = request.elists_cisi.data[REQUEST_TICKET_NUMBER]
+    student = Student.search_by_ticket_number(ticket_number)
 
     return {
         "full_name": student.full_name,
         "educational_degree": student.educational_degree,
         "year": student.year,
         "form_of_study": student.form_of_study,
+        RESPONSE_STUDENT_STATUS: {
+            RESPONSE_STUDENT_STATUS_CODE: student.status,
+            RESPONSE_STUDENT_STATUS_NAME: student.status_verbose,
+        },
         REQUEST_STUDENT_TOKEN: student.create_token(),
         RESPONSE_TOKEN: session.create_token(),
     }
@@ -52,6 +50,12 @@ def submit_student(request: Request):
     doc_num = request.elists_cisi.data[REQUEST_DOC_NUM]
 
     student = Student.get_student_by_token(student_token)
+    if not student.allowed_to_assign:
+        raise PermissionError(f'This student is not allowed to assign.')
+    if not session.just_started:
+        raise PermissionError(
+            f'Wrong session status: [{session.status}] "{session.status_verbose}".')
+
     session.assign_student(
         student=student,
         doc_type=doc_type,

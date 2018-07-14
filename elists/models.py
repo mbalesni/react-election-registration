@@ -124,6 +124,10 @@ class CheckInSession(models.Model):
         return self.status > 0
 
     @property
+    def just_started(self) -> bool:
+        return self.status == self.STATUS_STARTED
+
+    @property
     def status_verbose(self) -> str:
         return dict(self.STATUS_CHOICES)[self.status]
 
@@ -148,10 +152,6 @@ class CheckInSession(models.Model):
     @classmethod
     def get_token_max_age(cls):
         return settings.ELISTS_CHECKINSESSION_TOKEN_EXPIRE
-
-    @classmethod
-    def student_allowed_to_assign(cls, student: Student) -> bool:
-        return cls.objects.filter(student=student, status__gte=0).count() == 0
 
     @classmethod
     def get_session_by_staff(cls, staff) -> 'CheckInSession' or None:
@@ -213,6 +213,7 @@ class CheckInSession(models.Model):
         self.doc_type = doc_type
         self.doc_num = doc_num
         self.status = self.STATUS_IN_PROGRESS
+        self.student.update_status(Student.STATUS_IN_PROGRESS)
 
         self.save()
         return self
@@ -221,6 +222,7 @@ class CheckInSession(models.Model):
         """ Assigns current time to `end_time` and `COMPLETED` status. """
         self.end_time = get_current_naive_time()
         self.status = self.STATUS_COMPLETED
+        self.student.update_status(Student.STATUS_VOTED)
 
         self.save()
         return self
@@ -229,6 +231,8 @@ class CheckInSession(models.Model):
         """ Assigns current time to `end_time` and `CANCELED` status. """
         self.end_time = get_current_naive_time()
         self.status = self.STATUS_CANCELED
+        if self.student:
+            self.student.update_status(Student.STATUS_FREE)
 
         self.save()
         return self
