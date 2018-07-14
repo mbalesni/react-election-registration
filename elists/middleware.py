@@ -122,6 +122,8 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
         response_status_code = 200
         error = None
 
+    if data is None:
+        data = {}
     if request.elists_cisi.session:
         data[RESPONSE_CHECK_IN_SESSION] = serialize_session(request.elists_cisi.session)
 
