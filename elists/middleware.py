@@ -3,17 +3,55 @@ import json
 from django.http import JsonResponse, HttpRequest, HttpResponseForbidden
 from django.views.decorators.http import require_POST
 
-from .constants import REQUEST_TOKEN, Staff
-from .models import CheckInSession
+from .constants import (
+    RESPONSE_STUDENT_DATA_EDUCATIONAL_DEGREE, RESPONSE_STUDENT_DATA_FORM_OF_STUDY,
+    RESPONSE_STUDENT_DATA, RESPONSE_STUDENT_DATA_FULL_NAME, RESPONSE_STUDENT_TOKEN, RESPONSE_STUDENT_DATA_YEAR,
+    RESPONSE_STUDENT_STATUS, RESPONSE_STUDENT_STATUS_CODE, RESPONSE_STUDENT_STATUS_NAME,
+    RESPONSE_STUDENT_DATA_SPECIALTY, RESPONSE_CHECK_IN_SESSION_STATUS, RESPONSE_CHECK_IN_SESSION_STATUS_CODE,
+    RESPONSE_CHECK_IN_SESSION_STATUS_NAME, RESPONSE_CHECK_IN_SESSION, RESPONSE_DATA, RESPONSE_ERROR,
+    RESPONSE_ERROR_MESSAGE, RESPONSE_ERROR_TYPE, REQUEST_CHECK_IN_SESSION_TOKEN, RESPONSE_CHECK_IN_SESSION_TOKEN, Staff,
+)
+from .models import Student, CheckInSession
 
 REQUIRE_SESSION_MARK = 'elists__require_session'
 
 
-def convert_exception(exc: Exception) -> dict:
+def serialize_exception(exc: Exception) -> dict:
     return {
-        'message': str(exc),
-        'type'   : str(type(exc).__name__),
+        RESPONSE_ERROR_MESSAGE: str(exc),
+        RESPONSE_ERROR_TYPE   : str(type(exc).__name__),
     }
+
+
+def serialize_student(student: Student) -> dict:
+    return {
+        RESPONSE_STUDENT_TOKEN: student.create_token(),
+        RESPONSE_STUDENT_DATA: {
+            RESPONSE_STUDENT_DATA_FULL_NAME          : student.full_name,
+            RESPONSE_STUDENT_DATA_SPECIALTY          : student.specialty,
+            RESPONSE_STUDENT_DATA_EDUCATIONAL_DEGREE : student.educational_degree,
+            RESPONSE_STUDENT_DATA_YEAR               : student.year,
+            RESPONSE_STUDENT_DATA_FORM_OF_STUDY      : student.form_of_study,
+        },
+        RESPONSE_STUDENT_STATUS: {
+            RESPONSE_STUDENT_STATUS_CODE: student.status,
+            RESPONSE_STUDENT_STATUS_NAME: student.status_verbose,
+        },
+    }
+
+
+def serialize_session(session: CheckInSession) -> dict:
+    json = {
+        RESPONSE_CHECK_IN_SESSION_STATUS: {
+            RESPONSE_CHECK_IN_SESSION_STATUS_CODE: session.status,
+            RESPONSE_CHECK_IN_SESSION_STATUS_NAME: session.status_verbose,
+        },
+    }
+    if session.is_open:
+        json.update({
+            RESPONSE_CHECK_IN_SESSION_TOKEN: session.create_token()
+        })
+    return json
 
 
 class EListsCheckInSessionInfo:
@@ -34,20 +72,11 @@ class EListsCheckInSessionInfo:
     def status_name(self) -> str:
         return self.session.status_verbose
 
-    def get_status_dict(self) -> dict or None:
-        if self.session is None:
-            return None
-        else:
-            return {
-                'code': self.status_code,
-                'name': self.status_name,
-            }
-
     def retrieve_session(self) -> CheckInSession:
-        token = self.data.get(REQUEST_TOKEN, None)
+        token = self.data.get(REQUEST_CHECK_IN_SESSION_TOKEN, None)
         if token is None:
             raise PermissionError(
-                f'Provide "{REQUEST_TOKEN}" field to perform this action.')
+                f'Provide "{REQUEST_CHECK_IN_SESSION_TOKEN}" field to perform this action.')
         try:
             session = CheckInSession.get_session_by_token(token)
         except TimeoutError:
@@ -82,24 +111,25 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
 
     try:
         if getattr(view_func, REQUIRE_SESSION_MARK):
-            session = request.elists_cisi.retrieve_session()
+            session_before = request.elists_cisi.retrieve_session()
 
         data = view_func(request, *view_args, **view_kwargs)
     except Exception as exc:
         response_status_code = 400
         data = None
-        error = convert_exception(exc)
+        error = serialize_exception(exc)
     else:
         response_status_code = 200
         error = None
 
-    resp = {}
     if request.elists_cisi.session:
-        resp['status'] = request.elists_cisi.get_status_dict()
+        data[RESPONSE_CHECK_IN_SESSION] = serialize_session(request.elists_cisi.session)
+
+    resp = {}
     if error:
-        resp['error'] = error
+        resp[RESPONSE_ERROR] = error
     if data:
-        resp['data'] = data
+        resp[RESPONSE_DATA] = data
 
     response = JsonResponse(resp)
     response.status_code = response_status_code

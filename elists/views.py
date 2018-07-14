@@ -1,8 +1,8 @@
 from .constants import (
-    RESPONSE_TOKEN, REQUEST_TICKET_NUMBER, REQUEST_DOC_NUM, REQUEST_DOC_TYPE,
-    REQUEST_STUDENT_TOKEN, RESPONSE_STUDENT_STATUS, RESPONSE_STUDENT_STATUS_CODE, RESPONSE_STUDENT_STATUS_NAME,
+    RESPONSE_STUDENT, REQUEST_TICKET_NUMBER, REQUEST_DOC_NUM, REQUEST_DOC_TYPE,
+    REQUEST_STUDENT_TOKEN
 )
-from .middleware import Request, mark
+from .middleware import Request, mark, serialize_student
 from .models import CheckInSession, Student
 
 
@@ -15,7 +15,6 @@ def start_new_session(request: Request):
 
     session = CheckInSession.start_new_session(staff)
     request.elists_cisi.assign_session(session)
-    return {RESPONSE_TOKEN: session.create_token()}
 
 
 @mark()
@@ -29,16 +28,7 @@ def search_student_by_ticket_number(request: Request):
     student = Student.search_by_ticket_number(ticket_number)
 
     return {
-        "full_name": student.full_name,
-        "educational_degree": student.educational_degree,
-        "year": student.year,
-        "form_of_study": student.form_of_study,
-        RESPONSE_STUDENT_STATUS: {
-            RESPONSE_STUDENT_STATUS_CODE: student.status,
-            RESPONSE_STUDENT_STATUS_NAME: student.status_verbose,
-        },
-        REQUEST_STUDENT_TOKEN: student.create_token(),
-        RESPONSE_TOKEN: session.create_token(),
+        RESPONSE_STUDENT: serialize_student(student),
     }
 
 
@@ -93,4 +83,4 @@ def close_sessions(request: Request):
 
 @mark(require_session=False)
 def refresh_auth(request: Request):
-    return {'logged_in': 'yes'}
+    pass

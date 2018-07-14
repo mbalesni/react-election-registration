@@ -5,13 +5,36 @@ from django.contrib.auth.models import User
 Staff = User
 
 
-RESPONSE_TOKEN = 'check_in_session_token'
-RESPONSE_STUDENT_TOKEN = 'student_token'
-RESPONSE_STUDENT_STATUS = 'student_status'
+RESPONSE_ERROR = 'error'
+
+RESPONSE_ERROR_MESSAGE = 'message'
+RESPONSE_ERROR_TYPE = 'type'
+
+RESPONSE_DATA = 'data'
+
+RESPONSE_CHECK_IN_SESSION = 'check_in_session'
+RESPONSE_CHECK_IN_SESSION_TOKEN = 'token'
+
+RESPONSE_CHECK_IN_SESSION_STATUS = 'status'
+RESPONSE_CHECK_IN_SESSION_STATUS_CODE = 'code'
+RESPONSE_CHECK_IN_SESSION_STATUS_NAME = 'name'
+
+RESPONSE_STUDENT = 'student'
+
+RESPONSE_STUDENT_DATA = 'data'
+RESPONSE_STUDENT_DATA_FULL_NAME = 'full_name'
+RESPONSE_STUDENT_DATA_SPECIALTY = 'specialty'
+RESPONSE_STUDENT_DATA_FORM_OF_STUDY = 'form_of_study'
+RESPONSE_STUDENT_DATA_YEAR = 'year'
+RESPONSE_STUDENT_DATA_EDUCATIONAL_DEGREE = 'educational_degree'
+RESPONSE_STUDENT_TOKEN = 'token'
+
+RESPONSE_STUDENT_STATUS = 'status'
 RESPONSE_STUDENT_STATUS_CODE = 'code'
 RESPONSE_STUDENT_STATUS_NAME = 'name'
 
-REQUEST_TOKEN = 'check_in_session_token'
+
+REQUEST_CHECK_IN_SESSION_TOKEN = 'check_in_session_token'
 REQUEST_DOC_TYPE = 'doc_type'
 REQUEST_DOC_NUM = 'doc_num'
 REQUEST_TICKET_NUMBER = 'ticket_number'
