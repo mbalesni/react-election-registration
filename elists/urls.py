@@ -9,5 +9,5 @@ urlpatterns = [
     path('complete_session', views.complete_session, name='complete_session'),
     path('cancel_session', views.cancel_session, name='cancel_session'),
     path('close_sessions', views.close_sessions, name='close_sessions'),
-    path('refresh_auth', views.refresh_auth, name='refresh_auth'),
+    path('me', views.me, name='staff_me'),
 ]

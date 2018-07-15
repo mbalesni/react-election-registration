@@ -1,8 +1,9 @@
 from .constants import (
     RESPONSE_STUDENT, REQUEST_STUDENT_TICKET_NUMBER, REQUEST_STUDENT_DOC_NUM,
     REQUEST_STUDENT_DOC_TYPE, REQUEST_STUDENT_TOKEN, REQUEST_STUDENT,
+    RESPONSE_STAFF
 )
-from .middleware import Request, mark, serialize_student
+from .middleware import Request, mark, serialize_student, serialize_staff
 from .models import CheckInSession, Student
 
 
@@ -82,5 +83,7 @@ def close_sessions(request: Request):
 
 
 @mark(require_session=False)
-def refresh_auth(request: Request):
-    pass
+def me(request: Request):
+    return {
+        RESPONSE_STAFF: serialize_staff(request.elists_cisi.staff),
+    }
