@@ -29,7 +29,7 @@ def serialize_student(student: Student) -> dict:
         RESPONSE_STUDENT_TOKEN: student.create_token(),
         RESPONSE_STUDENT_DATA: {
             RESPONSE_STUDENT_DATA_FULL_NAME          : student.full_name,
-            RESPONSE_STUDENT_DATA_SPECIALTY          : student.specialty,
+            RESPONSE_STUDENT_DATA_SPECIALTY          : student.show_specialty(),
             RESPONSE_STUDENT_DATA_EDUCATIONAL_DEGREE : student.educational_degree,
             RESPONSE_STUDENT_DATA_YEAR               : student.year,
             RESPONSE_STUDENT_DATA_FORM_OF_STUDY      : student.form_of_study,
