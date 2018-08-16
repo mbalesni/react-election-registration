@@ -7,8 +7,7 @@ from .models import Student, StructuralUnit, Specialty
 
 STUDENT_KWARGS = dict(
         full_name="Testing Test Testson",
-    ticket_number=12345678,
-        date_of_birth="1999-07-12",
+        ticket_number=12345678,
         form_of_study=1,
         educational_degree=1,
         year=3,
@@ -43,18 +42,40 @@ class TestStudent:
         with pytest.raises(exceptions.ValidationError) as excinfo:
             s.full_clean()
 
-    def test_get_student_by_ticket_number(self):
+    def test_search_student_by_ticket_number(self):
         s, *_ = create_models(**STUDENT_KWARGS)
 
-        assert Student.get_student_by_ticket_number(STUDENT_KWARGS['ticket_number']) == s
+        assert Student.search_by_ticket_number(STUDENT_KWARGS['ticket_number']) == s
 
         with pytest.raises(IndexError) as exc:
-            Student.get_student_by_ticket_number('11111111')
+            Student.search_by_ticket_number('11111111')
 
         with pytest.raises(ValueError) as exc:
-            Student.get_student_by_ticket_number('12345')
+            Student.search_by_ticket_number('12345')
 
     def test_token(self):
         student = create_models(**STUDENT_KWARGS)[0]
         token = student.create_token()
         assert Student.get_student_by_token(token) == student
+
+    def test_update_status(self):
+        student = create_models(**STUDENT_KWARGS)[0]
+        student.update_status(student.STATUS_IN_PROGRESS)
+        assert student.status == student.STATUS_IN_PROGRESS
+
+        student.update_status(student.STATUS_FREE)
+        assert student.status == student.STATUS_FREE
+
+        with pytest.raises(ValueError) as exc:
+            student.update_status(student.STATUS_FREE)
+        with pytest.raises(ValueError) as exc:
+            student.update_status(student.STATUS_VOTED)
+
+        student.update_status(student.STATUS_IN_PROGRESS)
+        student.update_status(student.STATUS_VOTED)
+        assert student.status == student.STATUS_VOTED
+
+        with pytest.raises(ValueError) as exc:
+            student.update_status(student.STATUS_IN_PROGRESS)
+        with pytest.raises(ValueError) as exc:
+            student.update_status(student.STATUS_FREE)

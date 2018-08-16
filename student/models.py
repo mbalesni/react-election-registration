@@ -63,6 +63,15 @@ class Student(models.Model):
         'Заочна',
     ]))
 
+    STATUS_FREE = 0
+    STATUS_IN_PROGRESS = 1
+    STATUS_VOTED = 2
+    STATUS_CHOICES = (
+        (STATUS_FREE, 'Вільний'),
+        (STATUS_IN_PROGRESS, 'В процесі'),
+        (STATUS_VOTED, 'Проголосував'),
+    )
+
     # identifiers
     full_name = models.CharField(
         max_length=100,
@@ -74,8 +83,21 @@ class Student(models.Model):
         validators=[validate_student_ticket_number],
         verbose_name='Номер студентського квитка',  # Номер студентського квитка
     )
-    date_of_birth = models.DateField(
-        verbose_name='Дата народження',  # Дата народження
+
+    # meta
+    registered_datetime = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата і час реєстрації',
+    )
+    status = models.IntegerField(
+        choices=STATUS_CHOICES,
+        default=STATUS_FREE,
+        verbose_name='Статус',
+    )
+    status_update_time = models.TimeField(
+        null=True,
+        blank=True,
+        verbose_name='Час останнього оновлення',
     )
 
     # foreign keys
@@ -107,7 +129,6 @@ class Student(models.Model):
     @classmethod
     def create(cls, full_name: str,
                ticket_number: int,
-               date_of_birth: str or timezone.datetime,
                structural_unit: StructuralUnit,
                specialty: Specialty,
                form_of_study: int,
@@ -117,7 +138,6 @@ class Student(models.Model):
 
         m.full_name = full_name
         m.ticket_number = ticket_number
-        m.date_of_birth = date_of_birth
         m.structural_unit = structural_unit
         m.specialty = specialty
         m.form_of_study = form_of_study
@@ -130,6 +150,22 @@ class Student(models.Model):
 
     def clean(self) -> None:
         self.validate_educational_degree_with_year(self.educational_degree, self.year)
+
+    @property
+    def status_verbose(self) -> str:
+        return dict(self.STATUS_CHOICES)[self.status]
+
+    @property
+    def has_voted(self) -> bool:
+        return self.status == self.STATUS_VOTED
+
+    @property
+    def has_open_session(self) -> bool:
+        return self.status == self.STATUS_IN_PROGRESS
+
+    @property
+    def allowed_to_assign(self) -> bool:
+        return self.status == self.STATUS_FREE
 
     @classmethod
     def validate_educational_degree_with_year(cls, educational_degree: int, year: int):
@@ -150,7 +186,7 @@ class Student(models.Model):
         )
 
     @classmethod
-    def get_student_by_ticket_number(cls, ticket_number_string: str) -> 'Student':
+    def search_by_ticket_number(cls, ticket_number_string: str) -> 'Student':
         """
         Gets Student by provided ticket number and raises IndexError if failed.
         Validates input and raises ValuerError if it has wrong format.
@@ -183,6 +219,37 @@ class Student(models.Model):
 
     def create_token(self) -> str:
         return signing.Signer().sign(str(self.ticket_number))
+
+    def update_status(self, status: int):
+        assert status in dict(self.STATUS_CHOICES).keys()
+
+        if self.status == status:
+            raise ValueError(
+                f'Would not update status to same value.'
+            )
+        if self.status == self.STATUS_VOTED:
+            raise ValueError(
+                f'Can not change status from "{self.status_verbose}".')
+        if self.status == self.STATUS_FREE and status == self.STATUS_VOTED:
+            raise ValueError(
+                f'Can not change status from [{self.STATUS_FREE}] '
+                f'to [{self.STATUS_VOTED}].')
+
+        self.status = status
+        self.status_update_time = timezone.make_naive(timezone.now()).time()
+        self.save()
+
+    def show_registration_time(self) -> str:
+        yesterday = timezone.datetime.today() - timezone.timedelta(1)
+        edge = timezone.datetime(yesterday.year, yesterday.month, yesterday.day, 23, 59, 59)
+        if self.registered_datetime < timezone.make_aware(edge):
+            return 'Зареєстрований завчасно'
+        else:
+            return f'Зареєстрований о {self.registered_datetime.strftime("%H:%M:%S")}'
+    show_registration_time.short_description = 'Час реєстрації'
+
+    def show_specialty(self) -> str:
+        return str(self.specialty)
 
     def get_joined_edu_year_display(self) -> str:
         return f'{self.get_educational_degree_display()}-{self.get_year_display()}'

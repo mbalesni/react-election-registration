@@ -1,8 +1,8 @@
 {
-  "main.css": "static/css/main.cbba85a4.css",
-  "main.css.map": "static/css/main.cbba85a4.css.map",
-  "main.js": "static/js/main.f5d2a543.js",
-  "main.js.map": "static/js/main.f5d2a543.js.map",
+  "main.css": "static/css/main.3675cfd9.css",
+  "main.css.map": "static/css/main.3675cfd9.css.map",
+  "main.js": "static/js/main.f168f888.js",
+  "main.js.map": "static/js/main.f168f888.js.map",
   "static/media/fa-brands-400.eot": "static/media/fa-brands-400.748ab466.eot",
   "static/media/fa-brands-400.svg": "static/media/fa-brands-400.b032e14e.svg",
   "static/media/fa-brands-400.ttf": "static/media/fa-brands-400.7febe26e.ttf",
@@ -19,6 +19,5 @@
   "static/media/fa-solid-900.woff": "static/media/fa-solid-900.6661d6b3.woff",
   "static/media/fa-solid-900.woff2": "static/media/fa-solid-900.8a8c0474.woff2",
   "static/media/logo.jpg": "static/media/logo.52d070c3.jpg",
-  "static/media/ticket.png": "static/media/ticket.2773380c.png",
   "static/media/voting.png": "static/media/voting.80a03e42.png"
 }

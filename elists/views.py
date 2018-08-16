@@ -1,9 +1,13 @@
-from .constants import RESPONSE_TOKEN
-from .middleware import EListsMiddleware, Request
+from .constants import (
+    RESPONSE_STUDENT, REQUEST_STUDENT_TICKET_NUMBER, REQUEST_STUDENT_DOC_NUM,
+    REQUEST_STUDENT_DOC_TYPE, REQUEST_STUDENT_TOKEN, REQUEST_STUDENT,
+    RESPONSE_STAFF
+)
+from .middleware import Request, mark, serialize_student, serialize_staff
 from .models import CheckInSession, Student
 
 
-@EListsMiddleware.mark(require_session=False)
+@mark(require_session=False)
 def start_new_session(request: Request):
     staff = request.elists_cisi.staff
 
@@ -12,34 +16,45 @@ def start_new_session(request: Request):
 
     session = CheckInSession.start_new_session(staff)
     request.elists_cisi.assign_session(session)
-    return {RESPONSE_TOKEN: session.create_token()}
 
 
-@EListsMiddleware.mark()
-def get_student_by_ticket_number(request: Request):
+@mark()
+def search_student_by_ticket_number(request: Request):
     session = request.elists_cisi.session
-    ticket_number = request.elists_cisi.data['student_ticket_number']
-    student = Student.get_student_by_ticket_number(ticket_number)
-
-    if not CheckInSession.student_allowed_to_assign(student):
-        if CheckInSession.objects.filter(student=student, status=0):
-            raise ValueError('Student had already voted.')
-        else:
-            raise ValueError('Student has open session(s).')
-    if session.status != CheckInSession.STATUS_STARTED:
+    if not session.just_started:
         raise PermissionError(
             f'Wrong session status: [{session.status}] "{session.status_verbose}".')
 
-    session.assign_student(student)
+    ticket_number = request.elists_cisi.data[REQUEST_STUDENT][REQUEST_STUDENT_TICKET_NUMBER]
+    student = Student.search_by_ticket_number(ticket_number)
+
     return {
-        "full_name": student.full_name,
-        "educational_degree": student.educational_degree,
-        "year": student.year,
-        RESPONSE_TOKEN: session.create_token(),
+        RESPONSE_STUDENT: serialize_student(student),
     }
 
 
-@EListsMiddleware.mark()
+@mark()
+def submit_student(request: Request):
+    session = request.elists_cisi.session
+    student_token = request.elists_cisi.data[REQUEST_STUDENT][REQUEST_STUDENT_TOKEN]
+    student_doc_type = request.elists_cisi.data[REQUEST_STUDENT][REQUEST_STUDENT_DOC_TYPE]
+    student_doc_num = request.elists_cisi.data[REQUEST_STUDENT][REQUEST_STUDENT_DOC_NUM]
+
+    student = Student.get_student_by_token(student_token)
+    if not student.allowed_to_assign:
+        raise PermissionError(f'This student is not allowed to assign.')
+    if not session.just_started:
+        raise PermissionError(
+            f'Wrong session status: [{session.status}] "{session.status_verbose}".')
+
+    session.assign_student(
+        student=student,
+        doc_type=student_doc_type,
+        doc_num=student_doc_num,
+    )
+
+
+@mark()
 def complete_session(request: Request):
     session = request.elists_cisi.session
 
@@ -51,7 +66,7 @@ def complete_session(request: Request):
     session.complete()
 
 
-@EListsMiddleware.mark()
+@mark()
 def cancel_session(request: Request):
     session = request.elists_cisi.session
 
@@ -61,12 +76,14 @@ def cancel_session(request: Request):
     session.cancel()
 
 
-@EListsMiddleware.mark(require_session=False)
+@mark(require_session=False)
 def close_sessions(request: Request):
     staff = request.elists_cisi.staff
     CheckInSession.close_sessions(staff)
 
 
-@EListsMiddleware.mark(require_session=False)
-def refresh_auth(request: Request):
-    return {'logged_in': 'yes'}
+@mark(require_session=False)
+def me(request: Request):
+    return {
+        RESPONSE_STAFF: serialize_staff(request.elists_cisi.staff),
+    }

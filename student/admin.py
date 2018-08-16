@@ -19,16 +19,21 @@ class StudentAdmin(admin.ModelAdmin):
     readonly_fields = (
         'full_name',
         'ticket_number',
+        'show_registration_time',
         'structural_unit',
         'specialty',
         'educational_degree',
         'year',
-        'date_of_birth',
         'form_of_study',
+        'status',
+        'status_update_time',
     )
     list_display = (
         'full_name',
         'ticket_number',
+        'show_registration_time',
+        'status',
+        'status_update_time',
         'structural_unit',
         'specialty',
         'educational_degree',
@@ -41,10 +46,12 @@ class StudentAdmin(admin.ModelAdmin):
         'educational_degree',
         'year',
         'form_of_study',
+        'status',
+        'status_update_time',
     )
     ordering = tuple([*list_filter, 'full_name'])
     search_fields = ('full_name', 'ticket_number',)
-    fieldsets = (
+    FIELDSETS = (
         (None, {
             'fields': (
                 'full_name',
@@ -58,17 +65,29 @@ class StudentAdmin(admin.ModelAdmin):
             'fields' : ('ticket_number',),
             'classes': ('grp-collapse grp-open',),
         }),
-        ('Конфіденційна інформація', {
-            'fields' : ('date_of_birth',),
-            'classes': ('grp-collapse grp-closed',),
-        }),
+    )
+    STATE_FIELDSET = (
+        'Стан',
+        {
+            'fields': (
+                'show_registration_time',
+                ('status', 'status_update_time', ),
+            ),
+            'classes': ('grp-collapse grp-open',),
+        },
     )
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser or obj is None:
-            return ()
+            return ('show_registration_time', )
         else:
             return self.readonly_fields
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = list(self.FIELDSETS)
+        if obj is not None:
+            fieldsets = (fieldsets[0], self.STATE_FIELDSET, *fieldsets[1:])
+        return fieldsets
 
     def get_actions(self, request):
         return OrderedDict()
