@@ -248,6 +248,9 @@ class Student(models.Model):
             return f'Зареєстрований о {self.registered_datetime.strftime("%H:%M:%S")}'
     show_registration_time.short_description = 'Час реєстрації'
 
+    def show_specialty(self) -> str:
+        return str(self.specialty)
+
     def get_joined_edu_year_display(self) -> str:
         return f'{self.get_educational_degree_display()}-{self.get_year_display()}'
 

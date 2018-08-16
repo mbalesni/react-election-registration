@@ -12,6 +12,7 @@ from .constants import (
     RESPONSE_ERROR_MESSAGE, RESPONSE_ERROR_TYPE, REQUEST_CHECK_IN_SESSION_TOKEN, RESPONSE_CHECK_IN_SESSION_TOKEN,
     RESPONSE_STUDENT_DATA_STRUCTURAL_UNIT,
     Staff,
+    RESPONSE_STAFF_FIRST_NAME, RESPONSE_STAFF_LAST_NAME, RESPONSE_STAFF_USERNAME,
 )
 from .models import Student, CheckInSession
 
@@ -56,6 +57,13 @@ def serialize_session(session: CheckInSession) -> dict:
         })
     return json
 
+
+def serialize_staff(staff: Staff) -> dict:
+    return {
+        RESPONSE_STAFF_USERNAME: staff.username,
+        RESPONSE_STAFF_LAST_NAME: staff.last_name,
+        RESPONSE_STAFF_FIRST_NAME: staff.first_name,
+    }
 
 class EListsCheckInSessionInfo:
 

@@ -1,8 +1,9 @@
 from .constants import (
-    RESPONSE_STUDENT, REQUEST_TICKET_NUMBER, REQUEST_DOC_NUM, REQUEST_DOC_TYPE,
-    REQUEST_STUDENT_TOKEN
+    RESPONSE_STUDENT, REQUEST_STUDENT_TICKET_NUMBER, REQUEST_STUDENT_DOC_NUM,
+    REQUEST_STUDENT_DOC_TYPE, REQUEST_STUDENT_TOKEN, REQUEST_STUDENT,
+    RESPONSE_STAFF
 )
-from .middleware import Request, mark, serialize_student
+from .middleware import Request, mark, serialize_student, serialize_staff
 from .models import CheckInSession, Student
 
 
@@ -24,7 +25,7 @@ def search_student_by_ticket_number(request: Request):
         raise PermissionError(
             f'Wrong session status: [{session.status}] "{session.status_verbose}".')
 
-    ticket_number = request.elists_cisi.data[REQUEST_TICKET_NUMBER]
+    ticket_number = request.elists_cisi.data[REQUEST_STUDENT][REQUEST_STUDENT_TICKET_NUMBER]
     student = Student.search_by_ticket_number(ticket_number)
 
     return {
@@ -35,9 +36,9 @@ def search_student_by_ticket_number(request: Request):
 @mark()
 def submit_student(request: Request):
     session = request.elists_cisi.session
-    student_token = request.elists_cisi.data[REQUEST_STUDENT_TOKEN]
-    doc_type = request.elists_cisi.data[REQUEST_DOC_TYPE]
-    doc_num = request.elists_cisi.data[REQUEST_DOC_NUM]
+    student_token = request.elists_cisi.data[REQUEST_STUDENT][REQUEST_STUDENT_TOKEN]
+    student_doc_type = request.elists_cisi.data[REQUEST_STUDENT][REQUEST_STUDENT_DOC_TYPE]
+    student_doc_num = request.elists_cisi.data[REQUEST_STUDENT][REQUEST_STUDENT_DOC_NUM]
 
     student = Student.get_student_by_token(student_token)
     if not student.allowed_to_assign:
@@ -48,8 +49,8 @@ def submit_student(request: Request):
 
     session.assign_student(
         student=student,
-        doc_type=doc_type,
-        doc_num=doc_num,
+        doc_type=student_doc_type,
+        doc_num=student_doc_num,
     )
 
 
@@ -82,5 +83,7 @@ def close_sessions(request: Request):
 
 
 @mark(require_session=False)
-def refresh_auth(request: Request):
-    pass
+def me(request: Request):
+    return {
+        RESPONSE_STAFF: serialize_staff(request.elists_cisi.staff),
+    }

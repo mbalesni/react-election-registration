@@ -51,7 +51,7 @@ class StudentAdmin(admin.ModelAdmin):
     )
     ordering = tuple([*list_filter, 'full_name'])
     search_fields = ('full_name', 'ticket_number',)
-    fieldsets = (
+    FIELDSETS = (
         (None, {
             'fields': (
                 'full_name',
@@ -66,6 +66,16 @@ class StudentAdmin(admin.ModelAdmin):
             'classes': ('grp-collapse grp-open',),
         }),
     )
+    STATE_FIELDSET = (
+        'Стан',
+        {
+            'fields': (
+                'show_registration_time',
+                ('status', 'status_update_time', ),
+            ),
+            'classes': ('grp-collapse grp-open',),
+        },
+    )
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser or obj is None:
@@ -74,13 +84,9 @@ class StudentAdmin(admin.ModelAdmin):
             return self.readonly_fields
 
     def get_fieldsets(self, request, obj=None):
-        fieldsets = self.fieldsets
+        fieldsets = list(self.FIELDSETS)
         if obj is not None:
-            fieldsets[0][1]['fields'] = tuple([
-                'show_registration_time',
-                ('status', 'status_update_time', ),
-                *fieldsets[0][1]['fields']
-            ])
+            fieldsets = (fieldsets[0], self.STATE_FIELDSET, *fieldsets[1:])
         return fieldsets
 
     def get_actions(self, request):
