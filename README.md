@@ -8,9 +8,7 @@
 
 #### launch Postgres
 ```
-docker run --name evs-pg
-           -e POSTGRES_PASSWORD=postgres
-           -d postgres:10
+docker run --name evs-pg -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 postgres:10
 ```
 
 #### create `evs` database
@@ -24,7 +22,7 @@ docker exec -it evs-pg psql -U postgres -W
 2. create databases
 ```
 CREATE DATABASE evs;
-CREATE DATABASE test_evs;
+\q
 ```
 
 #### migrate database
