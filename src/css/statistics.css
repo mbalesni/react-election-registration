@@ -1,0 +1,12 @@
+.statistics {
+  /* color: #222; */
+  display: inline-block;
+  font-size: 18px;
+  text-align: center;
+  position: absolute;
+  left: 200px;
+  top: 300px;
+}
+.number {
+  font-size: 30px;
+}

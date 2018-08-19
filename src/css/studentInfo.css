@@ -1,0 +1,23 @@
+.student {
+  /* background-color: #eee; */
+  /* border-radius: 4px; */
+  /* box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12); */
+  /* border-bottom: 1px solid #eee; */
+  border-left: 3px solid #2196f3;
+  display: flex;
+  justify-content: space-between;
+  padding: .5rem;
+  margin-bottom: 1rem;
+  transition: .3s ease-in-out;
+}
+.student.disabled {
+  border-left: 3px solid #eee;
+}
+.student--info {
+  margin-top: .5rem;
+  opacity: .8;
+}
+.student--info > * {
+  margin-right: .5rem;
+  font-size: .85em;
+}

@@ -1,0 +1,96 @@
+/* Global Defaults */
+html, body {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+/* Headlines */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  padding: 0;
+}
+
+/* Text Styles */
+p, th, td, li, dd, dt, ul, ol, blockquote, q, acronym, abbr, a, input, select, textarea {
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+  font-size: 16px;
+}
+blockquote {
+  margin: 1.25em;
+  padding: 1.25em
+}
+q {
+  font-style: italic;
+}
+acronym, abbr {
+  cursor: help;
+  border-bottom: 1px dashed;
+}
+
+/* Links and Images */
+a, a:link, a:visited {
+  text-decoration: none;
+}
+a:active, a:hover {
+  text-decoration: underline;
+}
+img {
+  border: none;
+}
+
+/* Tables */
+table {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+/* Forms */
+form {
+  margin: 0;
+  padding: 0;
+}
+button {
+  background-color: transparent;
+  border: 1px solid #444;
+  border-radius: 2px;
+  outline: 0;
+  cursor: pointer;
+}
+
+/* Common classes */
+.textLeft {
+  text-align: left;
+}
+.textRight {
+  text-align: right;
+}
+.textCenter {
+  text-align: center;
+}
+.textJustify {
+  text-align: justify;
+}
+.blockCenter {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.bold {
+  font-weight: bold;
+}
+.italic {
+  font-style: italic;
+}
+.underline {
+  text-decoration: underline;
+}
+.nobullet {
+  list-style: none;
+  list-style-image: none;
+}

@@ -1,0 +1,50 @@
+.status-bar {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  transition: .3s ease-in-out;
+  padding: 1rem 2rem;
+  text-align: center
+}
+.status-bar.info {
+  background-color: rgba(33, 150, 243, 0.2);
+}
+.status-bar.error {
+  background-color: rgba(244, 67, 54, 0.2);
+}
+.status-icon {
+  font-size: 20px;
+  margin-right: .5rem;
+}
+.status.scanning .status-icon {
+  color: #2196f3;
+}
+.status.scanned .status-icon,
+.status.ready .status-icon {
+  color: #4CAF50;
+}
+.status.error .status-icon {
+  color: #ef5350;
+}
+.status-text {
+  color: #555;
+  font-weight: 500;
+  font-size: 16px;
+  text-transform: uppercase;
+  font-family: 'Montserrat';
+  letter-spacing: normal;
+  line-height: normal;
+}
+.status-spinner {
+  animation: spin .8s infinite linear;
+  width: 20px;
+  /* visibility: hidden; */
+  /* opacity: 0; */
+  margin-right: .5rem;
+  transition: .3s ease-in-out;
+}
+@keyframes spin {
+    from {transform:rotate(0deg)}
+    to {transform:rotate(359deg)}
+}
