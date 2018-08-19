@@ -1,0 +1,36 @@
+header {
+  align-items: center;
+  background-color: #fff;
+  border-bottom: 1px solid rgba(230, 230, 230, 0.7);
+  display: flex;
+  justify-content: space-between;
+  height: 64px;
+  padding: 0 5rem;
+}
+header .logo {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+header .logo img {
+  height: 56px;
+  margin-right: 8px;
+}
+header .title {
+  font-weight: 500;
+}
+.app-menu {
+  display: flex;
+  align-items: center;
+}
+.app-menu-btn {
+  align-items: center;
+  display: flex;
+  font-weight: normal !important;
+}
+a,
+a:visited,
+a:hover {
+  text-decoration: none;
+  color: inherit;
+}

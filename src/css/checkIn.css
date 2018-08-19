@@ -1,0 +1,260 @@
+.check-in-controls {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+.spinner {
+  position: absolute;
+  z-index: 1000;
+}
+
+.page-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: static;
+  height: 100%;
+} 
+
+.page-content-wrapper .content {
+  /* align-items: center; */
+  padding: 3rem 0 0rem;
+  /* display: flex; */
+  /* flex-flow: column; */
+  margin: 0;
+  /* justify-content: space-between; */
+}
+
+
+
+footer {
+  border-top: 1px solid rgba(98, 98, 98, 0.07);
+  display: flex;
+  font-size: 12px;
+  justify-content: space-between;
+  padding: 1.5rem 0;
+  margin: 0 60px;
+}
+footer > * {
+  font-size: 12px;
+  opacity: .65;
+}
+
+.new-session-card {
+  background-color: #fff;
+  width: 350px;
+}
+.new-session-card img {
+  width: 100%;
+}
+.card {
+  background-color: #fff;
+  box-shadow: 0 2px 3px rgba(0,0,0,0.18);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+.check-in.card {
+  border: none !important;
+  /* width: 80%; */
+  width: 600px;
+  margin: 0 auto;
+}
+.card .card-header {
+  color: #333;
+  display: flex;
+  justify-content: space-between;
+  text-transform: uppercase;
+  align-items: center;
+  /* border-bottom: 1px solid #ddd; */
+  padding: .5rem 1.5rem;
+
+}
+.card .card-header .card-title{
+  align-items: center;
+  color: #333;
+  font-weight: 400;
+  display: flex;
+  font-size: .95rem;
+  letter-spacing: normal;
+
+}
+
+.card .card-header .card-title svg,
+.card .card-header .card-title i {
+  color: #2196f3;
+  font-size: 20px;
+  margin-right: .5rem;
+}
+
+/* CARD CONTENT */
+
+.card .card-block {
+  padding: 1rem 1.5rem !important;
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.card-footer {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1rem 1.5rem 1rem;
+}
+
+/* SCANNER & ID EXAMPLE */
+
+.scanner-container {
+  /* display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(435px, 1fr));
+  grid-gap: 1rem; */
+}
+.scanner {
+  position: relative;
+  min-height: 330px;
+  box-sizing:border-box;
+  justify-self: center;
+}
+#video {
+  visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+#video.show {
+  visibility: visible;
+}
+#video canvas {
+  display: none !important;
+}
+#video video {
+  /* border-radius: 8px; */
+  /* box-shadow: 0 2px 3px rgba(0,0,0,0.18); */
+  /* position: absolute; */
+  visibility: hidden;
+  opacity: 0;
+  width: 100%;
+  top: 0rem;
+  left: 0rem;
+  transition-delay: 2s;
+}
+
+.example-container {
+  padding: 1rem;
+  transition: .5s ease-in-out;
+  height: 100%;
+}
+
+.example {
+  border-radius: 8px;
+  box-shadow: 0 2px 3px rgba(0,0,0,0.18);
+  box-sizing: content-box;
+  display: block;
+  width: 400px;
+  height: 250px;
+  position: relative;
+  margin: 0 auto;
+}
+.example-text {
+  color: #777;
+  font-size: 16px;
+  font-weight: 400;
+  text-align: center;
+  text-transform: uppercase;
+  line-height: 1;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* PANEL */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 1rem;
+  position: relative;
+}
+.guide {
+  margin-top: 2rem;
+  padding-left: 2rem;
+}
+.guide > li {
+  margin-bottom: 1rem;
+  font-size: 18px;
+
+}
+.guide > li:last-of-type {
+  margin-bottom: 2rem;
+}
+.manual-input-container {
+  margin-top: 2rem;
+  padding-left: 3rem;
+}
+.manual-input-container > button {
+  margin-top: 2rem;
+}
+
+
+.results {
+  list-style: none;
+  padding-left: 2rem;
+}
+.result-item {
+  margin-bottom: 1rem;
+}
+.result-item-name {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+.result-item-value {
+  font-weight: 400;
+  font-size: 22px;
+  margin-top: 0;
+  line-height: 1;
+}
+.panel .controls {
+  display: flex;
+  flex-direction: row;
+  padding: 1rem 2rem;
+  width: 100%;
+  justify-content: flex-start;
+}
+.panel .controls > button:first-of-type {
+  margin-right: 1rem;
+}
+
+
+
+#initScanBtn {
+  background-color: #2196f3;
+  border: none;
+  border-radius: 2px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.24);
+  color: #fff;
+  cursor: pointer;
+  display: block;
+  font-size: 16px;
+  font-weight: 500;
+  padding: .5rem 2rem;
+  margin-top: 3rem;
+  outline: none;
+  text-transform: uppercase;
+  transition: .2s ease-in-out;
+}
+#initScanBtn:hover {
+  background-color: #4eaaf3;
+}
+#initScanBtn:active {
+  box-shadow: none !important;
+}
+
+.footer {
+  position: static;
+  padding-bottom: 1rem;
+}

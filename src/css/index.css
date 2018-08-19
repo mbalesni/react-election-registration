@@ -1,0 +1,32 @@
+* {
+  box-sizing: border-box;
+}
+html, body {
+  height: 100%;
+}
+body {
+  background-color: #f7f7f7;
+  color: #626262;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  max-height: 100%;
+  overflow: hidden;
+}
+#root {
+  height: 100%;
+}
+audio {
+  display: none;
+}
+.show {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+.hide {
+  display: none !important;
+  /* visibility: hidden !important;
+  opacity: 0 !important; */
+}
+img {
+  user-select: none;
+}
