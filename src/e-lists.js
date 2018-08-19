@@ -20,11 +20,14 @@ const spinnerStyles = css`
   position: absolute !important;
 `
 
-const DEV = true
-let BASE_URL = ''
-if (DEV) BASE_URL = 'http://localhost:8000'
-else BASE_URL = 'https://elists-dev.herokuapp.com/api/elists'
-console.log(BASE_URL)
+// BASE URLs
+//
+// DEV Local       'http://localhost:8000'
+// DEV Deploy      'https://elists-dev.herokuapp.coms'
+// PROD            'https://elists.herokuapp.com'
+
+const BASE_URL = 'http://localhost:8000'
+const BASE_API_URL = BASE_URL + '/api/elists'
 
 
 function AppleNotSupported(props) {
@@ -37,7 +40,6 @@ function AppleNotSupported(props) {
 
 export default class extends React.Component {
   state = {
-    dev: true,
     sessionIsOpen: false,
     status: {},
     foundStudents: [],
@@ -56,7 +58,7 @@ export default class extends React.Component {
 
         <MuiThemeProvider theme={THEME}>
           <div className="header-and-content">
-            <Header auth={this.state.auth} />
+            <Header auth={this.state.auth} baseUrl={BASE_URL}/>
             <BarLoader
               color="rgba(33, 150, 243, 0.8)"
               className={spinnerStyles}
@@ -94,7 +96,7 @@ export default class extends React.Component {
   }
   
   componentDidMount() {
-    axios.defaults.baseURL = BASE_URL
+    axios.defaults.baseURL = BASE_API_URL
     axios.defaults.withCredentials = true
     this.getAuth()
     this.closeSessions()
@@ -122,25 +124,6 @@ export default class extends React.Component {
         window.location.href = `${BASE_URL}/admin/login?next=/elists/front`
 
       })
-
-    // fetch('https://elists-dev.herokuapp.com/api/elists/me', {
-    //   method: 'POST',
-    //   mode: 'cors',
-    //   credentials: 'include',
-    //   body: JSON.stringify({})
-    // })
-    // .then(response => response.json())
-    // .then(res => {console.log(res)})
-    // .catch(err => {console.error(err)})
-
-    // let request1 = request.defaults({ jar: true })
-    // request1.post({url: 'https://elists-dev.herokuapp.com/api/elists/me', body: '{}'}, function(err, res, body){
-    //   console.log(err && err)
-    //   console.log(res && res)
-    //   console.log(body && body)
-    // })
-
-    // })
 
   }
 
