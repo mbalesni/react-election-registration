@@ -27,7 +27,7 @@ export default class Header extends React.Component {
     const auth = this.props.auth
     const { anchorEl } = this.state
     const open = Boolean(anchorEl);
-
+    const {baseUrl} = this.props
 
     return (
       <header>
@@ -66,10 +66,10 @@ export default class Header extends React.Component {
                   >
                     <MenuItem disabled>{auth.user}</MenuItem>
                     <Divider />
-                    <a href="https://elists-dev.herokuapp.com/admin/" target="_blank" rel="noopener noreferrer">
+                    <a href={baseUrl + '/admin/'} target="_blank" rel="noopener noreferrer">
                       <MenuItem onClick={this.handleClose}>Адмін панель</MenuItem>
                     </a>
-                    <a href="https://elists-dev.herokuapp.com/admin/logout">
+                    <a href={baseUrl + '/admin/logout'}>
                       <MenuItem onClick={this.handleClose}>Вийти</MenuItem>
                     </a>
                   </Menu>
