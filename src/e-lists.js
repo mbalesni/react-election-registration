@@ -22,9 +22,9 @@ const spinnerStyles = css`
 
 // BASE URLs
 //
-// DEV Local       'http://localhost:8000'
-// DEV Deploy      'https://elists-dev.herokuapp.coms'
-// PROD            'https://elists.herokuapp.com'
+// Local                'http://localhost:8000'
+// Heroku DEV           'https://elists-dev.herokuapp.com'
+// Heroku PROD          'https://elists.herokuapp.com'
 
 const BASE_URL = 'http://localhost:8000'
 const BASE_API_URL = BASE_URL + '/api/elists'
