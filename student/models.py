@@ -181,10 +181,12 @@ class Student(models.Model):
 
     @classmethod
     def search_by_full_name(cls, full_name: str) -> typing.Tuple['Student']:
-        filtered = cls.objects.filter(
+        students = cls.objects.filter(
             full_name=full_name,
         )
-        return tuple(filtered)
+        if not students:
+            raise wfe.StudentNameNotFound()
+        return tuple(students)
 
     @classmethod
     def search_by_ticket_number(cls, ticket_number_string: str) -> 'Student':
