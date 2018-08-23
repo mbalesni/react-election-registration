@@ -215,7 +215,10 @@ export default class extends React.Component {
           },
           loading: false
         })
-        
+
+      })
+      .catch(err => {
+        this.handleError(err)
       })
   }
 
@@ -264,10 +267,8 @@ export default class extends React.Component {
     let errData = err
     if (err.response) {
       console.error("Error: ", err.response)
-      if (err.response.status) {
-          if (err.response.status !== 400) code = 300
-          else code = err.response.data.error.code
-      }
+      if (err.response.status !== 400) code = 300
+      else code = err.response.data.error.code
       errData = err.response.data.error
     }
     console.error('Error data: ', errData)

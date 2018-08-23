@@ -62,7 +62,7 @@ export default class StudentFinder extends React.Component {
               >
                 <FormControlLabel value="0" control={<Radio />} label="Студентський квиток" />
                 <FormControlLabel value="1" control={<Radio />} label="Заліковка" />
-                <FormControlLabel value="2" control={<Radio />} label="Довідка" disabled />
+                <FormControlLabel value="2" control={<Radio />} label="Довідка" />
               </RadioGroup>
             </FormControl>
 
@@ -124,13 +124,11 @@ export default class StudentFinder extends React.Component {
 
   handleNameChange = (e) => {
     let studentName = e.target.value
-    console.log(studentName)
     this.setState({ studentName: studentName })
   }
 
   handleDocNumChange = (e) => {
     let docNum = e.target.value
-    console.log(docNum)
     this.setState({ docNum })
   }
 
