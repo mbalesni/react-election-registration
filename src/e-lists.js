@@ -58,7 +58,7 @@ export default class extends React.Component {
 
         <MuiThemeProvider theme={THEME}>
           <div className="header-and-content">
-            <Header auth={this.state.auth} baseUrl={BASE_URL}/>
+            <Header auth={this.state.auth} baseUrl={BASE_URL} />
             <BarLoader
               color="rgba(33, 150, 243, 0.8)"
               className={spinnerStyles}
@@ -94,7 +94,7 @@ export default class extends React.Component {
       </div>
     )
   }
-  
+
   componentDidMount() {
     axios.defaults.baseURL = BASE_API_URL
     axios.defaults.withCredentials = true
@@ -190,7 +190,7 @@ export default class extends React.Component {
         })
       })
       .catch(err => {
-        this.handleError(err, errors.user.ticket_number_not_found)
+        this.handleError(err)
       })
   }
 
@@ -216,19 +216,28 @@ export default class extends React.Component {
         })
       })
       .catch(err => {
-        this.handleError(err, errors.user.student_already_voted)
+        this.handleError(err)
       })
   }
 
-  handleError(err, message) {
+  handleError(err, code) {
     let errData = err
-    if (err.response) errData = err.response.data.error
-    console.error(errData)
+    if (err.response) {
+      console.error("Error: ", err.response)
+      if (err.response.status) {
+          if (err.response.status !== 400) code = 300
+          else code = err.response.data.error.code
+      }
+      errData = err.response.data.error
+    }
+    console.error('Error data: ', errData)
+    console.log('Error code: ', code)
+
     this.setState({
       error: errData,
       status: {
         type: 'error',
-        message: message
+        message: errors[code]
       },
       loading: false
 
@@ -278,7 +287,7 @@ export default class extends React.Component {
       { ...QUAGGA_OPTIONS, inputStream: { ...QUAGGA_OPTIONS.inputStream, target: document.querySelector('.scanner-container') } },
       (err) => {
         if (err) {
-          this.handleError(err, errors.user.scan_init_fail)
+          this.handleError(err, 506)
           return
         }
         Quagga.start()
@@ -312,7 +321,7 @@ export default class extends React.Component {
         Quagga.stop()
         this.searchStudentByTicketNumber(result)
       } else {
-        alert(errors.user.scan_error)
+        this.handleError('Error', 507)
       }
     })
   }

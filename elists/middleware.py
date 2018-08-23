@@ -15,6 +15,7 @@ from .constants import (
     RESPONSE_STAFF_FIRST_NAME, RESPONSE_STAFF_LAST_NAME, RESPONSE_STAFF_USERNAME,
 )
 from .models import Student, CheckInSession
+from errorsapp import exceptions as wfe
 
 REQUIRE_SESSION_MARK = 'elists__require_session'
 
@@ -65,6 +66,7 @@ def serialize_staff(staff: Staff) -> dict:
         RESPONSE_STAFF_FIRST_NAME: staff.first_name,
     }
 
+
 class EListsCheckInSessionInfo:
 
     def __init__(self, staff: Staff, data: dict, session: CheckInSession =None):
@@ -86,11 +88,10 @@ class EListsCheckInSessionInfo:
     def retrieve_session(self) -> CheckInSession:
         token = self.data.get(REQUEST_CHECK_IN_SESSION_TOKEN, None)
         if token is None:
-            raise PermissionError(
-                f'Provide "{REQUEST_CHECK_IN_SESSION_TOKEN}" field to perform this action.')
+            raise wfe.MissingCheckInSessionToken()
         try:
             session = CheckInSession.get_session_by_token(token)
-        except TimeoutError:
+        except wfe.CheckInSessionTokenExpired:
             # because there must be no more than 1 open session
             CheckInSession.close_sessions(self.staff)
             # session = CheckInSession.get_session_by_staff(self.staff)
@@ -125,6 +126,14 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
             session_before = request.elists_cisi.retrieve_session()
 
         data = view_func(request, *view_args, **view_kwargs)
+    except wfe.BaseWorkflowError as exc:
+        response_status_code = 400
+        data = None
+        error = {
+            'code': exc.get_code(),
+            'name': exc.get_name(),
+            'context': exc.get_context(),
+        }
     except Exception as exc:
         response_status_code = 400
         data = None
