@@ -15,6 +15,7 @@ from .constants import (
     RESPONSE_STAFF_FIRST_NAME, RESPONSE_STAFF_LAST_NAME, RESPONSE_STAFF_USERNAME,
 )
 from .models import Student, CheckInSession
+from errorsapp import exceptions as wfe
 
 REQUIRE_SESSION_MARK = 'elists__require_session'
 
@@ -86,11 +87,10 @@ class EListsCheckInSessionInfo:
     def retrieve_session(self) -> CheckInSession:
         token = self.data.get(REQUEST_CHECK_IN_SESSION_TOKEN, None)
         if token is None:
-            raise PermissionError(
-                f'Provide "{REQUEST_CHECK_IN_SESSION_TOKEN}" field to perform this action.')
+            raise wfe.MissingCheckInSessionToken()
         try:
             session = CheckInSession.get_session_by_token(token)
-        except TimeoutError:
+        except wfe.CheckInSessionTokenExpired:
             # because there must be no more than 1 open session
             CheckInSession.close_sessions(self.staff)
             # session = CheckInSession.get_session_by_staff(self.staff)

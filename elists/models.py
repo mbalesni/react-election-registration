@@ -5,6 +5,7 @@ from django.db import models
 from student.models import Student, validate_student_ticket_number
 from .constants import Staff
 from .utils import get_current_naive_time, time_diff_formatted
+from errorsapp import exceptions as wfe
 
 
 def validate_gradebook_number(gradebook_number: str):
@@ -192,9 +193,9 @@ class CheckInSession(models.Model):
         try:
             query: dict = signing.loads(token, max_age=cls.get_token_max_age())
         except signing.SignatureExpired:
-            raise TimeoutError('Provided check-in session token expired.')
+            raise wfe.CheckInSessionTokenExpired()
         except signing.BadSignature:
-            raise RuntimeError('Bad check-in session token signature.')
+            raise wfe.CheckInSessionTokenBadSignature()
 
         # if we had given that token, than object must exist
         return cls.objects.get(**query)
@@ -205,9 +206,13 @@ class CheckInSession(models.Model):
         try:
             self.validate_doc_type_num_pair(int(doc_type), doc_num)
         except exceptions.ValidationError as exc:
-            raise ValueError(str(exc))
+            raise wfe.StudentDocNumberWrongFormat(context={
+                'msg': str(exc)
+            })
         except TypeError:
-            raise ValueError('`doc_type` must be an integer of [0, 1, 2] value.')
+            raise wfe.StudentDocTypeWrongFormat(context={
+                'msg': '`doc_type` must be an integer of [0, 1, 2] value.',
+            })
 
         self.student = student
         self.doc_type = doc_type

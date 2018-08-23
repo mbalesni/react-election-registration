@@ -2,6 +2,9 @@ from django.core import exceptions, signing
 from django.db import models
 from django.utils import timezone
 
+# WorkFlow Errors
+from errorsapp import exceptions as wfe
+
 
 ### validators
 def validate_student_full_name(value: str):
@@ -200,19 +203,19 @@ class Student(models.Model):
             ticket_number = int(ticket_number_string)
             validate_student_ticket_number(ticket_number)
         except (exceptions.ValidationError, ValueError) as exc:
-            raise ValueError('Wrong format of the ticket number.') from exc
+            raise wfe.TicketNumberWrongFormat() from exc
 
         try:
             return cls.objects.get(ticket_number=ticket_number)
         except models.ObjectDoesNotExist:
-            raise IndexError('No student found with provided ticket number')
+            raise wfe.TicketNumberNotFound()
 
     @classmethod
     def get_student_by_token(cls, token: str):
         try:
             student_ticket_number: str = signing.Signer().unsign(token)
         except signing.BadSignature:
-            raise RuntimeError('Bad student token signature.')
+            raise wfe.StudentTokenBadSignature()
 
         # if we had given that token, than object must exist, and be valid
         return cls.objects.get(ticket_number=int(student_ticket_number))
@@ -224,16 +227,11 @@ class Student(models.Model):
         assert status in dict(self.STATUS_CHOICES).keys()
 
         if self.status == status:
-            raise ValueError(
-                f'Would not update status to same value.'
-            )
+            raise wfe.StudentStatusAlreadyTheSame()
         if self.status == self.STATUS_VOTED:
-            raise ValueError(
-                f'Can not change status from "{self.status_verbose}".')
+            raise wfe.StudentStatusCantChangeBecauseVoted()
         if self.status == self.STATUS_FREE and status == self.STATUS_VOTED:
-            raise ValueError(
-                f'Can not change status from [{self.STATUS_FREE}] '
-                f'to [{self.STATUS_VOTED}].')
+            raise wfe.StudentStatusCantChangeBecauseFree()
 
         self.status = status
         self.status_update_time = timezone.make_naive(timezone.now()).time()
