@@ -117,6 +117,14 @@ class StudentStatusCantChangeBecauseVoted(BaseProgrammingError):
 class StudentStatusCantChangeBecauseFree(BaseProgrammingError):
     code = 313
 
+
+class CheckInSessionTokenBadSignature(BaseUserError):
+    code = 314
+
+
+class StudentTokenBadSignature(BaseUserError):
+    code = 315
+
 # end of programming errors
 # =========================
 
@@ -124,10 +132,6 @@ class StudentStatusCantChangeBecauseFree(BaseProgrammingError):
 # ===========
 # user errors
 # -----------
-
-class UserError(BaseUserError):
-    code = 500
-
 
 class TicketNumberNotFound(BaseUserError):
     code = 501
@@ -143,14 +147,6 @@ class StudentNotAllowedToAssign(BaseUserError):
 
 class CheckInSessionTokenExpired(BaseUserError):
     code = 508
-
-
-class CheckInSessionTokenBadSignature(BaseUserError):
-    code = 509
-
-
-class StudentTokenBadSignature(BaseUserError):
-    code = 510
 
 # end of user errors
 # ==================
