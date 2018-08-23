@@ -126,8 +126,8 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
             session_before = request.elists_cisi.retrieve_session()
 
         data = view_func(request, *view_args, **view_kwargs)
-    except wfe.WorkflowError as exc:
-        response_status_code = 200
+    except wfe.BaseWorkflowError as exc:
+        response_status_code = 400
         data = None
         error = {
             'code': exc.get_code(),

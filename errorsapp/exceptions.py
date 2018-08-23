@@ -22,12 +22,12 @@ class BaseExceptionWithCode(Exception, metaclass=abc.ABCMeta):
     code: int
 
     def __init__(self, context: dict =None):
-        msg = f'[errno{self.get_code}] {self.get_name}'
+        msg = f'[errno{self.get_code()}] {self.get_name()}'
         if context:
             msg += f':\n{pprint.pformat(context)}'
 
         self._message = msg
-        self._context = context
+        self._context = context or {}
 
         super().__init__(self._message)
 
