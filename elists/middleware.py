@@ -66,6 +66,7 @@ def serialize_staff(staff: Staff) -> dict:
         RESPONSE_STAFF_FIRST_NAME: staff.first_name,
     }
 
+
 class EListsCheckInSessionInfo:
 
     def __init__(self, staff: Staff, data: dict, session: CheckInSession =None):
@@ -125,6 +126,14 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
             session_before = request.elists_cisi.retrieve_session()
 
         data = view_func(request, *view_args, **view_kwargs)
+    except wfe.WorkflowError as exc:
+        response_status_code = 200
+        data = None
+        error = {
+            'code': exc.get_code(),
+            'name': exc.get_name(),
+            'context': exc.get_context(),
+        }
     except Exception as exc:
         response_status_code = 400
         data = None
