@@ -85,7 +85,7 @@ export default class extends React.Component {
                   onScanCancel={this.cancelScan.bind(this)}
                   onCancelSession={this.cancelSession.bind(this)}
                   onCompleteSession={this.completeSession.bind(this)}
-                  onSearchByName={this.searchStudentByName}
+                  onSearchByName={this.searchStudentByName.bind(this)}
                 />}
 
             </div>
@@ -188,7 +188,9 @@ export default class extends React.Component {
 
   searchStudentByName(name, docType, docNum) {
     let data = {}
-    data.full_name = name
+    data.check_in_session_token = this.state.checkInSessionToken
+    data.student = {}
+    data.student.full_name = name
 
     console.log('Searching student by name ', name, ', saving document type ', docType, ' , number: ', docNum)
 
@@ -236,7 +238,7 @@ export default class extends React.Component {
     data.student = {}
     data.student.token = student.token
     data.student.doc_type = this.state.docType
-    data.student.doc_num = this.state.docNumber
+    data.student.doc_num = this.state.docNum
 
     console.log('Trying to submit student: ', data)
 

@@ -9,6 +9,8 @@ from errorsapp import exceptions as wfe
 
 
 def validate_gradebook_number(gradebook_number: str):
+    # TODO: NOT VALIDATE GRADEBOOK NUMBER
+    return 
     n1, sep, n2 = gradebook_number.partition('/')
     if sep == '':
         raise exceptions.ValidationError('"/" (slash) must be inside gradebook number.')
