@@ -8,8 +8,16 @@ from .utils import get_current_naive_time, time_diff_formatted
 from errorsapp import exceptions as wfe
 
 
+def validate_ticket_number(ticket_number: str):
+    try:
+        num = int(ticket_number)
+    except TypeError:
+        raise exceptions.ValidationError('Number must be a valid integer')
+    validate_student_ticket_number(num)
+
+
 def validate_gradebook_number(gradebook_number: str):
-    # TODO: NOT VALIDATE GRADEBOOK NUMBER
+    # TODO: validate gradebook
     return 
     n1, sep, n2 = gradebook_number.partition('/')
     if sep == '':
@@ -20,20 +28,14 @@ def validate_gradebook_number(gradebook_number: str):
 
 
 def validate_certificate_number(certificate_number: str):
+    # TODO: validate certificate number
+    return
     try:
         num = int(certificate_number)
     except TypeError:
         raise exceptions.ValidationError('Number must be a valid integer')
     if not (10_00 < num < 99_99):
         raise exceptions.ValidationError('Number must contain exact 4 digits.')
-
-
-def validate_ticket_number(ticket_number: str):
-    try:
-        num = int(ticket_number)
-    except TypeError:
-        raise exceptions.ValidationError('Number must be a valid integer')
-    validate_student_ticket_number(num)
 
 
 class CheckInSession(models.Model):
