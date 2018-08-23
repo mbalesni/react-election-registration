@@ -148,5 +148,9 @@ class StudentNotAllowedToAssign(BaseUserError):
 class CheckInSessionTokenExpired(BaseUserError):
     code = 508
 
+
+class StudentNameNotFound(BaseUserError):
+    code = 509
+
 # end of user errors
 # ==================

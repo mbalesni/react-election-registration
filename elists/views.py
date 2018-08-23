@@ -1,7 +1,8 @@
 from .constants import (
-    RESPONSE_STUDENT, REQUEST_STUDENT_TICKET_NUMBER, REQUEST_STUDENT_DOC_NUM,
+    RESPONSE_STUDENT, RESPONSE_STUDENTS, RESPONSE_STAFF,
+    REQUEST_STUDENT_TICKET_NUMBER, REQUEST_STUDENT_DOC_NUM,
     REQUEST_STUDENT_DOC_TYPE, REQUEST_STUDENT_TOKEN, REQUEST_STUDENT,
-    RESPONSE_STAFF
+    REQUEST_STUDENT_FULL_NAME,
 )
 from .middleware import Request, mark, serialize_student, serialize_staff
 from .models import CheckInSession, Student
@@ -20,7 +21,7 @@ def start_new_session(request: Request):
 
 
 @mark()
-def search_student_by_ticket_number(request: Request):
+def search_by_ticket_number(request: Request):
     session = request.elists_cisi.session
     if not session.just_started:
         raise wfe.CheckInSessionWrongStatus(
@@ -35,6 +36,27 @@ def search_student_by_ticket_number(request: Request):
 
     return {
         RESPONSE_STUDENT: serialize_student(student),
+    }
+
+
+@mark()
+def search_by_name(request: Request):
+    session = request.elists_cisi.session
+    if not session.just_started:
+        raise wfe.CheckInSessionWrongStatus(
+            context={
+                'current_status_code': session.status,
+                'current_status_name': session.status_verbose,
+            },
+        )
+
+    full_name = request.elists_cisi.data[REQUEST_STUDENT][REQUEST_STUDENT_FULL_NAME]
+    students = Student.search_by_full_name(full_name=full_name)
+
+    return {
+        RESPONSE_STUDENTS: [
+            serialize_student(student) for student in students
+        ]
     }
 
 
