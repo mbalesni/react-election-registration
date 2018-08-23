@@ -1,3 +1,5 @@
+import typing
+
 from django.core import exceptions, signing
 from django.db import models
 from django.utils import timezone
@@ -178,15 +180,11 @@ class Student(models.Model):
             raise exceptions.ValidationError('Bachelors could be only on 1-4 years of study.')
 
     @classmethod
-    def search_for_students(cls, search_query: str, educational_degree: int, year: int):
-        raise NotImplementedError("Need to implement search with query...")
-        return cls.objects.filter(
-            ticket_number__isnull=False,
-            educational_degree=educational_degree,
-            year=year,
-            checkinsession__status__lt=0,
-            # FIXME: ### full_name__trigram_similar=search_query,
+    def search_by_full_name(cls, full_name: str) -> typing.Tuple['Student']:
+        filtered = cls.objects.filter(
+            full_name=full_name,
         )
+        return tuple(filtered)
 
     @classmethod
     def search_by_ticket_number(cls, ticket_number_string: str) -> 'Student':
@@ -211,7 +209,7 @@ class Student(models.Model):
             raise wfe.TicketNumberNotFound()
 
     @classmethod
-    def get_student_by_token(cls, token: str):
+    def get_student_by_token(cls, token: str) -> 'Student':
         try:
             student_ticket_number: str = signing.Signer().unsign(token)
         except signing.BadSignature:
