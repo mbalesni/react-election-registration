@@ -40,6 +40,7 @@ export default class CheckIn extends React.Component {
             <StudentFinder
               onScanStart={this.props.onScanStart.bind(this)}
               onScanCancel={this.props.onScanCancel}
+              onSearchByName={this.props.onSearchByName}
               activeStudent={this.props.activeStudent}
             />
           }

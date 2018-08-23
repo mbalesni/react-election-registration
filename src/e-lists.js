@@ -85,6 +85,7 @@ export default class extends React.Component {
                   onScanCancel={this.cancelScan.bind(this)}
                   onCancelSession={this.cancelSession.bind(this)}
                   onCompleteSession={this.completeSession.bind(this)}
+                  onSearchByName={this.searchStudentByName}
                 />}
 
             </div>
@@ -163,17 +164,8 @@ export default class extends React.Component {
     axios.post('/search_by_ticket_number', data)
       .then(res => {
         const studentObj = res.data.data.student
-        const studentData = studentObj.data
 
-        let student = {
-          ticketNum: ticketNum,
-          name: studentData.full_name,
-          degree: studentData.educational_degree === 1 ? 'Бакалавр' : 'Магістр',
-          formOfStudy: studentData.form_of_study === 1 ? 'Денна' : 'Заочна',
-          specialty: studentData.specialty,
-          year: studentData.year,
-          token: studentObj.token
-        }
+        let student = this.buildStudentData(studentObj)
 
         let foundStudents = this.state.foundStudents.slice()
         foundStudents[0] = { ...foundStudents[0], ...student }
@@ -194,6 +186,50 @@ export default class extends React.Component {
       })
   }
 
+  searchStudentByName(name, docType, docNum) {
+    let data = {}
+    data.full_name = name
+
+    console.log('Searching student by name ', name, ', saving document type ', docType, ' , number: ', docNum)
+
+    this.setState({ loading: true })
+
+    axios.post('/search_by_name', data)
+      .then(res => {
+        console.log(res)
+        const students = res.data.data.students
+
+        let foundStudents = students.map(student => {
+          return this.buildStudentData(student)
+        })
+
+        this.setState({
+          docType: docType,
+          docNum: docNum,
+          foundStudents: foundStudents,
+          status: {
+            type: 'info',
+            message: 'Підтвердіть правильність даних та оберіть студента'
+          },
+          loading: false
+        })
+        
+      })
+  }
+
+  buildStudentData(student) {
+    let data = {
+      name: student.data.full_name,
+      degree: student.data.educational_degree === 1 ? 'Бакалавр' : 'Магістр',
+      formOfStudy: student.data.form_of_study === 1 ? 'Денна' : 'Заочна',
+      structuralUnit: student.data.structural_unit,
+      specialty: student.data.specialty,
+      year: student.data.year,
+      token: student.token
+    }
+    return data
+  }
+
   submitStudent(student) {
     let data = {}
     data.check_in_session_token = this.state.checkInSessionToken
@@ -201,6 +237,8 @@ export default class extends React.Component {
     data.student.token = student.token
     data.student.doc_type = this.state.docType
     data.student.doc_num = this.state.docNumber
+
+    console.log('Trying to submit student: ', data)
 
     this.setState({ loading: true })
 
