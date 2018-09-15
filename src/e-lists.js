@@ -20,15 +20,27 @@ const spinnerStyles = css`
   position: absolute !important;
 `
 
-// BASE URLs
-//
-// Local                'http://localhost:8000'
-// Heroku DEV           'https://elists-dev.herokuapp.com'
-// Heroku PROD          'https://elists.herokuapp.com'
-
-const BASE_URL = 'http://localhost:8000'
+const BASE_URL = 'http://localhost:8000' // for axios requests
 const BASE_API_URL = BASE_URL + '/api/elists'
 
+// const initialState = {
+//   sessionIsOpen: false,
+//   status: {},
+//   foundStudents: [],
+//   auth: { loggedIn: false, user: '' },
+//   loading: true
+// }
+
+const initialState = {
+  activeStudent: null,
+  auth: { loggedIn: false, user: '' },
+  docNumber: null,
+  docType: null,
+  sessionIsOpen: false,
+  checkInSessionToken: null,
+  foundStudents: [],
+  loading: false
+}
 
 function AppleNotSupported(props) {
   return (
@@ -39,13 +51,7 @@ function AppleNotSupported(props) {
 }
 
 export default class extends React.Component {
-  state = {
-    sessionIsOpen: false,
-    status: {},
-    foundStudents: [],
-    auth: { loggedIn: false, user: '' },
-    loading: true
-  }
+  state = { ...initialState }
 
   render() {
     let { loggedIn } = this.state.auth
@@ -241,7 +247,7 @@ export default class extends React.Component {
     data.student = {}
     data.student.token = student.token
     data.student.doc_type = this.state.docType
-    data.student.doc_num = this.state.docNum
+    data.student.doc_num = this.state.docNumber
 
     console.log('Trying to submit student: ', data)
 
@@ -312,13 +318,8 @@ export default class extends React.Component {
   }
 
   onSessionEnd() {
-    this.setState({
-      activeStudent: null,
-      sessionIsOpen: false,
-      checkInSessionToken: null,
-      foundStudents: [],
-      loading: false
-    })
+    this.setState(initialState)
+    this.getAuth()
     Quagga.stop()
   }
 
