@@ -118,7 +118,10 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
 
     # read body
     request_body = request.body
-    data = json.loads(request_body)
+    if request_body:
+        data = json.loads(request_body)
+    else:
+        data = {}
     request.elists_cisi = EListsCheckInSessionInfo(staff, data)
 
     try:
