@@ -26,7 +26,8 @@ const spinnerStyles = css`
 // Heroku DEV           'https://elists-dev.herokuapp.com'
 // Heroku PROD          'https://elists.herokuapp.com'
 
-const BASE_URL = 'http://localhost:8000'
+// const BASE_URL = 'http://localhost:8000'
+const BASE_URL = 'https://elists-dev.herokuapp.com'
 const BASE_API_URL = BASE_URL + '/api/elists'
 
 
@@ -241,7 +242,7 @@ export default class extends React.Component {
     data.student = {}
     data.student.token = student.token
     data.student.doc_type = this.state.docType
-    data.student.doc_num = this.state.docNum
+    data.student.doc_num = this.state.docNumber
 
     console.log('Trying to submit student: ', data)
 
@@ -314,6 +315,8 @@ export default class extends React.Component {
   onSessionEnd() {
     this.setState({
       activeStudent: null,
+      docNumber: null,
+      docType: null,
       sessionIsOpen: false,
       checkInSessionToken: null,
       foundStudents: [],
