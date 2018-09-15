@@ -26,8 +26,8 @@ const spinnerStyles = css`
 // Heroku DEV           'https://elists-dev.herokuapp.com'
 // Heroku PROD          'https://elists.herokuapp.com'
 
-// const BASE_URL = 'http://localhost:8000'
-const BASE_URL = 'https://elists-dev.herokuapp.com'
+const BASE_URL = 'http://localhost:8000'
+// const BASE_URL = 'https://elists-dev.herokuapp.com'
 const BASE_API_URL = BASE_URL + '/api/elists'
 
 
