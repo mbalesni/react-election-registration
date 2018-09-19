@@ -55,7 +55,7 @@ class StudentAdmin(admin.ModelAdmin):
         (None, {
             'fields': (
                 'full_name',
-                #'structural_unit',
+                'structural_unit',
                 'specialty',
                 'form_of_study',
                 ('educational_degree', 'year'),
