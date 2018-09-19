@@ -45,9 +45,14 @@ class CheckInSessionAdmin(admin.ModelAdmin):
     )
     list_display_links = ('show_time_summary',)
     list_filter = (
-        'status', 'staff', 'doc_type', 'student',
-        'student__structural_unit', 'student__educational_degree',
-        'student__year', 'student__form_of_study',
+        'status',
+        'staff',
+        'doc_type',
+        #'student',
+        #'student__structural_unit',
+        'student__educational_degree',
+        'student__year',
+        'student__form_of_study',
     )
 
     READONLY_FIELDSETS = (
