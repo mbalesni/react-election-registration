@@ -117,10 +117,10 @@ class Request(HttpRequest):
 
 def process_view(request: Request, view_func, view_args, view_kwargs):
     endpoint = request.path
-    user_name = request.user.username
-    user_ip = request.META.get("HTTP_X_FORWARDED_FOR")
+    user_name = f'@{"ANON" if request.user.is_anonymous else request.user.username}@'
+    user_ip = request.META.get('HTTP_X_FORWARDED_FOR') or request.META.get('REMOTE_ADDR')
 
-    log.debug(f'request: {endpoint} @{user_name} from {user_ip}')
+    log.debug(f'request: {endpoint} {user_name} from {user_ip}')
 
     staff = request.user
     if not staff.is_staff:
@@ -141,7 +141,7 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
 
         out_data = view_func(request, *view_args, **view_kwargs)
     except wfe.BaseWorkflowError as exc:
-        log.debug(f'workflow error ({endpoint} @{user_name} {user_ip}): {str(exc)}')
+        log.debug(f'workflow error ({endpoint} {user_name} {user_ip}): {str(exc)}')
         response_status_code = 400
         out_data = None
         error = {
@@ -150,7 +150,7 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
             'context': exc.get_context(),
         }
     except Exception as exc:
-        log.exception(f'unexpected error ({endpoint} @{user_name} {user_ip}): {str(exc)}')
+        log.exception(f'unexpected error ({endpoint} {user_name} {user_ip}): {str(exc)}')
         client.captureException()
         response_status_code = 400
         out_data = None
@@ -170,7 +170,7 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
     if out_data:
         resp[RESPONSE_DATA] = out_data
 
-    log.info(f'response: {endpoint} {response_status_code} @{user_name} {user_ip}')
+    log.info(f'response: {endpoint} {response_status_code} {user_name} {user_ip}')
 
     response = JsonResponse(resp)
     response.status_code = response_status_code
