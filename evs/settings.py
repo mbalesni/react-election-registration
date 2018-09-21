@@ -161,6 +161,37 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'detailed': {
+            'class' : 'logging.Formatter',
+            'format': '%(levelname)-8s | %(name)s :: %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'detailed',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', ],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'elists': {
+            'handlers': ['console', ],
+            'level': 'DEBUG',
+            'propagate': True,
+        }
+    },
+}
+
+
 # =============================================================================
 
 # Sessions & Cookies

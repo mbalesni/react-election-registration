@@ -1,3 +1,5 @@
+import logging
+
 from .constants import (
     RESPONSE_STUDENT, RESPONSE_STUDENTS, RESPONSE_STAFF,
     REQUEST_STUDENT_TICKET_NUMBER, REQUEST_STUDENT_DOC_NUM,
@@ -7,6 +9,8 @@ from .constants import (
 from .middleware import Request, mark, serialize_student, serialize_staff
 from .models import CheckInSession, Student
 from errorsapp import exceptions as wfe
+
+log = logging.getLogger('elists.views')
 
 
 @mark(require_session=False)
