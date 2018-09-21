@@ -1,7 +1,9 @@
 import json
+import logging
 
 from django.http import JsonResponse, HttpRequest, HttpResponseForbidden
 from django.views.decorators.http import require_POST
+from raven.contrib.django.raven_compat.models import client
 
 from .constants import (
     RESPONSE_STUDENT_DATA_EDUCATIONAL_DEGREE, RESPONSE_STUDENT_DATA_FORM_OF_STUDY,
@@ -16,6 +18,8 @@ from .constants import (
 )
 from .models import Student, CheckInSession
 from errorsapp import exceptions as wfe
+
+log = logging.getLogger('elists.views.wrapper')
 
 REQUIRE_SESSION_MARK = 'elists__require_session'
 
@@ -107,54 +111,66 @@ class EListsCheckInSessionInfo:
 class Request(HttpRequest):
     def __init__(self):
         self.elists_cisi = EListsCheckInSessionInfo(Staff(), {})
-        self.user = Staff
+        self.user = Staff()
         super().__init__()
 
 
 def process_view(request: Request, view_func, view_args, view_kwargs):
+    endpoint = request.path
+    user_name = request.user.username
+    user_ip = request.META.get("HTTP_X_FORWARDED_FOR")
+
+    log.debug(f'request: {endpoint} @{user_name} from {user_ip}')
+
     staff = request.user
     if not staff.is_staff:
+        log.warning(f'Forbidden request to {endpoint} from {user_ip}')
         return HttpResponseForbidden(b'Please, log in to access this page')
 
     # read body
     request_body = request.body
     if request_body:
-        data = json.loads(request_body)
+        in_data = json.loads(request_body)
     else:
-        data = {}
-    request.elists_cisi = EListsCheckInSessionInfo(staff, data)
+        in_data = {}
+    request.elists_cisi = EListsCheckInSessionInfo(staff, in_data)
 
     try:
         if getattr(view_func, REQUIRE_SESSION_MARK):
             session_before = request.elists_cisi.retrieve_session()
 
-        data = view_func(request, *view_args, **view_kwargs)
+        out_data = view_func(request, *view_args, **view_kwargs)
     except wfe.BaseWorkflowError as exc:
+        log.debug(f'workflow error ({endpoint} @{user_name} {user_ip}): {str(exc)}')
         response_status_code = 400
-        data = None
+        out_data = None
         error = {
             'code': exc.get_code(),
             'name': exc.get_name(),
             'context': exc.get_context(),
         }
     except Exception as exc:
+        log.exception(f'unexpected error ({endpoint} @{user_name} {user_ip}): {str(exc)}')
+        client.captureException()
         response_status_code = 400
-        data = None
+        out_data = None
         error = serialize_exception(exc)
     else:
         response_status_code = 200
         error = None
 
-    if data is None:
-        data = {}
+    if out_data is None:
+        out_data = {}
     if request.elists_cisi.session:
-        data[RESPONSE_CHECK_IN_SESSION] = serialize_session(request.elists_cisi.session)
+        out_data[RESPONSE_CHECK_IN_SESSION] = serialize_session(request.elists_cisi.session)
 
     resp = {}
     if error:
         resp[RESPONSE_ERROR] = error
-    if data:
-        resp[RESPONSE_DATA] = data
+    if out_data:
+        resp[RESPONSE_DATA] = out_data
+
+    log.info(f'response: {endpoint} {response_status_code} @{user_name} {user_ip}')
 
     response = JsonResponse(resp)
     response.status_code = response_status_code
