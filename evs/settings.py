@@ -12,23 +12,37 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 
-import dj_database_url
 import raven
+import environ
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+env = environ.Env(
+    DEBUG=(bool, False),
+    # BACKEND_DOMAIN
+    # RAVEN_DSN
+    # RAVEN_RELEASE
+    # SECRET_KEY
+    # DATABASE_URL
+)
+
+# reading .env file
+environ.Env.read_env(env_file=os.path.join(BASE_DIR, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '(8wll5+ismoskrnfao(=s7)j)r8!*s*&-dm2=dj-(q%__u)m79'
+SECRET_KEY = env.str('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DEBUG')
 
-ALLOWED_HOSTS = ['elists-dev.herokuapp.com', '127.0.0.1', 'localhost']
+BACKEND_DOMAIN = env.str('BACKEND_DOMAIN')
+
+ALLOWED_HOSTS = [BACKEND_DOMAIN, ]
 
 
 # Application definition
@@ -97,14 +111,7 @@ WSGI_APPLICATION = 'evs.wsgi.application'
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'evs',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': '0.0.0.0',
-        'PORT': '5432',
-    }
+    'default': env.db_url('DATABASE_URL')
 }
 
 
@@ -154,11 +161,38 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
-# =============================================================================
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'detailed': {
+            'class' : 'logging.Formatter',
+            'format': '%(levelname)-8s | %(name)s :: %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'detailed',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', ],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'elists': {
+            'handlers': ['console', ],
+            'level': 'DEBUG',
+            'propagate': True,
+        }
+    },
+}
 
-# Configure database connection for Heroku.
-if os.environ.get('DATABASE_URL', None):
-    DATABASES['default'] = dj_database_url.config()
+
+# =============================================================================
 
 # Sessions & Cookies
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
@@ -178,25 +212,18 @@ GRAPPELLI_ADMIN_TITLE = 'EVS Адміністрування'
 
 # Sentry
 RAVEN_CONFIG = {
-    'dsn': 'https://6114eea799a146298b71db08a24d036d:5dbe0913367a4056b25acad5bd4664c3@sentry.io/1241630',
+    'dsn': env.str('RAVEN_DSN'),
 }
 try:
     # If you are using git, you can also automatically configure the
     # release based on the git info.
     RAVEN_CONFIG['release'] = raven.fetch_git_sha(BASE_DIR)
 except:
-    RAVEN_CONFIG['release'] = 'onHeroku'
+    RAVEN_CONFIG['release'] = env.str('RAVEN_RELEASE', default='onHeroku')
 
 # CORS headers
 CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_WHITELIST = [
-    'elists-dev.herokuapp.com',
-    # Unsafe origins
-    'localhost:8000',
-    'localhost:3000',
-    '127.0.0.1:8000',
-    '127.0.0.1:3000',
-]
+CORS_ORIGIN_WHITELIST = [BACKEND_DOMAIN, ]
 
 
 if DEBUG:
@@ -206,3 +233,13 @@ if DEBUG:
     SESSION_EXPIRE_AT_BROWSER_CLOSE = False
     SESSION_SAVE_EVERY_REQUEST = False
     GRAPPELLI_SWITCH_USER = True
+    ALLOWED_HOSTS += [
+        '127.0.0.1',
+        'localhost',
+    ]
+    CORS_ORIGIN_WHITELIST += [
+        'localhost:8000',
+        'localhost:3000',
+        '127.0.0.1:8000',
+        '127.0.0.1:3000',
+    ]
