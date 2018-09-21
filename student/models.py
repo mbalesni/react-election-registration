@@ -213,15 +213,15 @@ class Student(models.Model):
     @classmethod
     def get_student_by_token(cls, token: str) -> 'Student':
         try:
-            student_ticket_number: str = signing.Signer().unsign(token)
+            query: dict = signing.loads(token, max_age=None)
         except signing.BadSignature:
             raise wfe.StudentTokenBadSignature()
 
         # if we had given that token, than object must exist, and be valid
-        return cls.objects.get(ticket_number=int(student_ticket_number))
+        return cls.objects.get(**query)
 
     def create_token(self) -> str:
-        return signing.Signer().sign(str(self.ticket_number))
+        return signing.dumps(str(self.id))
 
     def update_status(self, status: int):
         assert status in dict(self.STATUS_CHOICES).keys()
