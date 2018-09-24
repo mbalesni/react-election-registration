@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 env = environ.Env(
     DEBUG=(bool, False),
     # BACKEND_DOMAIN
-    # RAVEN_DSN
+    # SENTRY_DSN
     # RAVEN_RELEASE
     # SECRET_KEY
     # DATABASE_URL
@@ -212,7 +212,7 @@ GRAPPELLI_ADMIN_TITLE = 'EVS Адміністрування'
 
 # Sentry
 RAVEN_CONFIG = {
-    'dsn': env.str('RAVEN_DSN'),
+    'dsn': env.str('SENTRY_DSN'),
 }
 try:
     # If you are using git, you can also automatically configure the
