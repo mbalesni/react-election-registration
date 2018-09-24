@@ -221,7 +221,7 @@ class Student(models.Model):
         return cls.objects.get(**query)
 
     def create_token(self) -> str:
-        return signing.dumps(str(self.id))
+        return signing.dumps(dict(id=self.id))
 
     def update_status(self, status: int):
         assert status in dict(self.STATUS_CHOICES).keys()
