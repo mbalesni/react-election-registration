@@ -61,12 +61,12 @@ footer > * {
   margin: 0 auto;
 }
 .card .card-header {
+  border-bottom: 3px solid #f0f0f0;
   color: #333;
   display: flex;
   justify-content: space-between;
   text-transform: uppercase;
   align-items: center;
-  /* border-bottom: 1px solid #ddd; */
   padding: .5rem 1.5rem;
 
 }

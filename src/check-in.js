@@ -1,5 +1,5 @@
 import React from 'react';
-import {ICONS} from './icons.js'
+import { ICONS } from './icons.js'
 import Button from '@material-ui/core/Button'
 import StudentFinder from './student-finder.js'
 import StudentInfo from './student-info.js'
@@ -8,7 +8,8 @@ import SessionStatus from './session-status.js'
 import './css/checkIn.css'
 
 export default class CheckIn extends React.Component {
-  getStudentsInfo () {
+  getStudentsInfo() {
+    // console.log(this.state.foundStudents)
     let foundStudents = this.props.foundStudents.map(student => <StudentInfo key={this.props.foundStudents.indexOf(student)} onSubmit={this.props.onStudentSubmit} data={student} activeStudent={this.props.activeStudent} />)
 
     return (foundStudents)
@@ -29,14 +30,14 @@ export default class CheckIn extends React.Component {
 
         </div>
 
-        <SessionStatus
+        {/* <SessionStatus
           type={this.props.status.type}
           message={this.props.status.message}
-        />
+        /> */}
 
         <div className="card-block">
 
-          {this.props.foundStudents.length < 1  &&
+          {this.props.foundStudents.length < 1 &&
             <StudentFinder
               onScanStart={this.props.onScanStart.bind(this)}
               onScanCancel={this.props.onScanCancel}
@@ -45,10 +46,14 @@ export default class CheckIn extends React.Component {
             />
           }
 
-          {this.props.foundStudents.length > 0 &&
+          {this.props.foundStudents.length > 0 && !this.props.activeStudent &&
             <div className="found-students">
               {this.getStudentsInfo()}
             </div>
+          }
+
+          {this.props.activeStudent &&
+            <StudentInfo data={this.props.activeStudent} activeStudent={this.props.activeStudent} />
           }
 
           <div className="check-in-controls">

@@ -12,9 +12,11 @@ import Footer from './footer.js'
 import { THEME } from './theme.js'
 import { BarLoader } from 'react-spinners';
 import { css } from 'react-emotion';
+import { message } from 'antd'
+import 'antd/dist/antd.css';
 import * as errors from './errors.json';
 
-console.log(errors)
+// console.log(errors)
 
 const spinnerStyles = css`
   position: absolute !important;
@@ -88,7 +90,7 @@ export default class extends React.Component {
                   foundStudents={this.state.foundStudents}
                   onStudentSubmit={this.submitStudent.bind(this)}
                   onScanStart={this.initScan.bind(this)}
-                  onScanCancel={this.cancelScan.bind(this)}
+                  // onScanCancel={this.cancelScan.bind(this)}
                   onCancelSession={this.cancelSession.bind(this)}
                   onCompleteSession={this.completeSession.bind(this)}
                   onSearchByName={this.searchStudentByName.bind(this)}
@@ -105,8 +107,13 @@ export default class extends React.Component {
   componentDidMount() {
     axios.defaults.baseURL = BASE_API_URL
     axios.defaults.withCredentials = true
+    message.config({
+      maxCount: 1,
+      duration: 0
+    })
     this.getAuth()
     this.closeSessions()
+    // console.log('hello world')
   }
 
   getAuth() {
@@ -154,6 +161,7 @@ export default class extends React.Component {
           },
           loading: false
         })
+        message.info('Оберіть тип документа')
       })
       .catch(err => {
         this.handleError(err)
@@ -186,19 +194,21 @@ export default class extends React.Component {
           },
           loading: false
         })
+        message.info('Підтвердіть правильність даних та оберіть студента')
       })
       .catch(err => {
         this.handleError(err)
       })
   }
 
-  searchStudentByName(name, docType, docNum) {
+  searchStudentByName(name, docType, docNumber) {
     let data = {}
     data.check_in_session_token = this.state.checkInSessionToken
     data.student = {}
     data.student.full_name = name
+    data.student.doc_num = docNumber
 
-    console.log('Searching student by name ', name, ', saving document type ', docType, ' , number: ', docNum)
+    console.log('Searching student by name ', name, ', saving document type ', docType, ' , number: ', docNumber)
 
     this.setState({ loading: true })
 
@@ -213,7 +223,7 @@ export default class extends React.Component {
 
         this.setState({
           docType: docType,
-          docNum: docNum,
+          docNumber: docNumber,
           foundStudents: foundStudents,
           status: {
             type: 'info',
@@ -221,6 +231,7 @@ export default class extends React.Component {
           },
           loading: false
         })
+        message.info('Підтвердіть правильність даних та оберіть студента')
 
       })
       .catch(err => {
@@ -236,7 +247,8 @@ export default class extends React.Component {
       structuralUnit: student.data.structural_unit,
       specialty: student.data.specialty,
       year: student.data.year,
-      token: student.token
+      token: student.token,
+      ticketNumber: student.ticket_number
     }
     return data
   }
@@ -263,6 +275,7 @@ export default class extends React.Component {
           },
           loading: false
         })
+        message.info('Видайте бюлетень')
       })
       .catch(err => {
         this.handleError(err)
@@ -289,6 +302,7 @@ export default class extends React.Component {
       loading: false
 
     })
+    message.error(errors[code])
   }
 
   cancelSession() {
@@ -311,6 +325,7 @@ export default class extends React.Component {
     axios.post('/complete_session', data)
       .then(res => {
         this.onSessionEnd()
+        message.success('Студента успішно зареєстровано.', {duration: 3})
       })
       .catch(err => {
         this.handleError(err)
@@ -318,9 +333,15 @@ export default class extends React.Component {
   }
 
   onSessionEnd() {
+    // console.log(Quagga)
+    message.destroy()
     this.setState(initialState)
     this.getAuth()
-    Quagga.stop()
+    try {
+      Quagga.stop()
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   initScan() {
@@ -340,28 +361,31 @@ export default class extends React.Component {
           },
           loading: false
         })
+        message.info('Піднесіть студентський квиток до камери')
         this.initOnDetected()
       })
   }
 
-  cancelScan() {
-    Quagga.stop();
-    this.setState({
-      sessionsStatus: 100,
-      status: {
-        type: 'info',
-        message: 'Оберіть тип документа'
-      }
-    })
-  }
+  // cancelScan() {
+  //   Quagga.stop();
+  //   this.setState({
+  //     sessionsStatus: 100,
+  //     status: {
+  //       type: 'info',
+  //       message: 'Оберіть тип документа'
+  //     }
+  //   })
+  //   message.info('Сканування скасовано. Оберыть тип документа')
+  // }
 
   initOnDetected() {
     Quagga.onDetected((data) => {
       const result = data.codeResult.code
       if (result.length === 8) {
         // playSuccessSound()
-        Quagga.stop()
-        this.searchStudentByTicketNumber(result)
+        async function tmp() { Quagga.stop() }
+        tmp().then(() => {this.searchStudentByTicketNumber(result)})
+        
       } else {
         this.handleError('Error', 507)
       }
