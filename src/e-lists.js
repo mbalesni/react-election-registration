@@ -1,5 +1,4 @@
 import React from 'react'
-
 import axios from 'axios'
 import Raven from 'react-raven'
 import { MuiThemeProvider } from '@material-ui/core/styles';
@@ -16,22 +15,15 @@ import { message } from 'antd'
 import 'antd/dist/antd.css';
 import * as errors from './errors.json';
 
-// console.log(errors)
-
 const spinnerStyles = css`
   position: absolute !important;
 `
 
-const BASE_URL = 'http://localhost:8000' // for axios requests
-const BASE_API_URL = BASE_URL + '/api/elists'
+// retrieving environment variables
 
-// const initialState = {
-//   sessionIsOpen: false,
-//   status: {},
-//   foundStudents: [],
-//   auth: { loggedIn: false, user: '' },
-//   loading: true
-// }
+const SENTRY_DSN = process.env.REACT_APP_SENTRY_DSN || ''
+const BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL || 'http://localhost:8000'
+const BASE_API_URL = BASE_URL + '/api/elists'
 
 const initialState = {
   activeStudent: null,
@@ -44,25 +36,16 @@ const initialState = {
   loading: false
 }
 
-function AppleNotSupported(props) {
-  return (
-    <div className="apple-not-supported">
-      {errors.user.apple_not_supported}
-    </div>
-  )
-}
-
 export default class extends React.Component {
   state = { ...initialState }
 
   render() {
     let { loggedIn } = this.state.auth
-    const isAppleMobileDevice = checkAppleMobileDevice()
 
     return (
       <div className="page-content-wrapper ">
 
-        <Raven dsn='https://6114eea799a146298b71db08a24d036d@sentry.io/1241630' />
+        <Raven dsn={SENTRY_DSN} />
 
         <MuiThemeProvider theme={THEME}>
           <div className="header-and-content">
@@ -76,10 +59,8 @@ export default class extends React.Component {
               height={3}
             />
 
-            {isAppleMobileDevice && <AppleNotSupported />}
-
             <div className="content">
-              {loggedIn && !this.state.sessionIsOpen && !isAppleMobileDevice &&
+              {loggedIn && !this.state.sessionIsOpen &&
                 <OpenNewSession onSessionOpen={this.openSession.bind(this)} />
               }
 
@@ -113,7 +94,6 @@ export default class extends React.Component {
     })
     this.getAuth()
     this.closeSessions()
-    // console.log('hello world')
   }
 
   getAuth() {
@@ -248,7 +228,6 @@ export default class extends React.Component {
       specialty: student.data.specialty,
       year: student.data.year,
       token: student.token,
-      ticketNumber: student.ticket_number
     }
     return data
   }
@@ -284,11 +263,14 @@ export default class extends React.Component {
 
   handleError(err, code) {
     let errData = err
+    // console.log(err.message)
     if (err.response) {
       console.error("Error: ", err.response)
       if (err.response.status !== 400) code = 300
       else code = err.response.data.error.code
-      errData = err.response.data.error
+      errData = err.response.data.error.message
+    } else {
+      errData = err.message
     }
     console.error('Error data: ', errData)
     console.log('Error code: ', code)
@@ -302,7 +284,8 @@ export default class extends React.Component {
       loading: false
 
     })
-    message.error(errors[code])
+    if (!code) message.error(errData)
+    else message.error(errors[code])    
   }
 
   cancelSession() {
@@ -333,14 +316,13 @@ export default class extends React.Component {
   }
 
   onSessionEnd() {
-    // console.log(Quagga)
     message.destroy()
     this.setState(initialState)
     this.getAuth()
     try {
       Quagga.stop()
     } catch (err) {
-      console.log(err)
+      console.log('Quagga stop error: ', err)
     }
   }
 
@@ -392,9 +374,4 @@ export default class extends React.Component {
     })
   }
 
-}
-
-function checkAppleMobileDevice() {
-  if (window.navigator.userAgent.includes('iPad') || window.navigator.userAgent.includes('iPhone')) return true
-  else return false
 }

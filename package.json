@@ -16,16 +16,14 @@
     "react-dom": "^16.4.1",
     "react-raven": "^1.2.3",
     "react-scripts": "1.1.4",
-    "request": "^2.88.0"
+    "request": "^2.88.0",
+    "emotion": "^9.2.6",
+    "react-spinners": "^0.4.4"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
-  },
-  "devDependencies": {
-    "emotion": "^9.2.6",
-    "react-spinners": "^0.4.4"
   }
 }

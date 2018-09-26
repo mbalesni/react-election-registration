@@ -10,7 +10,6 @@ body {
   font-family: 'Roboto', sans-serif;
   font-weight: 400;
   max-height: 100%;
-  overflow: hidden;
 }
 #root {
   height: 100%;

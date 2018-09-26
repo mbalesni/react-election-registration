@@ -7,15 +7,24 @@ import SessionStatus from './session-status.js'
 
 import './css/checkIn.css'
 
+const Fragment = React.Fragment
+
 export default class CheckIn extends React.Component {
   getStudentsInfo() {
-    // console.log(this.state.foundStudents)
-    let foundStudents = this.props.foundStudents.map(student => <StudentInfo key={this.props.foundStudents.indexOf(student)} onSubmit={this.props.onStudentSubmit} data={student} activeStudent={this.props.activeStudent} />)
+    let foundStudents = this.props.foundStudents.map(student => (
+      <StudentInfo
+        key={this.props.foundStudents.indexOf(student)}
+        onSubmit={this.props.onStudentSubmit}
+        data={student}
+        activeStudent={this.props.activeStudent}
+      />))
 
-    return (foundStudents)
+    return foundStudents
   }
 
   render() {
+    const foundStudents = this.getStudentsInfo()
+
     return (
       <div className="check-in card card-default">
 
@@ -30,11 +39,6 @@ export default class CheckIn extends React.Component {
 
         </div>
 
-        {/* <SessionStatus
-          type={this.props.status.type}
-          message={this.props.status.message}
-        /> */}
-
         <div className="card-block">
 
           {this.props.foundStudents.length < 1 &&
@@ -47,9 +51,12 @@ export default class CheckIn extends React.Component {
           }
 
           {this.props.foundStudents.length > 0 && !this.props.activeStudent &&
-            <div className="found-students">
-              {this.getStudentsInfo()}
-            </div>
+            <Fragment>
+              <p className="found-students-num">
+                Знайдено {foundStudents.length} студент{foundStudents.length > 1 ? 'ів' : 'а'}
+              </p>
+              <div className="found-students">{foundStudents}</div>
+            </Fragment>
           }
 
           {this.props.activeStudent &&

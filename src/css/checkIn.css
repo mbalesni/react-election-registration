@@ -18,7 +18,7 @@
 
 .page-content-wrapper .content {
   /* align-items: center; */
-  padding: 3rem 0 0rem;
+  padding: 3rem 0 1rem;
   /* display: flex; */
   /* flex-flow: column; */
   margin: 0;
@@ -28,6 +28,7 @@
 
 
 footer {
+  align-items: center;
   border-top: 1px solid rgba(98, 98, 98, 0.07);
   display: flex;
   font-size: 12px;
@@ -91,12 +92,19 @@ footer > * {
 
 .card .card-block {
   padding: 1rem 1.5rem !important;
-  min-height: 350px;
+  min-height: 370px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   position: relative;
 }
+
+.found-students-num {
+  text-align: center;
+  margin-bottom: 1rem !important;
+}
+
+
 
 .card-footer {
   align-items: center;

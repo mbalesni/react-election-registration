@@ -16,7 +16,13 @@ export default class StudentFinder extends React.Component {
   state = {
     docType: '0',
     isScanning: false,
-    value: '0'
+    value: '0',
+    name: '',
+    docNumber: '',
+    touched: {
+      name: false,
+      docNumber: false,
+    },
   }
 
   handleChange = event => {
@@ -35,17 +41,51 @@ export default class StudentFinder extends React.Component {
       isScanning: false
     })
   }
-  
+
   handleSearch() {
     console.log('Handling search... ')
-    let { studentName, value, docNum} = this.state
-    this.props.onSearchByName(studentName, value, docNum)
+    let { name, value, docNumber } = this.state
+    this.props.onSearchByName(name, value, docNumber)
 
+  }
+
+  validate(name, docNumber) {
+    // message string means invalid
+    return {
+      name: name.length < 3 && 'Ім\'я повинно бути 3 або більше символів в довжину' || '',
+      docNumber: docNumber.length < 3 && 'Номер документа повинен бути 3 або більше символів в довжину' || '',
+    }
+  }
+
+  handleBlur = (field) => (evt) => {
+    this.setState({
+      touched: { ...this.state.touched, [field]: true },
+    })
+  }
+
+  handleSubmitOnEnter(e) {
+    if (e.key === 'Enter') {
+      const { name, docNumber } = this.state
+      const errors = this.validate(name, docNumber)
+      const noErrors = Object.keys(errors).some(x => errors[x].length === 0)
+
+      if (noErrors) this.handleSearch()
+    } else return
   }
 
 
   render() {
-    const { value } = this.state
+    const { value, name, docNumber } = this.state
+
+    const errors = this.validate(name, docNumber)
+    const isDisabled = Object.keys(errors).some(x => errors[x].length > 0)
+
+    const shouldMarkError = (field) => {
+      const hasError = errors[field].length > 0
+      const shouldShow = this.state.touched[field]
+
+      return hasError ? shouldShow : false
+    }
 
     return (
       <div className="student-finder">
@@ -84,17 +124,26 @@ export default class StudentFinder extends React.Component {
 
               <Input
                 className="input student-name"
+                error={shouldMarkError('name')}
                 placeholder="Повне ім'я"
+                value={this.state.name}
                 fullWidth={true}
                 onChange={this.handleNameChange}
+                onBlur={this.handleBlur('name')}
+                tabIndex="1"
+                onKeyPress={this.handleSubmitOnEnter.bind(this)}
               />
 
               <Input
                 className="input doc-number"
+                error={shouldMarkError('docNumber')}
                 placeholder="Номер документа"
                 value={this.state.docNumber}
                 fullWidth={true}
-                onChange={this.handleDocNumChange}
+                onChange={this.handleDocNumberChange}
+                onBlur={this.handleBlur('docNumber')}
+                tabIndex="2"
+                onKeyPress={this.handleSubmitOnEnter.bind(this)}
               />
 
               <Button
@@ -102,6 +151,8 @@ export default class StudentFinder extends React.Component {
                 variant="contained"
                 color="primary"
                 onClick={this.handleSearch.bind(this)}
+                disabled={isDisabled}
+
               >
                 знайти
               </Button>
@@ -123,13 +174,13 @@ export default class StudentFinder extends React.Component {
   }
 
   handleNameChange = (e) => {
-    let studentName = e.target.value
-    this.setState({ studentName: studentName })
+    let name = e.target.value
+    this.setState({ name })
   }
 
-  handleDocNumChange = (e) => {
-    let docNum = e.target.value
-    this.setState({ docNum })
+  handleDocNumberChange = (e) => {
+    let docNumber = e.target.value
+    this.setState({ docNumber })
   }
 
 
