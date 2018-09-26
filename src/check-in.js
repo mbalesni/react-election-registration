@@ -50,7 +50,7 @@ export default class CheckIn extends React.Component {
             />
           }
 
-          <div className="card-content">
+          <div className="students">
             {this.props.foundStudents.length > 0 && !this.props.activeStudent &&
               <Fragment>
                 <p className="found-students-num">
@@ -64,11 +64,12 @@ export default class CheckIn extends React.Component {
               <StudentInfo data={this.props.activeStudent} activeStudent={this.props.activeStudent} />
             }
 
-            <div className="check-in-controls">
-              {this.props.activeStudent &&
-                <Button onClick={this.props.onCompleteSession} variant="contained" color="primary">видано</Button>
-              }
-            </div>
+          </div>
+
+          <div className="check-in-controls">
+            {this.props.activeStudent &&
+              <Button onClick={this.props.onCompleteSession} variant="contained" color="primary">видано</Button>
+            }
           </div>
 
         </div>
