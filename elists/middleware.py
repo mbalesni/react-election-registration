@@ -148,6 +148,9 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
             log.exception(f'unexpected error ({endpoint} {user_name} {user_ip}): {str(exc)}')
             client.captureException()
             raise wfe.ProgrammingError() from exc
+    except wfe.CheckInSessionAlreadyClosed:
+        response_status_code = 200
+        error = None
     except wfe.BaseWorkflowError as exc:
         log.debug(f'workflow error ({endpoint} {user_name} {user_ip}): {str(exc)}')
         response_status_code = 400
