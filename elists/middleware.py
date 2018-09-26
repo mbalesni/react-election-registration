@@ -137,10 +137,17 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
     request.elists_cisi = EListsCheckInSessionInfo(staff, in_data)
 
     try:
-        if getattr(view_func, REQUIRE_SESSION_MARK):
-            session_before = request.elists_cisi.retrieve_session()
+        try:
+            if getattr(view_func, REQUIRE_SESSION_MARK):
+                session_before = request.elists_cisi.retrieve_session()
 
-        out_data = view_func(request, *view_args, **view_kwargs)
+            out_data = view_func(request, *view_args, **view_kwargs)
+        except wfe.BaseWorkflowError:
+            raise
+        except Exception as exc:
+            log.exception(f'unexpected error ({endpoint} {user_name} {user_ip}): {str(exc)}')
+            client.captureException()
+            raise wfe.ProgrammingError() from exc
     except wfe.BaseWorkflowError as exc:
         log.debug(f'workflow error ({endpoint} {user_name} {user_ip}): {str(exc)}')
         response_status_code = 400
@@ -150,12 +157,6 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
             'name': exc.get_name(),
             'context': exc.get_context(),
         }
-    except Exception as exc:
-        log.exception(f'unexpected error ({endpoint} {user_name} {user_ip}): {str(exc)}')
-        client.captureException()
-        response_status_code = 400
-        out_data = None
-        error = serialize_exception(exc)
     else:
         response_status_code = 200
         error = None
