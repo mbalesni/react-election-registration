@@ -285,7 +285,7 @@ export default class extends React.Component {
 
     })
     if (!code) message.error(errData)
-    else message.error(errors[code])    
+    else message.error('Помилка #' + code + ': ' + errors[code])    
   }
 
   cancelSession() {
@@ -308,7 +308,7 @@ export default class extends React.Component {
     axios.post('/complete_session', data)
       .then(res => {
         this.onSessionEnd()
-        message.success('Студента успішно зареєстровано.', {duration: 3})
+        message.success('Студента успішно зареєстровано.', 3)
       })
       .catch(err => {
         this.handleError(err)
