@@ -125,6 +125,10 @@ class CheckInSessionTokenBadSignature(BaseUserError):
 class StudentTokenBadSignature(BaseUserError):
     code = 315
 
+
+class FullNameWrongFormat(BaseProgrammingError):
+    code = 316
+
 # end of programming errors
 # =========================
 

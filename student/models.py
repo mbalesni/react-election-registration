@@ -10,9 +10,13 @@ from errorsapp import exceptions as wfe
 
 ### validators
 def validate_student_full_name(value: str):
-    if not value.istitle():
+    if not value.istitle() or \
+            len(value) <= 5 or \
+            len(value.split(' ')) < 1:
         raise exceptions.ValidationError(
-            f'Full name must pass `istitle` check.')
+            f'Full name must pass `istitle` check, '
+            f'be longer than 5 symbols and'
+            f'contain at one space.')
 
 
 def validate_student_ticket_number(value: int):
@@ -181,6 +185,12 @@ class Student(models.Model):
 
     @classmethod
     def search_by_full_name(cls, full_name: str) -> typing.Tuple['Student']:
+        try:
+            full_name = str(full_name)
+            validate_student_full_name(full_name)
+        except (exceptions.ValidationError, ValueError) as exc:
+            raise wfe.FullNameWrongFormat() from exc
+
         students = cls.objects.filter(
             full_name__contains=full_name,
         )
