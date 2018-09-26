@@ -28,11 +28,13 @@ export default class StudentFinder extends React.Component {
     value: '0',
     name: {
       value: '',
-      label: `ім'я`
+      label: `ім'я`,
+      name: 'name'
     },
     docNumber: {
       value: '',
-      label: `номер документа`
+      label: `номер документа`,
+      name: 'docNumber'
     },
     touched: {
       name: false,
@@ -57,9 +59,10 @@ export default class StudentFinder extends React.Component {
     })
   }
 
-  handleSearch() {
+  search() {
     console.log('Handling search... ')
     let { name, value, docNumber } = this.state
+
     this.props.onSearchByName(name.value, value, docNumber.value)
 
   }
@@ -79,15 +82,43 @@ export default class StudentFinder extends React.Component {
     })
   }
 
+  handleSubmit(e) {
+    const { name, docNumber } = this.state
+    const errors = this.validate(name.value, docNumber.value)
+
+    let allTouched = {...this.state.touched}
+    Object.keys(allTouched).forEach(key => {
+      allTouched[key] = true
+    })
+    this.setState({ touched: allTouched})
+
+
+    let noErrors = true
+
+    const fields = [name, docNumber]
+
+    fields.forEach(field => {
+      const hasError = errors[field.name].length > 0
+
+      if (hasError) {
+        noErrors = false
+
+        let text = ''
+        text += `${capitalize(field.label)} має бути довше ${MIN_LENGTH[field.name]-1} символів`
+        
+        if (field.name === 'name') text += `, починатися з великої літери, та включати пробіл`
+        message.warn(text)
+      }
+
+    })
+
+    if (noErrors) this.search()
+
+  }
+
   handleSubmitOnEnter(e) {
     if (e.key === 'Enter') {
-      const { name, docNumber } = this.state
-      const errors = this.validate(name.value, docNumber.value)
-      const noErrors = !Object.keys(errors).some(x => errors[x].length > 0)
-      console.log('Errors: ', errors)
-      console.log('noErrors: ', noErrors)
-
-      if (noErrors) this.handleSearch()
+      this.handleSubmit()
     } else return
   }
 
@@ -102,19 +133,9 @@ export default class StudentFinder extends React.Component {
       const hasError = errors[field].length > 0
       const shouldShow = this.state.touched[field]
 
+      const result = hasError ? shouldShow : false
 
-      const shouldMarkErrorResult = hasError ? shouldShow : false
-      if (shouldMarkErrorResult) {
-        let text = ''
-        text += `Довжина повинна бути не меншою за ${MIN_LENGTH[field]} символів`
-        if (field === 'name') text += `, а ім'я повинно бути з великої літери`
-        // message.warn(text)
-      } else {
-        // message.destroy()
-      }
-
-
-      return shouldMarkErrorResult
+      return result
     }
 
     return (
@@ -180,8 +201,8 @@ export default class StudentFinder extends React.Component {
                 className="search-btn"
                 variant="contained"
                 color="primary"
-                onClick={this.handleSearch.bind(this)}
-                disabled={isDisabled}
+                onClick={this.handleSubmit.bind(this)}
+              // disabled={isDisabled}
 
               >
                 знайти
@@ -205,14 +226,14 @@ export default class StudentFinder extends React.Component {
 
   handleNameChange = (e) => {
     let nameVal = e.target.value
-    let name = {...this.state.name}
+    let name = { ...this.state.name }
     name.value = nameVal
     this.setState({ name })
   }
 
   handleDocNumberChange = (e) => {
     let docNumberVal = e.target.value
-    let docNumber = {...this.state.docNumber}
+    let docNumber = { ...this.state.docNumber }
     docNumber.value = docNumberVal
     this.setState({ docNumber })
   }
@@ -228,6 +249,11 @@ function toTitleCase(str) {
     }
   )
 }
+
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 
 function isTitle(str) {
   return str === toTitleCase(str)
