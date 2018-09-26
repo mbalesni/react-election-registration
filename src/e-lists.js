@@ -137,11 +137,11 @@ export default class extends React.Component {
           checkInSessionToken: res.data.data.check_in_session.token,
           status: {
             type: 'info',
-            message: 'Оберіть тип документа'
+            message: 'Оберіть тип документа та знайдіть студента в базі'
           },
           loading: false
         })
-        message.info('Оберіть тип документа')
+        message.info('Оберіть тип документа та знайдіть студента в базі')
       })
       .catch(err => {
         this.handleError(err)
