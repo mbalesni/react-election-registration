@@ -50,23 +50,25 @@ export default class CheckIn extends React.Component {
             />
           }
 
-          {this.props.foundStudents.length > 0 && !this.props.activeStudent &&
-            <Fragment>
-              <p className="found-students-num">
-                Знайдено {foundStudents.length} студент{foundStudents.length > 1 ? 'ів' : 'а'}
-              </p>
-              <div className="found-students">{foundStudents}</div>
-            </Fragment>
-          }
-
-          {this.props.activeStudent &&
-            <StudentInfo data={this.props.activeStudent} activeStudent={this.props.activeStudent} />
-          }
-
-          <div className="check-in-controls">
-            {this.props.activeStudent &&
-              <Button onClick={this.props.onCompleteSession} variant="contained" color="primary">видано</Button>
+          <div className="card-content">
+            {this.props.foundStudents.length > 0 && !this.props.activeStudent &&
+              <Fragment>
+                <p className="found-students-num">
+                  Знайдено {foundStudents.length} студент{foundStudents.length > 1 ? 'ів' : 'а'}
+                </p>
+                <div className="found-students">{foundStudents}</div>
+              </Fragment>
             }
+
+            {this.props.activeStudent &&
+              <StudentInfo data={this.props.activeStudent} activeStudent={this.props.activeStudent} />
+            }
+
+            <div className="check-in-controls">
+              {this.props.activeStudent &&
+                <Button onClick={this.props.onCompleteSession} variant="contained" color="primary">видано</Button>
+              }
+            </div>
           </div>
 
         </div>
