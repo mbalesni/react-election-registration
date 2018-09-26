@@ -192,7 +192,7 @@ class Student(models.Model):
             raise wfe.FullNameWrongFormat() from exc
 
         students = cls.objects.filter(
-            full_name__contains=full_name,
+            full_name__trigram_similar=full_name,
         )
         if not students:
             raise wfe.StudentNameNotFound()
