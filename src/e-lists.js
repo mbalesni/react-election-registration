@@ -289,8 +289,12 @@ export default class extends React.Component {
       loading: false
 
     })
-    if (!code) message.error(errData)
-    else message.error('Помилка #' + code + ': ' + errors[code])
+    if (!code) {
+      message.error(errData)
+    } else {
+      // message.error('Помилка #' + code + ': ' + errors[code])
+      message.error(<span>{errors[code]} <span style={{opacity: '.7'}}>Код помилки {code}</span></span>)
+    }
   }
 
   cancelSession() {
