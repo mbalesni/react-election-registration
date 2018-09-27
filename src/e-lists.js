@@ -265,10 +265,15 @@ export default class extends React.Component {
     let errData = err
     // console.log(err.message)
     if (err.response) {
-      console.error("Error: ", err.response)
+      console.error("Error response: ", err.response)
       if (err.response.status !== 400) code = 300
-      else code = err.response.data.error.code
-      errData = err.response.data.error.message
+      else if (err.response.data && err.response.data.error) {
+        code = err.response.data.error.code
+        errData = err.response.data.error.message
+      } else {
+        code = 300
+        errData = err.response
+      }
     } else {
       errData = err.message
     }
@@ -285,7 +290,7 @@ export default class extends React.Component {
 
     })
     if (!code) message.error(errData)
-    else message.error('Помилка #' + code + ': ' + errors[code])    
+    else message.error('Помилка #' + code + ': ' + errors[code])
   }
 
   cancelSession() {
@@ -366,8 +371,8 @@ export default class extends React.Component {
       if (result.length === 8) {
         // playSuccessSound()
         async function tmp() { Quagga.stop() }
-        tmp().then(() => {this.searchStudentByTicketNumber(result)})
-        
+        tmp().then(() => { this.searchStudentByTicketNumber(result) })
+
       } else {
         this.handleError('Error', 507)
       }
