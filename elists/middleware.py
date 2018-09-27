@@ -136,6 +136,9 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
         in_data = {}
     request.elists_cisi = EListsCheckInSessionInfo(staff, in_data)
 
+    out_data = None
+    error = None
+    response_status_code = 500
     try:
         try:
             if getattr(view_func, REQUIRE_SESSION_MARK):
@@ -154,7 +157,6 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
     except wfe.BaseWorkflowError as exc:
         log.debug(f'workflow error ({endpoint} {user_name} {user_ip}): {str(exc)}')
         response_status_code = 400
-        out_data = None
         error = {
             'code': exc.get_code(),
             'name': exc.get_name(),
