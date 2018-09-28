@@ -113,11 +113,11 @@ class CheckInSession(models.Model):
     )
 
     # time marks
-    start_time = models.TimeField(
+    start_dt = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Час початку',
     )
-    end_time = models.TimeField(
+    end_dt = models.DateTimeField(
         null=True,
         verbose_name='Час завершення',
     )
@@ -142,14 +142,17 @@ class CheckInSession(models.Model):
 
     @property
     def time_duration(self) -> str:
-        return time_diff_formatted(self.start_time, self.end_time)
+        return time_diff_formatted(self.start_dt.time(), self.end_dt.time())
 
     def show_time_summary(self) -> str:
-        parts = [f'Почата о {self.start_time.strftime(self.TIME_FMT)}']
+        if (self.end_dt - self.start_dt).days >= 1:
+            return f'Почата {self.start_dt.date()} і тривала більше дня!'
+
+        parts = [f'Почата о {self.start_dt.strftime(self.TIME_FMT)}']
         if not self.is_open:
             parts.append(
                 f'тривала {self.time_duration} '
-                f'і була закрита о {self.end_time.strftime(self.TIME_FMT)}'
+                f'і була закрита о {self.end_dt.strftime(self.TIME_FMT)}'
             )
         return ' '.join(parts)
     show_time_summary.short_description = 'Заключення'
@@ -183,13 +186,13 @@ class CheckInSession(models.Model):
     @classmethod
     def start_new_session(cls, staff: Staff) -> 'CheckInSession' or None:
         """ Checks if `staff` has open sessions. Starts new session for `staff`.
-        Records `start_time`, assigns `Status.std` status and lefts `student`
-        and `end_time` unassigned.
+        Records `start_dt`, assigns `Status.std` status and lefts `student`
+        and `end_dt` unassigned.
 
         :param staff: logged in staff
         :return: model if everything was OK, else returns None
         """
-        # assigns default "STARTED" status, NULL student_id and NULL end_time
+        # assigns default "STARTED" status, NULL student_id and NULL end_dt
         new_check_in_session = cls(staff=staff, status=cls.STATUS_STARTED)
 
         # nothing to validate
@@ -234,8 +237,8 @@ class CheckInSession(models.Model):
         return self
 
     def complete(self) -> 'CheckInSession':
-        """ Assigns current time to `end_time` and `COMPLETED` status. """
-        self.end_time = get_current_naive_time()
+        """ Assigns current time to `end_dt` and `COMPLETED` status. """
+        self.end_dt = get_current_naive_time()
         self.status = self.STATUS_COMPLETED
         self.student.update_status(Student.STATUS_VOTED)
 
@@ -244,8 +247,8 @@ class CheckInSession(models.Model):
         return self
 
     def cancel(self) -> 'CheckInSession':
-        """ Assigns current time to `end_time` and `CANCELED` status. """
-        self.end_time = get_current_naive_time()
+        """ Assigns current time to `end_dt` and `CANCELED` status. """
+        self.end_dt = get_current_naive_time()
         self.status = self.STATUS_CANCELED
         if self.student:
             self.student.update_status(Student.STATUS_FREE)

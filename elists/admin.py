@@ -15,18 +15,18 @@ class CheckInSessionAdmin(admin.ModelAdmin):
     view_on_site = False
     empty_value_display = 'Н/Д'
 
-    time_hierarchy = 'start_time'
-    ordering = ('-status', '-start_time')
+    time_hierarchy = 'start_dt'
+    ordering = ('-status', '-start_dt')
     search_fields = ('student__full_name',)
     readonly_fields = (
         'show_time_summary',
-        'start_time',
+        'start_dt',
         'status',
         'staff',
         'student',
         'doc_type',
         'doc_num',
-        'end_time',
+        'end_dt',
         #'student__full_name',
         #'student__structural_unit',
         #'student__specialty',
@@ -36,12 +36,12 @@ class CheckInSessionAdmin(admin.ModelAdmin):
 
     list_display = (
         'show_time_summary',
-        'start_time',
+        'start_dt',
         'status',
         'staff',
         'student',
         'doc_type',
-        'end_time',
+        'end_dt',
     )
     list_display_links = ('show_time_summary',)
     list_filter = (
@@ -59,7 +59,7 @@ class CheckInSessionAdmin(admin.ModelAdmin):
         (None, {
             'fields': (
                 'show_time_summary',
-                ('start_time', 'end_time'),
+                ('start_dt', 'end_dt'),
                 'status',
             ),
         }),

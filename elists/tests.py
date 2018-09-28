@@ -23,9 +23,9 @@ class TestCheckInSession:
         session = CheckInSession.start_new_session(staff)
         assert isinstance(session, CheckInSession)
         assert session.status == CheckInSession.STATUS_STARTED
-        assert time_before < session.start_time < get_current_naive_time()
+        assert time_before < session.start_dt.time() < get_current_naive_time()
         assert session.is_open
-        assert session.end_time is None
+        assert session.end_dt is None
         assert session.student is None
         assert session.staff == staff
         assert CheckInSession.staff_has_open_sessions(staff)
@@ -53,7 +53,7 @@ class TestCheckInSession:
 
         assert isinstance(session, CheckInSession)
         assert session.status == CheckInSession.STATUS_IN_PROGRESS
-        assert session.end_time is None
+        assert session.end_dt is None
         assert session.student == student
         assert session.is_open
         assert CheckInSession.staff_has_open_sessions(staff)
