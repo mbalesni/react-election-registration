@@ -1,6 +1,7 @@
 import abc
 
 import requests
+from django.conf import settings
 
 
 def get_message_updates(bot_token):
@@ -44,13 +45,16 @@ class UsernameBot(TGBot):
 
             chat = message['chat']
 
+            chat_type = chat['type']
+            if chat_type != 'private':
+                continue
+
             username = chat['username']
             if username not in usernames:
                 continue
 
             chat_id = chat['id']
-            if chat_id > 0:
-                result[username] = chat_id
+            result[username] = chat_id
 
         return result
 
@@ -84,3 +88,12 @@ class NotifierBot(TGBot):
             chat_id=self._chat_id,
             message=message,
         )
+
+
+passwords_bot = UsernameBot(
+    bot_token=settings.TG_PASSWORDS_BOT_TOKEN,
+)
+notifier_bot = NotifierBot(
+    bot_token=settings.TG_NOTIFIER_BOT_TOKEN,
+    chat_id=settings.TG_NOTIFIER_CHAT_ID,
+)
