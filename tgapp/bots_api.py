@@ -4,6 +4,9 @@ import requests
 from django.conf import settings
 
 
+PARSE_MODE = 'markdown'
+
+
 def get_message_updates(bot_token):
     url = f'https://api.telegram.org/bot{bot_token}/getUpdates'
     payload = {'allowed_updates': ['message', ]}
@@ -18,6 +21,7 @@ def send_message(bot_token: str, chat_id: str, message: str):
     payload = {
         'chat_id': chat_id,
         'text': message,
+        'parse_mode': PARSE_MODE,
     }
 
     resp = requests.post(url, data=payload)
@@ -58,16 +62,15 @@ class UsernameBot(TGBot):
 
         return result
 
-    def send_messages_by_usernames(self, username_to_message: dict):
-        usernames = tuple(username_to_message.keys())
-
-        username_to_chat_id = self.match_username_to_chat_id(usernames=usernames)
-
-        for username in usernames:
+    def send_passwords_by_chat_ids(self, chat_id_to_password: dict):
+        for chat_id, password in chat_id_to_password.items():
+            message = (f'Ваш пароль для входу в систему електронних виборів:\n'
+                       f'`{password}`\n'
+                       f'Не передавайте його нікому!')
             send_message(
                 bot_token=self._bot_token,
-                chat_id=username_to_chat_id[username],
-                message=username_to_message[username],
+                chat_id=chat_id,
+                message=message,
             )
 
 
