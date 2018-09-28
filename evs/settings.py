@@ -65,6 +65,8 @@ INSTALLED_APPS = [
 
     'student.apps.StudentConfig',
     'elists.apps.ElistsConfig',
+    'errorsapp.apps.ErrorsappConfig',
+    'tgapp.apps.TgappConfig',
 ]
 
 MIDDLEWARE = [
