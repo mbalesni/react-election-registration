@@ -114,8 +114,9 @@ WSGI_APPLICATION = 'evs.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
+DATABASE_URL = env.str('DATABASE_URL')
 DATABASES = {
-    'default': env.db_url('DATABASE_URL')
+    'default': env.db_url('DATABASE_URL'),
 }
 
 
