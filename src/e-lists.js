@@ -149,6 +149,7 @@ export default class extends React.Component {
   }
 
   searchStudentByTicketNumber(ticketNum) {
+
     let data = {}
     data.check_in_session_token = this.state.checkInSessionToken
     data.student = { ticket_number: ticketNum }
@@ -293,7 +294,7 @@ export default class extends React.Component {
       message.error(errData)
     } else {
       // message.error('Помилка #' + code + ': ' + errors[code])
-      message.error(<span>{errors[code]} <span style={{opacity: '.7'}}>Код помилки {code}</span></span>)
+      message.error(<span>{errors[code]} <span style={{ opacity: '.7' }}>Код помилки {code}</span></span>)
     }
   }
 
@@ -326,6 +327,7 @@ export default class extends React.Component {
 
   onSessionEnd() {
     message.destroy()
+    this.searchStudentByTicketNumberStarted = false
     this.setState(initialState)
     this.getAuth()
     try {
@@ -374,8 +376,13 @@ export default class extends React.Component {
       const result = data.codeResult.code
       if (result.length === 8) {
         // playSuccessSound()
-        async function tmp() { Quagga.stop() }
-        tmp().then(() => { this.searchStudentByTicketNumber(result) })
+
+        Quagga.stop()
+
+        if (!this.searchStudentByTicketNumberStarted) {
+          this.searchStudentByTicketNumberStarted = true
+          this.searchStudentByTicketNumber(result)
+        }
 
       } else {
         this.handleError('Error', 507)
