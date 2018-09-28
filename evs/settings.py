@@ -25,6 +25,7 @@ env = environ.Env(
     # RAVEN_RELEASE
     # SECRET_KEY
     # DATABASE_URL
+    # REDIS_URL
 )
 
 # reading .env file
@@ -51,6 +52,8 @@ INSTALLED_APPS = [
     'raven.contrib.django.raven_compat',
     'grappelli',
     'corsheaders',
+    'django_celery_results',
+    'django_celery_beat',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -111,8 +114,9 @@ WSGI_APPLICATION = 'evs.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
+DATABASE_URL = env.str('DATABASE_URL')
 DATABASES = {
-    'default': env.db_url('DATABASE_URL')
+    'default': env.db_url('DATABASE_URL'),
 }
 
 
@@ -208,6 +212,13 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_AGE = 30 * 60  # 1800 seconds == 30 minutes
 
+# Redis
+REDIS_URL = env.str('REDIS_URL')
+
+# Celery
+CELERY_BROKER_URL = env.str('CELERY_BROKER_URL', default=REDIS_URL)
+CELERY_RESULTS_BACKEND = 'django-db'
+CELERY_CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 # ELists APP
 ELISTS_CHECKINSESSION_TOKEN_EXPIRE = 2 * 60  # 120 seconds == 2 minutes
