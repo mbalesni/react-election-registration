@@ -219,8 +219,8 @@ REDIS_URL = env.str('REDIS_URL')
 
 # Celery
 CELERY_BROKER_URL = env.str('CELERY_BROKER_URL', default=REDIS_URL)
-CELERY_RESULTS_BACKEND = 'django-db'
-CELERY_CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 # ELists APP
 ELISTS_CHECKINSESSION_TOKEN_EXPIRE = 2 * 60  # 120 seconds == 2 minutes
