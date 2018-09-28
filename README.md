@@ -1,16 +1,30 @@
 # E-Voting System
 
 * Python v3.6
-* Django v2.0
+* Django v2.1
+* Celery v4.2
+* Locust v0.9
+* Redis v4
 * PostgreSQL v10
+
+## local setup
+
+
+### create .env file
+
+*look at `.env.example` for inspiration*
+
+### start Redis with Docker
+
+```bash
+docker run --name evs-redis -p 6379:6379 -d redis:4-alpine
+```
 
 ### start Postgres with Docker
 
 #### launch Postgres
-```
-docker run --name evs-pg
-           -e POSTGRES_PASSWORD=postgres
-           -d postgres:10
+```bash
+docker run --name evs-pg -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d postgres:10-alpine
 ```
 
 #### create `evs` database
@@ -43,4 +57,17 @@ docker run --name evs-pgadmin4 \
            --link evs-pg:postgres \
            -p 5050:5050 \
            -d fenglc/pgadmin4:alpine
+```
+
+
+### start Celery
+
+```bash
+celery worker -A evs.settings -l INFO --beat
+```
+
+### start Django
+
+```bash
+python manage.py runserver 8000
 ```
