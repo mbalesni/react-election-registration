@@ -10,32 +10,49 @@ def get_message_updates(bot_token):
     return resp_json['result']
 
 
-def get_chat_ids(bot_token: str, usernames: tuple):
-    result = {}
-
-    for update in get_message_updates(bot_token):
-        message = update.get('message', None)
-        if message is None:
-            continue
-
-        chat = message['chat']
-
-        username = chat['username']
-        if username not in usernames:
-            continue
-
-        chat_id = chat['id']
-        if chat_id > 0:
-            result[username] = chat_id
-
-    return result
-
-
-def send_message(bot_token: str, chat_id: str, content: str):
+def send_message(bot_token: str, chat_id: str, message: str):
     url = f'https://api.telegram.org/bot{bot_token}/sendmessage'
     payload = {
         'chat_id': chat_id,
-        'text': content,
+        'text': message,
     }
 
     resp = requests.post(url, data=payload)
+
+
+class UsernameBot:
+
+    def __init__(self, bot_token: str):
+        self._bot_token = bot_token
+
+    def match_username_to_chat_id(self, usernames: tuple) -> dict:
+        result = {}
+
+        for update in get_message_updates(bot_token=self._bot_token):
+            message = update.get('message', None)
+            if message is None:
+                continue
+
+            chat = message['chat']
+
+            username = chat['username']
+            if username not in usernames:
+                continue
+
+            chat_id = chat['id']
+            if chat_id > 0:
+                result[username] = chat_id
+
+        return result
+
+    def send_messages_by_usernames(self, username_to_message: dict):
+        usernames = tuple(username_to_message.keys())
+
+        username_to_chat_id = self.match_username_to_chat_id(usernames=usernames)
+
+        for username in usernames:
+            send_message(
+                bot_token=self._bot_token,
+                chat_id=username_to_chat_id[username],
+                message=username_to_message[username],
+            )
