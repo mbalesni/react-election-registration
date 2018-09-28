@@ -19,7 +19,7 @@ from .constants import (
 from .models import Student, CheckInSession
 from errorsapp import exceptions as wfe
 
-log = logging.getLogger('elists.views.wrapper')
+log = logging.getLogger('elists.api')
 
 REQUIRE_SESSION_MARK = 'elists__require_session'
 
@@ -117,9 +117,9 @@ class Request(HttpRequest):
 
 
 def process_view(request: Request, view_func, view_args, view_kwargs):
-    endpoint = request.path
-    user_name = f'@{"ANON" if request.user.is_anonymous else request.user.username}@'
-    user_ip = request.META.get('HTTP_X_FORWARDED_FOR') or request.META.get('REMOTE_ADDR')
+    endpoint = request.path.split('/')[-1]
+    user_name = f'@{"ANON" if request.user.is_anonymous else request.user.username}'
+    user_ip = f"IP{request.META.get('HTTP_X_FORWARDED_FOR') or request.META.get('REMOTE_ADDR')}"
 
     log.debug(f'request: {endpoint} {user_name} from {user_ip}')
 
@@ -170,6 +170,9 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
         out_data = {}
     if request.elists_cisi.session:
         out_data[RESPONSE_CHECK_IN_SESSION] = serialize_session(request.elists_cisi.session)
+        token = out_data[RESPONSE_CHECK_IN_SESSION][RESPONSE_CHECK_IN_SESSION_TOKEN].split(':')[0]
+    else:
+        token = '<NONE>'
 
     resp = {}
     if error:
@@ -177,7 +180,7 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
     if out_data:
         resp[RESPONSE_DATA] = out_data
 
-    log.info(f'response: {endpoint} {response_status_code} {user_name} {user_ip}')
+    log.info(f'response: {endpoint} {response_status_code} {user_name} {user_ip} token={token}')
 
     response = JsonResponse(resp)
     response.status_code = response_status_code

@@ -1,4 +1,5 @@
 import typing
+import logging
 
 from django.core import exceptions, signing
 from django.db import models
@@ -6,6 +7,8 @@ from django.utils import timezone
 
 # WorkFlow Errors
 from errorsapp import exceptions as wfe
+
+log = logging.getLogger('student.models')
 
 
 ### validators
@@ -185,6 +188,8 @@ class Student(models.Model):
 
     @classmethod
     def search_by_full_name(cls, full_name: str) -> typing.Tuple['Student']:
+        log.debug(f'searching by full name "{full_name}"')
+
         try:
             full_name = str(full_name)
             validate_student_full_name(full_name)
@@ -209,6 +214,8 @@ class Student(models.Model):
         :param ticket_number_string: 8 digits string
         :return: Student model
         """
+        log.debug(f'searching by ticket number "{ticket_number_string}"')
+
         try:
             ticket_number = int(ticket_number_string)
             validate_student_ticket_number(ticket_number)
@@ -245,6 +252,7 @@ class Student(models.Model):
 
         self.status = status
         self.status_update_time = timezone.make_naive(timezone.now()).time()
+        log.info(f'Student #{self.id} updated status: [{self.status}] {self.status_verbose}')
         self.save()
 
     def show_registration_time(self) -> str:

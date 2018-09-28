@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.core import signing, exceptions
 from django.db import models
@@ -6,6 +8,8 @@ from student.models import Student, validate_student_ticket_number
 from .constants import Staff
 from .utils import get_current_naive_time, time_diff_formatted
 from errorsapp import exceptions as wfe
+
+log = logging.getLogger('elists.models')
 
 
 def validate_ticket_number(ticket_number: str):
@@ -119,7 +123,7 @@ class CheckInSession(models.Model):
     )
 
     def __repr__(self) -> str:
-        return f'<CheckInSession #{self.id} [{self.status}] by "{self.staff}">'
+        return f'<CheckInSession #{self.id} [{self.status}] by @{self.staff.username}>'
 
     def __str__(self) -> str:
         return f'Чек-ін сесія {self.show_time_summary().lower()} під контролем @{self.staff.username}'
@@ -190,6 +194,7 @@ class CheckInSession(models.Model):
 
         # nothing to validate
         new_check_in_session.save()
+        log.info(f'Started #{new_check_in_session.id} by @{staff.username}')
         return new_check_in_session
 
     @classmethod
@@ -225,6 +230,7 @@ class CheckInSession(models.Model):
         self.student.update_status(Student.STATUS_IN_PROGRESS)
 
         self.save()
+        log.info(f'Assigned {student} #{self.id} by @{self.staff.username}')
         return self
 
     def complete(self) -> 'CheckInSession':
@@ -234,6 +240,7 @@ class CheckInSession(models.Model):
         self.student.update_status(Student.STATUS_VOTED)
 
         self.save()
+        log.info(f'Completed #{self.id} by @{self.staff.username}')
         return self
 
     def cancel(self) -> 'CheckInSession':
@@ -244,6 +251,7 @@ class CheckInSession(models.Model):
             self.student.update_status(Student.STATUS_FREE)
 
         self.save()
+        log.info(f'Canceled #{self.id} by @{self.staff.username}')
         return self
 
     def create_token(self) -> str:

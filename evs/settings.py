@@ -188,7 +188,12 @@ LOGGING = {
             'handlers': ['console', ],
             'level': 'DEBUG',
             'propagate': True,
-        }
+        },
+        'student': {
+            'handlers': ['console', ],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
     },
 }
 
