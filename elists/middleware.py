@@ -170,9 +170,6 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
         out_data = {}
     if request.elists_cisi.session:
         out_data[RESPONSE_CHECK_IN_SESSION] = serialize_session(request.elists_cisi.session)
-        token = out_data[RESPONSE_CHECK_IN_SESSION][RESPONSE_CHECK_IN_SESSION_TOKEN].split(':')[0]
-    else:
-        token = '<NONE>'
 
     resp = {}
     if error:
@@ -180,7 +177,7 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
     if out_data:
         resp[RESPONSE_DATA] = out_data
 
-    log.info(f'response: {endpoint} {response_status_code} {user_name} {user_ip} token={token}')
+    log.info(f'response: {endpoint} {response_status_code} {user_name} {user_ip}')
 
     response = JsonResponse(resp)
     response.status_code = response_status_code
