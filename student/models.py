@@ -106,7 +106,7 @@ class Student(models.Model):
         default=STATUS_FREE,
         verbose_name='Статус',
     )
-    status_update_time = models.TimeField(
+    status_update_dt = models.DateTimeField(
         null=True,
         blank=True,
         verbose_name='Час останнього оновлення',
@@ -240,20 +240,30 @@ class Student(models.Model):
     def create_token(self) -> str:
         return signing.dumps(dict(id=self.id))
 
-    def update_status(self, status: int):
+    def _update_status(self, status: int):
         assert status in dict(self.STATUS_CHOICES).keys()
 
         if self.status == status:
             raise wfe.StudentStatusAlreadyTheSame()
         if self.status == self.STATUS_VOTED:
             raise wfe.StudentStatusCantChangeBecauseVoted()
-        if self.status == self.STATUS_FREE and status == self.STATUS_VOTED:
-            raise wfe.StudentStatusCantChangeBecauseFree()
 
         self.status = status
-        self.status_update_time = timezone.make_naive(timezone.now()).time()
+        self.status_update_dt = timezone.make_naive(timezone.now()).time()
         log.info(f'Student #{self.id} updated status: [{self.status}] {self.status_verbose}')
         self.save()
+
+    def change_state_in_progress(self):
+        self._update_status(self.STATUS_IN_PROGRESS)
+
+    def change_state_free(self):
+
+        self._update_status(self.STATUS_FREE)
+
+    def change_state_voted(self):
+        if self.status == self.STATUS_FREE:
+            raise wfe.StudentStatusCantChangeBecauseFree()
+        self._update_status(self.STATUS_VOTED)
 
     def show_registration_time(self) -> str:
         yesterday = timezone.datetime.today() - timezone.timedelta(1)

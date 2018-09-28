@@ -145,9 +145,6 @@ class CheckInSession(models.Model):
         return time_diff_formatted(self.start_dt.time(), self.end_dt.time())
 
     def show_time_summary(self) -> str:
-        if (self.end_dt - self.start_dt).days >= 1:
-            return f'Почата {self.start_dt.date()} і тривала більше дня!'
-
         parts = [f'Почата о {self.start_dt.strftime(self.TIME_FMT)}']
         if not self.is_open:
             parts.append(
@@ -230,7 +227,7 @@ class CheckInSession(models.Model):
         self.doc_type = doc_type
         self.doc_num = doc_num
         self.status = self.STATUS_IN_PROGRESS
-        self.student.update_status(Student.STATUS_IN_PROGRESS)
+        self.student.change_state_in_progress()
 
         self.save()
         log.info(f'Assigned {student} #{self.id} by @{self.staff.username}')
@@ -240,7 +237,7 @@ class CheckInSession(models.Model):
         """ Assigns current time to `end_dt` and `COMPLETED` status. """
         self.end_dt = get_current_naive_time()
         self.status = self.STATUS_COMPLETED
-        self.student.update_status(Student.STATUS_VOTED)
+        self.student.change_state_voted()
 
         self.save()
         log.info(f'Completed #{self.id} by @{self.staff.username}')
@@ -251,7 +248,7 @@ class CheckInSession(models.Model):
         self.end_dt = get_current_naive_time()
         self.status = self.STATUS_CANCELED
         if self.student:
-            self.student.update_status(Student.STATUS_FREE)
+            self.student.change_state_free()
 
         self.save()
         log.info(f'Canceled #{self.id} by @{self.staff.username}')
