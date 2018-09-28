@@ -1,22 +1,20 @@
 import logging
-import sqlalchemy
 import pprint
-import time
-from django.utils import timezone
 
 import pandas as pd
+import sqlalchemy
 from django.conf import settings
+from django.utils import timezone
 
-from .models import Student
 from evs.celeryapp import app
-from tgapp.bots_api import notifier_bot
+from tgapp import tasks
+from .models import Student
 
 log = logging.getLogger('student.tasks')
 
 
-@app.task(bind=True)
+@app.task(bind=True, name='student.collect_statistics')
 def collect_statistics(self):
-    start_time = time.time()
     log.debug(f'collect_statistics: request accepted')
 
     eng: sqlalchemy.engine.Engine = sqlalchemy.create_engine(settings.DATABASE_URL)
@@ -27,19 +25,19 @@ def collect_statistics(self):
     total_students = len(df)
     total_voted = len(df[df['status'] == Student.STATUS_VOTED])
 
-    end_time = time.time()
     stats = {
         'total_voted': total_voted,
         'total_students': total_students,
     }
+
     log.debug(f'collect_statistics: sending telegram message...')
-    notifier_bot.send_message(f'''
+    tg_msg = f'''
 -- Статистика станом на {dt.strftime("%H:%M")} --
     
-* Cтудентів проголосувало - {total_voted}''')
+* Cтудентів проголосувало - {total_voted}'''
+    tasks.notify.delay(message=tg_msg)
 
     log.info(
-        f'collect_statistics: finished in {int(end_time - start_time)} seconds'
-        f'\n{pprint.pformat(stats)}')
+        f'collect_statistics: {pprint.pformat(stats)}')
 
     return stats

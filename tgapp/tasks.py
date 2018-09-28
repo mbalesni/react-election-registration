@@ -1,23 +1,22 @@
 import logging
 import random
 import string
-import pprint
 
+from elists.models import Staff
 from evs.celeryapp import app
 from .bots_api import notifier_bot, passwords_bot
-from elists.models import Staff
 
 log = logging.getLogger('tgapp.tasks')
 
 
-@app.task(bind=True)
+@app.task(bind=True, name='tgapp.notify')
 def notify(self, message: str):
     log.debug(f'sending message to {notifier_bot.chat_id} ::\n{message[:32]}...')
     notifier_bot.send_message(message=message)
     log.info(f'successfully sent message to {notifier_bot.chat_id}')
 
 
-@app.task(bind=True)
+@app.task(bind=True, name='tgapp.reset_passwords')
 def reset_passwords(self, usernames: tuple):
     log.debug(f'resetting passwords for {", ".join("@"+un for un in usernames)} ...')
 
