@@ -1,3 +1,5 @@
+import abc
+
 import requests
 
 
@@ -20,10 +22,17 @@ def send_message(bot_token: str, chat_id: str, message: str):
     resp = requests.post(url, data=payload)
 
 
-class UsernameBot:
+class TGBot(metaclass=abc.ABCMeta):
 
     def __init__(self, bot_token: str):
         self._bot_token = bot_token
+
+    @property
+    def bot_token(self) -> str:
+        return self._bot_token
+
+
+class UsernameBot(TGBot):
 
     def match_username_to_chat_id(self, usernames: tuple) -> dict:
         result = {}
@@ -56,3 +65,22 @@ class UsernameBot:
                 chat_id=username_to_chat_id[username],
                 message=username_to_message[username],
             )
+
+
+class NotifierBot(TGBot):
+
+    def __init__(self, bot_token: str, chat_id: str):
+        super().__init__(bot_token=bot_token)
+
+        self._chat_id = chat_id
+
+    @property
+    def chat_id(self) -> str:
+        return self._chat_id
+
+    def send_message(self, message: str):
+        send_message(
+            bot_token=self._bot_token,
+            chat_id=self._chat_id,
+            message=message,
+        )
