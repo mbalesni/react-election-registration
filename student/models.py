@@ -6,6 +6,7 @@ from django.db import models
 from django.utils import timezone
 
 # WorkFlow Errors
+from elists.utils import get_current_naive_datetime
 from errorsapp import exceptions as wfe
 
 log = logging.getLogger('student.models')
@@ -249,7 +250,7 @@ class Student(models.Model):
             raise wfe.StudentStatusCantChangeBecauseVoted()
 
         self.status = status
-        self.status_update_dt = timezone.make_naive(timezone.now()).time()
+        self.status_update_dt = get_current_naive_datetime()
         log.info(f'Student #{self.id} updated status: [{self.status}] {self.status_verbose}')
         self.save()
 

@@ -6,7 +6,7 @@ from django.db import models
 
 from student.models import Student, validate_student_ticket_number
 from .constants import Staff
-from .utils import get_current_naive_time, time_diff_formatted
+from .utils import get_current_naive_datetime, time_diff_formatted
 from errorsapp import exceptions as wfe
 
 log = logging.getLogger('elists.models')
@@ -235,7 +235,7 @@ class CheckInSession(models.Model):
 
     def complete(self) -> 'CheckInSession':
         """ Assigns current time to `end_dt` and `COMPLETED` status. """
-        self.end_dt = get_current_naive_time()
+        self.end_dt = get_current_naive_datetime()
         self.status = self.STATUS_COMPLETED
         self.student.change_state_voted()
 
@@ -245,7 +245,7 @@ class CheckInSession(models.Model):
 
     def cancel(self) -> 'CheckInSession':
         """ Assigns current time to `end_dt` and `CANCELED` status. """
-        self.end_dt = get_current_naive_time()
+        self.end_dt = get_current_naive_datetime()
         self.status = self.STATUS_CANCELED
         if self.student:
             self.student.change_state_free()
