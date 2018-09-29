@@ -23,7 +23,7 @@ export default class StudentInfo extends React.Component {
   }
 
   render() {
-    const { name, degree, year, activeStudent, formOfStudy, specialty } = this.props.data
+    const { name, degree, year, activeStudent, formOfStudy, specialty, structuralUnit } = this.props.data
     const student = this.props.data
     let { disabled, submitted } = this.state
     let classes = ['student']
@@ -40,9 +40,9 @@ export default class StudentInfo extends React.Component {
         <div className="data">
           <div className="student--name">{name}</div>
           <div className="student--info">
-            <div className="student--specialty">{specialty}</div>
-            <div className="student--year">{degree} – {year} курс</div>
-            <div className="student--form">{formOfStudy}</div>
+            <div>{structuralUnit}</div>
+            <div>{specialty}</div>
+            <div>{degree} | {formOfStudy}</div>
           </div>
         </div>
 
