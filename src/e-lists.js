@@ -265,37 +265,39 @@ export default class extends React.Component {
   handleError(err, code) {
     let errData = err
     // console.log(err.message)
+
     if (err.response) {
-      console.error("Error response: ", err.response)
-      if (err.response.status !== 400) code = 300
-      else if (err.response.data && err.response.data.error) {
-        code = err.response.data.error.code
-        errData = err.response.data.error.message
-      } else {
-        code = 300
-        errData = err.response
+      console.warn("Error response: ", err.response)
+      switch (err.response.status) {
+        case 400:
+          if (err.response.data && err.response.data.error) {
+            code = err.response.data.error.code
+            errData = err.response.data.error.message
+          } else {
+            code = 300
+            errData = err.response
+          }
+          break
+        case 403:
+          this.setState({ loading: false})
+          message.warn('Відмовлено в доступі.')
+          return
+        default:
+          code = 300
+          errData = err.message
       }
+      
     } else {
+      code = 300
       errData = err.message
     }
-    console.error('Error data: ', errData)
-    console.log('Error code: ', code)
 
-    this.setState({
-      error: errData,
-      status: {
-        type: 'error',
-        message: errors[code]
-      },
-      loading: false
+    console.warn('Error data: ', errData)
+    console.warn('Error code: ', code)
 
-    })
-    if (!code) {
-      message.error(errData)
-    } else {
-      // message.error('Помилка #' + code + ': ' + errors[code])
-      message.error(<span>{errors[code]} <span style={{ opacity: '.7' }}>Код помилки {code}</span></span>)
-    }
+    this.setState({ loading: false })
+    message.error(<span>{errors[code]} <span style={{ opacity: '.7' }}>Код помилки {code}</span></span>)
+
   }
 
   cancelSession() {
