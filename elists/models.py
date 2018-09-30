@@ -10,6 +10,7 @@ from .constants import Staff
 from .utils import get_current_naive_datetime, time_diff_formatted
 from errorsapp import exceptions as wfe
 from .num_code import num_code_generator
+from .time_limit import time_limit_controller
 
 log = logging.getLogger('elists.models')
 
@@ -208,6 +209,11 @@ class CheckInSession(models.Model):
         :param staff: logged in staff
         :return: model if everything was OK, else returns None
         """
+        if not time_limit_controller.check():
+            raise wfe.ElectionsTimeLimitReached()
+        if CheckInSession.staff_has_open_sessions(staff):
+            raise wfe.StaffHasOpenSession()
+
         # assigns default "STARTED" status, NULL student_id and NULL end_dt
         new_check_in_session = cls(staff=staff, status=cls.STATUS_STARTED)
 

@@ -16,10 +16,6 @@ log = logging.getLogger('elists.views')
 @mark(require_session=False)
 def start_new_session(request: Request):
     staff = request.elists_cisi.staff
-
-    if CheckInSession.staff_has_open_sessions(staff):
-        raise wfe.StaffHasOpenSession()
-
     session = CheckInSession.start_new_session(staff)
     request.elists_cisi.assign_session(session)
 
