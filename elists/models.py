@@ -3,6 +3,7 @@ import logging
 from django.conf import settings
 from django.core import signing, exceptions
 from django.db import models
+from django.utils import timezone
 
 from student.models import Student, validate_student_ticket_number
 from .constants import Staff
@@ -165,6 +166,14 @@ class CheckInSession(models.Model):
     show_time_summary.short_description = 'Заключення'
 
     @classmethod
+    def filter_open(cls, qs: models.QuerySet) -> models.QuerySet:
+        return qs.filter(status__gt=0)
+
+    @classmethod
+    def filter_completed(cls, qs: models.QuerySet) -> models.QuerySet:
+        return qs.filter(status__exact=0)
+
+    @classmethod
     def validate_doc_type_num_pair(cls, doc_type: int, doc_num: str):
         cls.DOC_TYPE_VALIDATORS[doc_type](doc_num)
 
@@ -222,6 +231,16 @@ class CheckInSession(models.Model):
     def assign_student(self, student: Student, doc_type: str, doc_num: str) -> 'CheckInSession':
         """ Checks if `student` has open sessions. Assigns `student` to given
         `session` and updates status to `IN_PROGRESS` value. """
+        if not student.allowed_to_assign:
+            raise wfe.StudentNotAllowedToAssign()
+        if not self.just_started:
+            raise wfe.CheckInSessionWrongStatus(
+                context={
+                    'current_status_code': self.status,
+                    'current_status_name': self.status_verbose,
+                },
+            )
+
         try:
             self.validate_doc_type_num_pair(int(doc_type), doc_num)
         except exceptions.ValidationError as exc:
@@ -245,6 +264,11 @@ class CheckInSession(models.Model):
 
     def complete(self) -> 'CheckInSession':
         """ Assigns current time to `end_dt` and `COMPLETED` status. """
+        if self.student is None:
+            raise wfe.CheckInSessionWithoutStudent()
+        if not self.is_open:
+            raise wfe.CheckInSessionAlreadyClosed()
+
         self.end_dt = get_current_naive_datetime()
         self.status = self.STATUS_COMPLETED
         self.student.change_state_voted()
@@ -255,6 +279,9 @@ class CheckInSession(models.Model):
 
     def cancel(self) -> 'CheckInSession':
         """ Assigns current time to `end_dt` and `CANCELED` status. """
+        if not self.is_open:
+            raise wfe.CheckInSessionAlreadyClosed()
+
         self.end_dt = get_current_naive_datetime()
         self.status = self.STATUS_CANCELED
         if self.student:

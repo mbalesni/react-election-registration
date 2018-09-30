@@ -72,16 +72,6 @@ def submit_student(request: Request):
     student_doc_num = request.elists_cisi.data[REQUEST_STUDENT][REQUEST_STUDENT_DOC_NUM]
 
     student = Student.get_student_by_token(student_token)
-    if not student.allowed_to_assign:
-        raise wfe.StudentNotAllowedToAssign()
-    if not session.just_started:
-        raise wfe.CheckInSessionWrongStatus(
-            context={
-                'current_status_code': session.status,
-                'current_status_name': session.status_verbose,
-            },
-        )
-
     session.assign_student(
         student=student,
         doc_type=student_doc_type,
@@ -92,22 +82,12 @@ def submit_student(request: Request):
 @mark()
 def complete_session(request: Request):
     session = request.elists_cisi.session
-
-    if session.student is None:
-        raise wfe.CheckInSessionWithoutStudent()
-    if not session.is_open:
-        raise wfe.CheckInSessionAlreadyClosed()
-
     session.complete()
 
 
 @mark()
 def cancel_session(request: Request):
     session = request.elists_cisi.session
-
-    if not session.is_open:
-        raise wfe.CheckInSessionAlreadyClosed()
-
     session.cancel()
 
 
