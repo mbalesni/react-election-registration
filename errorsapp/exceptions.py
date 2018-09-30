@@ -156,5 +156,9 @@ class CheckInSessionTokenExpired(BaseUserError):
 class StudentNameNotFound(BaseUserError):
     code = 509
 
+
+class ElectionsTimeLimitReached(BaseUserError):
+    code = 510
+
 # end of user errors
 # ==================
