@@ -127,6 +127,8 @@ class CheckInSession(models.Model):
     num_code = models.IntegerField(
         null=True,
         blank=True,
+        unique=True,
+        db_index=True,
         verbose_name='Чисельний код',
     )
 
