@@ -93,6 +93,7 @@ class Student(models.Model):
     )
     ticket_number = models.IntegerField(
         unique=True,
+        db_index=True,
         validators=[validate_student_ticket_number],
         verbose_name='Номер студентського квитка',  # Номер студентського квитка
     )
@@ -121,6 +122,8 @@ class Student(models.Model):
     )
     specialty = models.ForeignKey(
         Specialty,
+        null=True,
+        blank=True,
         on_delete=models.PROTECT,
         verbose_name='Спеціальність',  # Спеціальність
     )
