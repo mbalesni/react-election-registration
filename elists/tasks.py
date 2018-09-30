@@ -66,7 +66,7 @@ def collect_statistics(self):
         df[column] = df[column].astype('int16')
 
     msg = (
-        f' -- Станом на {timezone.now().strftime("%H:%M")} --\n'
+        f'--- Станом на {timezone.now().strftime("%H:%M")} ---\n'
         f'``` {df.to_string(index=False)}```'
     )
     tg_notify(msg)

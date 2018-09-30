@@ -206,6 +206,12 @@ LOGGING = {
 
 # =============================================================================
 
+# Elections time limit
+ELECTIONS_DATEFMT = '%y-%m-%d %H:%M'
+ELECTIONS_START_DT = '18-10-23 14:00'
+ELECTIONS_END_DT = '18-10-23 19:20'
+ELECTIONS_ENABLE_TIME_LIMIT = env.bool('ELECTIONS_ENABLE_TIME_LIMIT')
+
 # Sessions & Cookies
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 SESSION_COOKIE_HTTPONLY = True
