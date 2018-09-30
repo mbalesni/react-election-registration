@@ -8,6 +8,7 @@ from student.models import Student, validate_student_ticket_number
 from .constants import Staff
 from .utils import get_current_naive_datetime, time_diff_formatted
 from errorsapp import exceptions as wfe
+from .num_code import num_code_generator
 
 log = logging.getLogger('elists.models')
 
@@ -120,6 +121,15 @@ class CheckInSession(models.Model):
     end_dt = models.DateTimeField(
         null=True,
         verbose_name='Час завершення',
+    )
+
+    # identifiers
+    num_code = models.IntegerField(
+        null=True,
+        blank=True,
+        unique=True,
+        db_index=True,
+        verbose_name='Чисельний код',
     )
 
     def __repr__(self) -> str:
@@ -255,4 +265,9 @@ class CheckInSession(models.Model):
         return self
 
     def create_token(self) -> str:
-        return signing.dumps(dict(id=self.id))
+        num_code = num_code_generator.encode(data=self.id)
+
+        self.num_code = num_code
+        self.save()
+
+        return signing.dumps(dict(num_code=self.num_code))
