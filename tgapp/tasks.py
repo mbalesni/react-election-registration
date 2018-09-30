@@ -39,6 +39,7 @@ def reset_passwords(self, usernames: tuple):
         for name in usernames
     }
 
+    username_to_password_hash = {}
     for username, password in username_to_password.items():
         try:
             staff = Staff.objects.get(username=username)
@@ -49,6 +50,7 @@ def reset_passwords(self, usernames: tuple):
         else:
             staff.set_password(raw_password=password)
             staff.save()
+            username_to_password_hash[username] = staff.password.split('$')[-1]
 
     log.debug(f'Passwords for {", ".join("@"+un for un in usernames)} reset successfully.')
     log.debug(f'sending messages with passwords...')
@@ -62,6 +64,8 @@ def reset_passwords(self, usernames: tuple):
 
     success_msg = (
         f'Successfully reset passwords for {", ".join("@"+un for un in usernames)} '
-        f'and sent messages.'
+        f'and sent messages:\n' +
+        "\n".join(f'@{un} - {pw}' for un, pw in username_to_password_hash.items())
     )
+    log.info(success_msg)
     return success_msg
