@@ -18,6 +18,7 @@ from .constants import (
 )
 from .models import Student, CheckInSession
 from errorsapp import exceptions as wfe
+from tgapp.tasks import tg_notify
 
 log = logging.getLogger('elists.api')
 
@@ -148,7 +149,9 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
         except wfe.BaseWorkflowError:
             raise
         except Exception as exc:
-            log.exception(f'unexpected error ({endpoint} {user_name} {user_ip}): {str(exc)}')
+            log_msg = f'Unexpected error ({endpoint} {user_name} {user_ip}): {str(exc)}'
+            log.exception(log_msg)
+            tg_notify(f'`elists.api` *middleware*\n{log_msg}')
             client.captureException()
             raise wfe.ProgrammingError() from exc
     except wfe.CheckInSessionAlreadyClosed:

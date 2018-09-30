@@ -16,6 +16,10 @@ def notify(self, message: str):
     log.info(f'successfully sent message to {notifier_bot.chat_id}')
 
 
+def tg_notify(msg: str):
+    notify.delay(message=msg)
+
+
 @app.task(bind=True, name='tgapp.reset_passwords')
 def reset_passwords(self, usernames: tuple):
     log.debug(f'resetting passwords for {", ".join("@"+un for un in usernames)} ...')

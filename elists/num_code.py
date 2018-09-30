@@ -1,6 +1,6 @@
 import logging
 
-from tgapp import tasks
+from tgapp.tasks import tg_notify
 
 log = logging.getLogger('elists.numcode')
 
@@ -25,9 +25,7 @@ class NumCodeGen:
     def log_secret(cls, secret: int, offset: int):
         msg = f'Numeric code generator initiated with secret=`{secret}` and offset=`{offset}`'
         log.info(msg)
-
-        # TODO
-        # tasks.notify(msg)
+        tg_notify(msg)
 
     def encode(self, data: int) -> int:
         result = (data + self.__offset) * self.__secret
