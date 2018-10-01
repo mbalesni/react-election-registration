@@ -312,6 +312,8 @@ class CheckInSession(models.Model):
         data = dict({'id': self.id})
         return signing.dumps(data)
 
-    def get_ballot_number_display(self) -> str:
+    def show_ballot_number(self) -> str:
+        if not self.ballot_number:
+            return 'Н/Д'
         bn = str(self.ballot_number)
         return f'{bn[:2]}-{bn[2:4]}-{bn[4:6]}-{bn[6:]}'
