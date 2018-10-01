@@ -1,4 +1,5 @@
 import logging
+import secrets
 
 from tgapp.tasks import tg_notify
 
@@ -8,13 +9,8 @@ log = logging.getLogger('elists.numcode')
 class NumCodeGen:
 
     def __init__(self):
-        self.__secret = 7_651_279_397_995
-        self.__offset = 37
-
-        self._result_space = 10**8
-        self._result_offset = 2 * 10**7
-
-        self._result_moduler = self._result_space - self._result_offset
+        self.__secret = 2_651_579_387_927
+        self.__offset = 29_837
 
         self.log_secret(
             secret=self.__secret,
@@ -29,7 +25,9 @@ class NumCodeGen:
 
     def encode(self, data: int) -> int:
         result = (data + self.__offset) * self.__secret
-        encoded = self._result_offset + result % self._result_moduler
+
+        salt = secrets.randbelow(800) + 200
+        encoded = result % 100_000 + salt * 100_000
 
         log.debug(f'New numerical code generated for {data} - {encoded}')
         return encoded
