@@ -275,7 +275,8 @@ class CheckInSession(models.Model):
 
         self.save()
         log.info(
-            f'Assigned {student} to #{self.id} by @{self.staff.username} with ballot number {self.ballot_number}'
+            f'Assigned {student} to #{self.id} by @{self.staff.username} '
+            f'with ballot number {self.show_ballot_number()}'
         )
         return self
 
@@ -297,7 +298,9 @@ class CheckInSession(models.Model):
     def cancel(self) -> 'CheckInSession':
         """ Assigns current time to `end_dt` and `CANCELED` status. """
         if not self.is_open:
-            raise wfe.CheckInSessionAlreadyClosed()
+            # FIXME: alarm if trying to cancel already closed session
+            # raise wfe.CheckInSessionAlreadyClosed()
+            return self
 
         self.end_dt = get_current_naive_datetime()
         self.status = self.STATUS_CANCELED
