@@ -1,4 +1,5 @@
 import logging
+import secrets
 
 from django.conf import settings
 from django.core import signing, exceptions
@@ -7,11 +8,16 @@ from django.db import models
 from errorsapp import exceptions as wfe
 from student.models import Student, validate_student_ticket_number
 from .constants import Staff
-from .num_code import num_code_generator
 from .time_limit import time_limit_controller
 from .utils import get_current_naive_datetime, time_diff_formatted
 
 log = logging.getLogger('elists.models')
+
+
+def _new_ballot_number(seed: int) -> int:
+    encoded = (seed + 34_649) * 2_651_579_387_927
+    salt = secrets.randbelow(800) + 200
+    return salt * 100_000 + encoded % 100_000
 
 
 def validate_ticket_number(ticket_number: str):
@@ -125,12 +131,12 @@ class CheckInSession(models.Model):
     )
 
     # identifiers
-    num_code = models.IntegerField(
+    ballot_number = models.IntegerField(
         null=True,
         blank=True,
         unique=True,
         db_index=True,
-        verbose_name='Чисельний код',
+        verbose_name='Номер бюлетеня',
     )
 
     def __repr__(self) -> str:
@@ -225,13 +231,16 @@ class CheckInSession(models.Model):
     def get_session_by_token(cls, token: str) -> 'CheckInSession':
         try:
             query: dict = signing.loads(token, max_age=cls.get_token_max_age())
+            session_id = query['id']
         except signing.SignatureExpired:
             raise wfe.CheckInSessionTokenExpired()
         except signing.BadSignature:
             raise wfe.CheckInSessionTokenBadSignature()
+        except KeyError:
+            raise wfe.ProgrammingError({'msg': 'missing "id" field'})
 
         # if we had given that token, than object must exist
-        return cls.objects.get(**query)
+        return cls.objects.get(id=session_id)
 
     def assign_student(self, student: Student, doc_type: str, doc_num: str) -> 'CheckInSession':
         """ Checks if `student` has open sessions. Assigns `student` to given
@@ -260,11 +269,14 @@ class CheckInSession(models.Model):
         self.student = student
         self.doc_type = doc_type
         self.doc_num = doc_num
+        self.ballot_number = _new_ballot_number(self.id)
         self.status = self.STATUS_IN_PROGRESS
         self.student.change_state_in_progress()
 
         self.save()
-        log.info(f'Assigned {student} #{self.id} by @{self.staff.username}')
+        log.info(
+            f'Assigned {student} to #{self.id} by @{self.staff.username} with ballot number {self.ballot_number}'
+        )
         return self
 
     def complete(self) -> 'CheckInSession':
@@ -297,9 +309,9 @@ class CheckInSession(models.Model):
         return self
 
     def create_token(self) -> str:
-        num_code = num_code_generator.encode(data=self.id)
+        data = dict({'id': self.id})
+        return signing.dumps(data)
 
-        self.num_code = num_code
-        self.save()
-
-        return signing.dumps(dict(num_code=self.num_code))
+    def get_ballot_number_display(self) -> str:
+        bn = str(self.ballot_number)
+        return f'{bn[:2]}-{bn[2:4]}-{bn[4:6]}-{bn[6:]}'

@@ -28,7 +28,7 @@ class CheckInSessionAdmin(admin.ModelAdmin):
         'doc_type',
         'doc_num',
         'end_dt',
-        'num_code',
+        'get_ballot_number_display',
         'student__full_name',
         'student__structural_unit',
         'student__specialty',
@@ -47,7 +47,7 @@ class CheckInSessionAdmin(admin.ModelAdmin):
         'student',
         'doc_type',
         'end_dt',
-        'num_code',
+        'get_ballot_number_display',
     )
     list_display_links = ('show_time_summary',)
     list_filter = (
@@ -66,7 +66,7 @@ class CheckInSessionAdmin(admin.ModelAdmin):
                 'show_time_summary',
                 ('start_dt', 'end_dt'),
                 'status',
-                'num_code',
+                'get_ballot_number_display',
             ),
         }),
         ('Про члена ВКС', {

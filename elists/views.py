@@ -4,7 +4,7 @@ from .constants import (
     RESPONSE_STUDENT, RESPONSE_STUDENTS, RESPONSE_STAFF,
     REQUEST_STUDENT_TICKET_NUMBER, REQUEST_STUDENT_DOC_NUM,
     REQUEST_STUDENT_DOC_TYPE, REQUEST_STUDENT_TOKEN, REQUEST_STUDENT,
-    REQUEST_STUDENT_FULL_NAME,
+    REQUEST_STUDENT_FULL_NAME, RESPONSE_BALLOT_NUMBER,
 )
 from .middleware import Request, api_wrap, serialize_student, serialize_staff
 from .models import CheckInSession, Student
@@ -73,6 +73,10 @@ def submit_student(request: Request):
         doc_type=student_doc_type,
         doc_num=student_doc_num,
     )
+
+    return {
+        RESPONSE_BALLOT_NUMBER: session.ballot_number,
+    }
 
 
 @api_wrap()
