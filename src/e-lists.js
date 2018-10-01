@@ -248,14 +248,7 @@ export default class extends React.Component {
 
     axios.post('/submit_student', data)
       .then(res => {
-        const checkInSessionToken = res.data.data.check_in_session.token
-
-        let ballotNumber
-        if (checkInSessionToken) {
-          ballotNumber = checkInSessionToken.split(':')[0]
-          ballotNumber = JSON.parse(atob(ballotNumber))
-          ballotNumber = ballotNumber['ballot_number']
-        }
+        let ballotNumber = res.data.data.ballot_number
 
         this.setState({
           activeStudent: student,
