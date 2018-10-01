@@ -71,6 +71,7 @@ export default class extends React.Component {
                   ballotNumber={ballotNumber}
                   status={this.state.status}
                   foundStudents={this.state.foundStudents}
+                  onBack={this.goBack.bind(this)}
                   onStudentSubmit={this.submitStudent.bind(this)}
                   onScanStart={this.initScan.bind(this)}
                   // onScanCancel={this.cancelScan.bind(this)}
@@ -134,15 +135,14 @@ export default class extends React.Component {
     this.setState({ loading: true })
     axios.post('/start_new_session', {})
       .then(res => {
-        // TODO: calculate ballot number HERE
-        const checkInSessionToken = res.data.data.check_in_session.token
+        // const checkInSessionToken = res.data.data.check_in_session.token
 
-        let ballotNumber
-        if (checkInSessionToken) {
-          ballotNumber = checkInSessionToken.split(':')[0]
-          ballotNumber = JSON.parse(atob(ballotNumber))
-          ballotNumber = ballotNumber['num_code']
-        }
+        // let ballotNumber
+        // if (checkInSessionToken) {
+        //   ballotNumber = checkInSessionToken.split(':')[0]
+        //   ballotNumber = JSON.parse(atob(ballotNumber))
+        //   ballotNumber = ballotNumber['num_code']
+        // }
 
         this.setState({
           sessionIsOpen: true,
@@ -152,7 +152,7 @@ export default class extends React.Component {
             message: 'Оберіть тип документа та знайдіть студента в базі'
           },
           loading: false,
-          ballotNumber
+          // ballotNumber
         })
         // message.info('Оберіть тип документа та знайдіть студента в базі')
       })
@@ -257,19 +257,34 @@ export default class extends React.Component {
 
     axios.post('/submit_student', data)
       .then(res => {
+        const checkInSessionToken = res.data.data.check_in_session.token
+
+        let ballotNumber
+        if (checkInSessionToken) {
+          ballotNumber = checkInSessionToken.split(':')[0]
+          ballotNumber = JSON.parse(atob(ballotNumber))
+          ballotNumber = ballotNumber['ballot_number']
+        }
+
         this.setState({
           activeStudent: student,
           status: {
             type: 'info',
             message: 'Заповніть та видайте бюлетень'
           },
-          loading: false
+          loading: false,
+          ballotNumber
         })
         message.destroy()
       })
       .catch(err => {
         this.handleError(err)
       })
+  }
+
+  goBack() {
+    this.setState({foundStudents: []})
+    this.searchStudentByTicketNumberStarted = false
   }
 
   handleError(err, code) {
