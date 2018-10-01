@@ -1,8 +1,4 @@
-.check-in-controls {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-}
+
 .spinner {
   position: absolute;
   z-index: 1000;

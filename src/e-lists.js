@@ -40,10 +40,11 @@ export default class extends React.Component {
   state = { ...initialState }
 
   render() {
-    let { loggedIn } = this.state.auth
+    const { loggedIn } = this.state.auth
+    const { ballotNumber } = this.state
 
     return (
-      <div className="page-content-wrapper ">
+      <div className="page-content-wrapper " >
 
         <Raven dsn={SENTRY_DSN} />
 
@@ -67,6 +68,7 @@ export default class extends React.Component {
               {loggedIn && this.state.sessionIsOpen &&
                 <CheckIn
                   activeStudent={this.state.activeStudent}
+                  ballotNumber={ballotNumber}
                   status={this.state.status}
                   foundStudents={this.state.foundStudents}
                   onStudentSubmit={this.submitStudent.bind(this)}
@@ -132,14 +134,25 @@ export default class extends React.Component {
     this.setState({ loading: true })
     axios.post('/start_new_session', {})
       .then(res => {
+        // TODO: calculate ballot number HERE
+        const checkInSessionToken = res.data.data.check_in_session.token
+
+        let ballotNumber
+        if (checkInSessionToken) {
+          ballotNumber = checkInSessionToken.split(':')[0]
+          ballotNumber = JSON.parse(atob(ballotNumber))
+          ballotNumber = ballotNumber['num_code']
+        }
+
         this.setState({
           sessionIsOpen: true,
-          checkInSessionToken: res.data.data.check_in_session.token,
+          checkInSessionToken,
           status: {
             type: 'info',
             message: 'Оберіть тип документа та знайдіть студента в базі'
           },
-          loading: false
+          loading: false,
+          ballotNumber
         })
         message.info('Оберіть тип документа та знайдіть студента в базі')
       })
@@ -255,7 +268,7 @@ export default class extends React.Component {
           },
           loading: false
         })
-        message.info('Видайте бюлетень')
+        message.info('Заповніть та видайте бюлетень')
       })
       .catch(err => {
         this.handleError(err)
@@ -279,14 +292,14 @@ export default class extends React.Component {
           }
           break
         case 403:
-          this.setState({ loading: false})
+          this.setState({ loading: false })
           message.warn('Відмовлено в доступі.')
           return
         default:
           code = 300
           errData = err.message
       }
-      
+
     } else {
       code = 300
       errData = err.message
