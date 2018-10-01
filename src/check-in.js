@@ -24,6 +24,10 @@ export default class CheckIn extends React.Component {
     return foundStudents
   }
 
+  goBack() {
+    this.props.onBack()
+  }
+
   render() {
     const { ballotNumber, status } = this.props
 
@@ -55,7 +59,7 @@ export default class CheckIn extends React.Component {
 
           <div className="card-block">
 
-            {(status.show === true || status.show === undefined) && <Alert type={status.type} message={status.message} showIcon style={{marginBottom: '1rem'}} />}
+            {(status.show === true || status.show === undefined) && <Alert type={status.type} message={status.message} showIcon style={{ marginBottom: '1rem' }} />}
 
             {this.props.foundStudents.length < 1 &&
               <StudentFinder
@@ -87,11 +91,11 @@ export default class CheckIn extends React.Component {
 
 
 
-            {/* <div className="check-in-controls">
-              {this.props.activeStudent &&
-                <Button onClick={this.props.onCompleteSession} variant="contained" color="primary">видано</Button>
-              }
-            </div> */}
+            {this.props.foundStudents.length > 0 && !this.props.activeStudent &&
+              <div className="check-in-controls">
+                <Button onClick={this.goBack.bind(this)} variant="flat" color="default">назад</Button>
+              </div>
+            }
 
           </div>
 

@@ -135,15 +135,6 @@ export default class extends React.Component {
     this.setState({ loading: true })
     axios.post('/start_new_session', {})
       .then(res => {
-        // const checkInSessionToken = res.data.data.check_in_session.token
-
-        // let ballotNumber
-        // if (checkInSessionToken) {
-        //   ballotNumber = checkInSessionToken.split(':')[0]
-        //   ballotNumber = JSON.parse(atob(ballotNumber))
-        //   ballotNumber = ballotNumber['num_code']
-        // }
-
         this.setState({
           sessionIsOpen: true,
           checkInSessionToken,
@@ -151,10 +142,8 @@ export default class extends React.Component {
             type: 'info',
             message: 'Оберіть тип документа та знайдіть студента в базі'
           },
-          loading: false,
-          // ballotNumber
+          loading: false
         })
-        // message.info('Оберіть тип документа та знайдіть студента в базі')
       })
       .catch(err => {
         this.handleError(err)
