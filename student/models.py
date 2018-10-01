@@ -281,6 +281,9 @@ class Student(models.Model):
     def show_specialty(self) -> str:
         return str(self.specialty) if self.specialty else '(не вказана)'
 
+    def show_structural_unit(self) -> str:
+        return str(self.structural_unit)
+
     def get_joined_edu_year_display(self) -> str:
         return f'{self.get_educational_degree_display()}-{self.get_year_display()}'
 

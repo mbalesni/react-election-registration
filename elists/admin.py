@@ -126,11 +126,11 @@ class CheckInSessionAdmin(admin.ModelAdmin):
     student__full_name.short_description = 'ПІБ'
 
     def student__structural_unit(self, obj):
-        return obj.student.structural_unit
+        return obj.student.show_structural_unit()
     student__structural_unit.short_description = 'Структурний підрозділ'
 
     def student__specialty(self, obj):
-        return obj.student.specialty
+        return obj.student.show_specialty()
     student__specialty.short_description = 'Спеціальність'
 
     def student__year(self, obj):

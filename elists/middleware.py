@@ -33,15 +33,14 @@ def serialize_exception(exc: Exception) -> dict:
 
 
 def serialize_student(student: Student) -> dict:
-    return {
-        RESPONSE_STUDENT_TOKEN: student.create_token(),
+    dictionary = {
         RESPONSE_STUDENT_DATA: {
             RESPONSE_STUDENT_DATA_FULL_NAME          : student.full_name,
             RESPONSE_STUDENT_DATA_EDUCATIONAL_DEGREE : student.educational_degree,
             RESPONSE_STUDENT_DATA_YEAR               : student.year,
             RESPONSE_STUDENT_DATA_FORM_OF_STUDY      : student.form_of_study,
-            RESPONSE_STUDENT_DATA_SPECIALTY          : str(student.specialty),
-            RESPONSE_STUDENT_DATA_STRUCTURAL_UNIT    : str(student.structural_unit),
+            RESPONSE_STUDENT_DATA_SPECIALTY          : student.show_specialty(),
+            RESPONSE_STUDENT_DATA_STRUCTURAL_UNIT    : student.show_structural_unit(),
             RESPONSE_STUDENT_DATA_TICKET_NUMBER      : student.ticket_number,
         },
         RESPONSE_STUDENT_STATUS: {
@@ -49,6 +48,9 @@ def serialize_student(student: Student) -> dict:
             RESPONSE_STUDENT_STATUS_NAME: student.status_verbose,
         },
     }
+    if student.allowed_to_assign:
+        dictionary[RESPONSE_STUDENT_TOKEN] = student.create_token()
+    return dictionary
 
 
 def serialize_session(session: CheckInSession) -> dict:
@@ -187,7 +189,7 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
     return response
 
 
-def mark(*, require_session=True):
+def api_wrap(*, require_session=True):
     def decorator(view):
         setattr(view, REQUIRE_SESSION_MARK, require_session)
 

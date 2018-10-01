@@ -3,14 +3,13 @@ import logging
 from django.conf import settings
 from django.core import signing, exceptions
 from django.db import models
-from django.utils import timezone
 
+from errorsapp import exceptions as wfe
 from student.models import Student, validate_student_ticket_number
 from .constants import Staff
-from .utils import get_current_naive_datetime, time_diff_formatted
-from errorsapp import exceptions as wfe
 from .num_code import num_code_generator
 from .time_limit import time_limit_controller
+from .utils import get_current_naive_datetime, time_diff_formatted
 
 log = logging.getLogger('elists.models')
 
