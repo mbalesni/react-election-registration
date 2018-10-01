@@ -279,7 +279,7 @@ class Student(models.Model):
     show_registration_time.short_description = 'Час реєстрації'
 
     def show_specialty(self) -> str:
-        return str(self.specialty)
+        return str(self.specialty) if self.specialty else '(не вказана)'
 
     def get_joined_edu_year_display(self) -> str:
         return f'{self.get_educational_degree_display()}-{self.get_year_display()}'

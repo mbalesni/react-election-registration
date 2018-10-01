@@ -63,7 +63,7 @@ class CheckInSession(models.Model):
     STATUS_CHOICES = (
         (STATUS_STARTED, "Відкрита"),
         (STATUS_IN_PROGRESS, "В процесі"),
-        (STATUS_CANCELED, "Відмінена"),
+        (STATUS_CANCELED, "Скасована"),
         (STATUS_COMPLETED, "Завершена"),
     )
 
