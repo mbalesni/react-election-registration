@@ -20,12 +20,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 env = environ.Env(
     DEBUG=(bool, False),
+    # FRONTEND_DOMAIN
     # BACKEND_DOMAIN
     # SENTRY_DSN
     # RAVEN_RELEASE
     # SECRET_KEY
     # DATABASE_URL
     # REDIS_URL
+    # TG_PASSWORDS_BOT_TOKEN
+    # TG_NOTIFIER_BOT_TOKEN
+    # TG_NOTIFIER_CHAT_ID
+    # ELECTIONS_ENABLE_TIME_LIMIT
 )
 
 # reading .env file
@@ -41,9 +46,11 @@ SECRET_KEY = env.str('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DEBUG')
 
+FRONTEND_DOMAIN = env.str('FRONTEND_DOMAIN')
 BACKEND_DOMAIN = env.str('BACKEND_DOMAIN')
+GOVOTE_DOMAIN = 'govote.com.ua'
 
-ALLOWED_HOSTS = [BACKEND_DOMAIN, ]
+ALLOWED_HOSTS = [BACKEND_DOMAIN, GOVOTE_DOMAIN, ]
 
 
 # Application definition
@@ -249,7 +256,7 @@ except:
 
 # CORS headers
 CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_WHITELIST = [BACKEND_DOMAIN, ]
+CORS_ORIGIN_WHITELIST = [BACKEND_DOMAIN, GOVOTE_DOMAIN, ]
 
 
 # Telegram
