@@ -51,9 +51,16 @@ export default class CheckIn extends React.Component {
             <div className="card-title">
               <i className={ICONS.userCheck}></i>
               Реєстрація виборця
-          </div>
+            </div>
 
-            <Button onClick={this.props.onCancelSession} color="secondary">скасувати</Button>
+            <div className="session-controls">
+              {this.props.foundStudents.length > 0 && !this.props.activeStudent &&
+                <Button onClick={this.goBack.bind(this)} variant="flat" color="default">назад</Button>
+              }
+              <Button onClick={this.props.onCancelSession} color="secondary">скасувати</Button>
+            </div>
+
+
 
           </div>
 
@@ -87,15 +94,6 @@ export default class CheckIn extends React.Component {
               }
 
             </div>
-
-
-
-
-            {this.props.foundStudents.length > 0 && !this.props.activeStudent &&
-              <div className="check-in-controls">
-                <Button onClick={this.goBack.bind(this)} variant="flat" color="default">назад</Button>
-              </div>
-            }
 
           </div>
 
