@@ -5,6 +5,7 @@ import StudentFinder from './student-finder.js'
 import StudentInfo from './student-info.js'
 import SessionStatus from './session-status.js'
 import Ballot from './ballot.js'
+import { Alert } from 'antd'
 
 import './css/checkIn.css'
 
@@ -24,7 +25,7 @@ export default class CheckIn extends React.Component {
   }
 
   render() {
-    const { ballotNumber } = this.props
+    const { ballotNumber, status } = this.props
 
     const foundStudents = this.getStudentsInfo()
 
@@ -35,6 +36,7 @@ export default class CheckIn extends React.Component {
             number={ballotNumber}
             onComplete={this.props.onCompleteSession}
             onCancel={this.props.onCancelSession}
+            status={status}
           />
         }
 
@@ -52,6 +54,8 @@ export default class CheckIn extends React.Component {
           </div>
 
           <div className="card-block">
+
+            {(status.show === true || status.show === undefined) && <Alert type={status.type} message={status.message} showIcon style={{marginBottom: '1rem'}} />}
 
             {this.props.foundStudents.length < 1 &&
               <StudentFinder
