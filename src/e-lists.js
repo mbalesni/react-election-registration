@@ -135,6 +135,8 @@ export default class extends React.Component {
     this.setState({ loading: true })
     axios.post('/start_new_session', {})
       .then(res => {
+        const checkInSessionToken = res.data.data.check_in_session.token
+
         this.setState({
           sessionIsOpen: true,
           checkInSessionToken,
