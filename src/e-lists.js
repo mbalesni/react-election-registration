@@ -154,7 +154,7 @@ export default class extends React.Component {
           loading: false,
           ballotNumber
         })
-        message.info('Оберіть тип документа та знайдіть студента в базі')
+        // message.info('Оберіть тип документа та знайдіть студента в базі')
       })
       .catch(err => {
         this.handleError(err)
@@ -188,7 +188,7 @@ export default class extends React.Component {
           },
           loading: false
         })
-        message.info('Підтвердіть правильність даних та оберіть студента')
+        // message.info('Підтвердіть правильність даних та оберіть студента')
       })
       .catch(err => {
         this.handleError(err)
@@ -221,12 +221,10 @@ export default class extends React.Component {
           foundStudents: foundStudents,
           status: {
             type: 'info',
-            message: 'Підтвердіть правильність даних та оберіть студента'
+            message: 'Підтвердіть правильність даних та оберіть студента',
           },
           loading: false
         })
-        message.info('Підтвердіть правильність даних та оберіть студента')
-
       })
       .catch(err => {
         this.handleError(err)
@@ -242,6 +240,7 @@ export default class extends React.Component {
       specialty: student.data.specialty,
       year: student.data.year,
       token: student.token,
+      status: student.status.code
     }
     return data
   }
@@ -254,8 +253,6 @@ export default class extends React.Component {
     data.student.doc_type = this.state.docType
     data.student.doc_num = this.state.docNumber
 
-    console.log('Trying to submit student: ', data)
-
     this.setState({ loading: true })
 
     axios.post('/submit_student', data)
@@ -264,11 +261,11 @@ export default class extends React.Component {
           activeStudent: student,
           status: {
             type: 'info',
-            message: 'Видайте бюлетень'
+            message: 'Заповніть та видайте бюлетень'
           },
           loading: false
         })
-        message.info('Заповніть та видайте бюлетень')
+        message.destroy()
       })
       .catch(err => {
         this.handleError(err)
@@ -327,13 +324,15 @@ export default class extends React.Component {
   }
 
   completeSession() {
-    let data = { check_in_session_token: this.state.checkInSessionToken }
+    const data = { check_in_session_token: this.state.checkInSessionToken }
+    const studentName = this.state.activeStudent.name
+    
 
     this.setState({ loading: true })
     axios.post('/complete_session', data)
       .then(res => {
         this.onSessionEnd()
-        message.success('Студента успішно зареєстровано.', 3)
+        message.success(<span><strong>{studentName}</strong> – успішно зареєстровано.</span>, 3)
       })
       .catch(err => {
         this.handleError(err)
@@ -353,7 +352,7 @@ export default class extends React.Component {
   }
 
   initScan() {
-    this.setState({ loading: true })
+    this.setState({ loading: true, status: {type: null, message: null, show: false} })
     Quagga.init(
       { ...QUAGGA_OPTIONS, inputStream: { ...QUAGGA_OPTIONS.inputStream, target: document.querySelector('.scanner-container') } },
       (err) => {
@@ -363,10 +362,6 @@ export default class extends React.Component {
         }
         Quagga.start()
         this.setState({
-          status: {
-            type: 'info',
-            message: 'Піднесіть студентський квиток до камери'
-          },
           loading: false
         })
         message.info('Піднесіть студентський квиток до камери')
@@ -390,7 +385,7 @@ export default class extends React.Component {
     Quagga.onDetected((data) => {
       const result = data.codeResult.code
       if (result.length === 8) {
-        // playSuccessSound()
+        message.destroy()
 
         Quagga.stop()
 
