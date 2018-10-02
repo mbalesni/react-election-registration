@@ -127,7 +127,7 @@ export default class extends React.Component {
   closeSessions() {
     axios.post('/close_sessions')
       .catch(err => {
-        this.handleError(err)
+        console.warn(err)
       })
   }
 
