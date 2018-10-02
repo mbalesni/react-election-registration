@@ -55,7 +55,7 @@ export default class CheckIn extends React.Component {
 
             <div className="session-controls">
               {this.props.foundStudents.length > 0 && !this.props.activeStudent &&
-                <Button onClick={this.goBack.bind(this)} variant="flat" color="default">назад</Button>
+                <Button onClick={this.goBack.bind(this)} variant="flat" color="primary">назад</Button>
               }
               <Button onClick={this.props.onCancelSession} color="secondary">скасувати</Button>
             </div>
@@ -77,12 +77,11 @@ export default class CheckIn extends React.Component {
               />
             }
 
-            <div className="students">
               {this.props.foundStudents.length > 0 && !this.props.activeStudent &&
                 <Fragment>
-                  <p className="found-students-num">
+                  {/* <p className="found-students-num">
                     Знайдено {foundStudents.length} студент{foundStudents.length > 1 ? 'ів' : 'а'}
-                  </p>
+                  </p> */}
                   <div className="found-students">{foundStudents}</div>
                 </Fragment>
               }
@@ -93,7 +92,6 @@ export default class CheckIn extends React.Component {
                 </Fragment>
               }
 
-            </div>
 
           </div>
 

@@ -11,7 +11,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import TextField from '@material-ui/core/TextField';
 import Input from '@material-ui/core/Input';
 import './css/studentFinder.css'
-import { message } from 'antd'
+import { message, Icon } from 'antd'
 
 
 const MIN_LENGTH = {
@@ -86,11 +86,11 @@ export default class StudentFinder extends React.Component {
     const { name, docNumber } = this.state
     const errors = this.validate(name.value, docNumber.value)
 
-    let allTouched = {...this.state.touched}
+    let allTouched = { ...this.state.touched }
     Object.keys(allTouched).forEach(key => {
       allTouched[key] = true
     })
-    this.setState({ touched: allTouched})
+    this.setState({ touched: allTouched })
 
 
     let noErrors = true
@@ -104,8 +104,8 @@ export default class StudentFinder extends React.Component {
         noErrors = false
 
         let text = ''
-        text += `${capitalize(field.label)} має бути довше ${MIN_LENGTH[field.name]-1} символів`
-        
+        text += `${capitalize(field.label)} має бути довше ${MIN_LENGTH[field.name] - 1} символів`
+
         if (field.name === 'name') text += `, починатися з великої літери, та включати пробіл`
         message.warn(text)
       }
@@ -138,8 +138,14 @@ export default class StudentFinder extends React.Component {
       return result
     }
 
+    const iconRight = {
+      marginRight: '8px',
+      marginBottom: '2px',
+      fontSize: '18px'
+    }
+
     return (
-      <div className="student-finder">
+      <div className={"student-finder " + (this.state.isScanning ? 'showVideo' : '')}>
 
         {this.state.isScanning === false && <form >
           <div className="doc-type-picker">
@@ -155,8 +161,8 @@ export default class StudentFinder extends React.Component {
                 <FormControlLabel value="1" control={<Radio />} label="Заліковка" />
                 <FormControlLabel value="2" control={<Radio />} label="Довідка" />
               </RadioGroup>
-            </FormControl>
 
+            </FormControl>
 
           </div>
 
@@ -167,11 +173,15 @@ export default class StudentFinder extends React.Component {
               variant="contained"
               color="primary"
             >
-              почати сканування
-            </Button>}
+              <i className="fas fa-camera" style={iconRight}></i>
+              сканувати
+            </Button>
+          }
+
+
 
           {value !== '0' &&
-            <div className="student-by-name-finder" style={{ marginTop: 20 }}>
+            <div className="student-by-name-finder">
 
               <Input
                 className="input student-name"
@@ -202,9 +212,8 @@ export default class StudentFinder extends React.Component {
                 variant="contained"
                 color="primary"
                 onClick={this.handleSubmit.bind(this)}
-              // disabled={isDisabled}
-
               >
+                <i className="fas fa-address-book" style={iconRight}></i>
                 знайти
               </Button>
 
@@ -218,6 +227,8 @@ export default class StudentFinder extends React.Component {
         {this.state.docType === '0' &&
           <Video show={this.state.isScanning} onScanCancel={this.handleCancelScan.bind(this)} />
         }
+
+
 
 
       </div>

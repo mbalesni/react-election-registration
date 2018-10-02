@@ -93,7 +93,7 @@ export default class extends React.Component {
     axios.defaults.withCredentials = true
     message.config({
       maxCount: 1,
-      duration: 0
+      duration: 5
     })
     this.getAuth()
     this.closeSessions()
@@ -175,15 +175,29 @@ export default class extends React.Component {
           foundStudents: foundStudents,
           status: {
             type: 'info',
-            message: 'Підтвердіть правильність даних та оберіть студента'
+            message: this.getFoundStudentsNote(foundStudents),
           },
           loading: false
         })
-        // message.info('Підтвердіть правильність даних та оберіть студента')
       })
       .catch(err => {
         this.handleError(err)
       })
+  }
+
+  getFoundStudentsNote(foundStudents) {
+    const len = foundStudents.length
+    return (
+      <div>
+        {len === 1 && 'Перевірте дані та зареєструйте студента'}
+        {len > 1 && 'Оберіть студента'}
+        {len > 1 &&
+          <div className="found-students-num">
+            Знайдено {len} студент{len > 1 ? 'ів' : 'а'}
+          </div>
+        }
+      </div>
+    )
   }
 
   searchStudentByName(name, docType, docNumber) {
@@ -212,7 +226,7 @@ export default class extends React.Component {
           foundStudents: foundStudents,
           status: {
             type: 'info',
-            message: 'Підтвердіть правильність даних та оберіть студента',
+            message: this.getFoundStudentsNote(foundStudents),
           },
           loading: false
         })
@@ -267,7 +281,13 @@ export default class extends React.Component {
   }
 
   goBack() {
-    this.setState({foundStudents: []})
+    this.setState({
+      foundStudents: [],
+      status: {
+        type: 'info',
+        message: 'Оберіть тип документа та знайдіть студента в базі'
+      }
+    })
     this.searchStudentByTicketNumberStarted = false
   }
 
@@ -325,7 +345,7 @@ export default class extends React.Component {
   completeSession() {
     const data = { check_in_session_token: this.state.checkInSessionToken }
     const studentName = this.state.activeStudent.name
-    
+
 
     this.setState({ loading: true })
     axios.post('/complete_session', data)
@@ -351,7 +371,7 @@ export default class extends React.Component {
   }
 
   initScan() {
-    this.setState({ loading: true, status: {type: null, message: null, show: false} })
+    this.setState({ loading: true, status: { type: null, message: null, show: false } })
     Quagga.init(
       { ...QUAGGA_OPTIONS, inputStream: { ...QUAGGA_OPTIONS.inputStream, target: document.querySelector('.scanner-container') } },
       (err) => {

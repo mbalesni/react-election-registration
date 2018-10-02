@@ -55,7 +55,7 @@ footer > * {
   border: none !important;
   /* width: 80%; */
   width: 600px;
-  margin: 0 auto;
+  margin: 2rem auto 0;
 }
 .card .card-header {
   border-bottom: 3px solid #f0f0f0;
@@ -88,7 +88,7 @@ footer > * {
 
 .card .card-block {
   padding: 1rem 1.5rem !important;
-  min-height: 370px;
+  /* min-height: 370px; */
   display: flex;
   flex-direction: column;
   /* justify-content: space-between; */
@@ -96,8 +96,9 @@ footer > * {
 }
 
 .found-students-num {
-  text-align: center;
-  margin-bottom: 1rem !important;
+  /* margin-bottom: 1rem !important; */
+  opacity: .6;
+  font-size: 14px;
 }
 
 

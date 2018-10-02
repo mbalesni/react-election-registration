@@ -9,7 +9,12 @@
 }
 
 .student-finder {
-  /* min-height: 418px; */
+  min-height: 50px;
+  transition: .3s ease-in-out;
+}
+.student-finder.showVideo {
+  min-height: 418px;
+
 }
 .row {
   /* display: flex;
@@ -25,11 +30,14 @@
   /* justify-items: center */
 }
 .scan-btn {
-  margin-top: 20px !important;
+  margin-top: 28px !important;
   justify-self: flex-end;
 }
 .search-btn {
   float: right;
+}
+.student-by-name-finder {
+  margin-top: 25px;
 }
 .student-by-name-finder .input {
   margin-bottom: 1rem;
