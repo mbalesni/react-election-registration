@@ -4,7 +4,7 @@ from student.models import Student
 from student.tests import STUDENT_KWARGS, create_models as create_student_models
 from .constants import Staff
 from .models import CheckInSession
-from .utils import get_current_naive_time
+from .utils import get_current_naive_datetime
 
 
 def create_staff_account() -> Staff:
@@ -17,15 +17,15 @@ def create_staff_account() -> Staff:
 class TestCheckInSession:
 
     def test_start_new_session(self):
-        time_before = get_current_naive_time()
+        time_before = get_current_naive_datetime()
         staff = create_staff_account()
 
         session = CheckInSession.start_new_session(staff)
         assert isinstance(session, CheckInSession)
         assert session.status == CheckInSession.STATUS_STARTED
-        assert time_before < session.start_time < get_current_naive_time()
+        assert time_before < session.start_dt.time() < get_current_naive_datetime()
         assert session.is_open
-        assert session.end_time is None
+        assert session.end_dt is None
         assert session.student is None
         assert session.staff == staff
         assert CheckInSession.staff_has_open_sessions(staff)
@@ -38,7 +38,7 @@ class TestCheckInSession:
         session.cancel()
 
         assert session.status == CheckInSession.STATUS_CANCELED
-        assert session.start_time < session.end_time < get_current_naive_time()
+        assert session.start_time < session.end_time < get_current_naive_datetime()
         assert not session.is_open
         assert not CheckInSession.staff_has_open_sessions(staff)
 
@@ -53,7 +53,7 @@ class TestCheckInSession:
 
         assert isinstance(session, CheckInSession)
         assert session.status == CheckInSession.STATUS_IN_PROGRESS
-        assert session.end_time is None
+        assert session.end_dt is None
         assert session.student == student
         assert session.is_open
         assert CheckInSession.staff_has_open_sessions(staff)
@@ -70,7 +70,7 @@ class TestCheckInSession:
         session.cancel()
 
         assert session.status == CheckInSession.STATUS_CANCELED
-        assert session.start_time < session.end_time < get_current_naive_time()
+        assert session.start_time < session.end_time < get_current_naive_datetime()
         assert not session.is_open
         assert not CheckInSession.staff_has_open_sessions(staff)
         assert CheckInSession.student_allowed_to_assign(student)
@@ -84,7 +84,7 @@ class TestCheckInSession:
         session.complete()
 
         assert session.status == CheckInSession.STATUS_COMPLETED
-        assert session.start_time < session.end_time < get_current_naive_time()
+        assert session.start_time < session.end_time < get_current_naive_datetime()
         assert not session.is_open
         assert not CheckInSession.staff_has_open_sessions(staff)
         assert not CheckInSession.student_allowed_to_assign(student)

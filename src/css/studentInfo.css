@@ -7,6 +7,7 @@
   display: flex;
   justify-content: space-between;
   padding: .5rem;
+  padding-left: 1rem;
   margin-bottom: 1rem;
   transition: .3s ease-in-out;
 }
@@ -17,7 +18,10 @@
   margin-top: .5rem;
   opacity: .8;
 }
+.student--name {
+  font-size: 15px;
+}
 .student--info > * {
   margin-right: .5rem;
-  font-size: .85em;
+  font-size: 13px;
 }

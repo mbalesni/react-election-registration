@@ -7,14 +7,17 @@
     "@material-ui/icons": "^2.0.1",
     "@material/elevation": "^0.38.0",
     "@material/fab": "^0.38.0",
+    "antd": "^3.9.2",
     "axios": "^0.18.0",
     "create-react-app": "^1.5.2",
+    "emotion": "^9.2.6",
     "quagga": "^0.12.1",
     "raven-js": "^3.26.3",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "react-raven": "^1.2.3",
     "react-scripts": "1.1.4",
+    "react-spinners": "^0.4.4",
     "request": "^2.88.0"
   },
   "scripts": {
@@ -22,9 +25,5 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
-  },
-  "devDependencies": {
-    "emotion": "^9.2.6",
-    "react-spinners": "^0.4.4"
   }
 }

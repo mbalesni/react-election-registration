@@ -1,13 +1,26 @@
+import typing
+import logging
+
 from django.core import exceptions, signing
 from django.db import models
 from django.utils import timezone
 
+# WorkFlow Errors
+from elists.utils import get_current_naive_datetime
+from errorsapp import exceptions as wfe
+
+log = logging.getLogger('student.models')
+
 
 ### validators
 def validate_student_full_name(value: str):
-    if not value.istitle():
+    if not value.istitle() or \
+            len(value) <= 5 or \
+            len(value.split(' ')) < 1:
         raise exceptions.ValidationError(
-            f'Full name must pass `istitle` check.')
+            f'Full name must pass `istitle` check, '
+            f'be longer than 5 symbols and'
+            f'contain at one space.')
 
 
 def validate_student_ticket_number(value: int):
@@ -80,6 +93,7 @@ class Student(models.Model):
     )
     ticket_number = models.IntegerField(
         unique=True,
+        db_index=True,
         validators=[validate_student_ticket_number],
         verbose_name='Номер студентського квитка',  # Номер студентського квитка
     )
@@ -94,7 +108,7 @@ class Student(models.Model):
         default=STATUS_FREE,
         verbose_name='Статус',
     )
-    status_update_time = models.TimeField(
+    status_update_dt = models.DateTimeField(
         null=True,
         blank=True,
         verbose_name='Час останнього оновлення',
@@ -108,6 +122,8 @@ class Student(models.Model):
     )
     specialty = models.ForeignKey(
         Specialty,
+        null=True,
+        blank=True,
         on_delete=models.PROTECT,
         verbose_name='Спеціальність',  # Спеціальність
     )
@@ -175,15 +191,21 @@ class Student(models.Model):
             raise exceptions.ValidationError('Bachelors could be only on 1-4 years of study.')
 
     @classmethod
-    def search_for_students(cls, search_query: str, educational_degree: int, year: int):
-        raise NotImplementedError("Need to implement search with query...")
-        return cls.objects.filter(
-            ticket_number__isnull=False,
-            educational_degree=educational_degree,
-            year=year,
-            checkinsession__status__lt=0,
-            # FIXME: ### full_name__trigram_similar=search_query,
+    def search_by_full_name(cls, full_name: str) -> typing.Tuple['Student']:
+        log.debug(f'searching by full name "{full_name}"')
+
+        try:
+            full_name = str(full_name)
+            validate_student_full_name(full_name)
+        except (exceptions.ValidationError, ValueError) as exc:
+            raise wfe.FullNameWrongFormat() from exc
+
+        students = cls.objects.filter(
+            full_name__trigram_similar=full_name,
         )
+        if not students:
+            raise wfe.StudentNameNotFound()
+        return tuple(students)
 
     @classmethod
     def search_by_ticket_number(cls, ticket_number_string: str) -> 'Student':
@@ -196,48 +218,56 @@ class Student(models.Model):
         :param ticket_number_string: 8 digits string
         :return: Student model
         """
+        log.debug(f'searching by ticket number "{ticket_number_string}"')
+
         try:
             ticket_number = int(ticket_number_string)
             validate_student_ticket_number(ticket_number)
         except (exceptions.ValidationError, ValueError) as exc:
-            raise ValueError('Wrong format of the ticket number.') from exc
+            raise wfe.TicketNumberWrongFormat() from exc
 
         try:
             return cls.objects.get(ticket_number=ticket_number)
         except models.ObjectDoesNotExist:
-            raise IndexError('No student found with provided ticket number')
+            raise wfe.TicketNumberNotFound()
 
     @classmethod
-    def get_student_by_token(cls, token: str):
+    def get_student_by_token(cls, token: str) -> 'Student':
         try:
-            student_ticket_number: str = signing.Signer().unsign(token)
+            query: dict = signing.loads(token, max_age=None)
         except signing.BadSignature:
-            raise RuntimeError('Bad student token signature.')
+            raise wfe.StudentTokenBadSignature()
 
         # if we had given that token, than object must exist, and be valid
-        return cls.objects.get(ticket_number=int(student_ticket_number))
+        return cls.objects.get(**query)
 
     def create_token(self) -> str:
-        return signing.Signer().sign(str(self.ticket_number))
+        return signing.dumps(dict(id=self.id))
 
-    def update_status(self, status: int):
+    def _update_status(self, status: int):
         assert status in dict(self.STATUS_CHOICES).keys()
 
         if self.status == status:
-            raise ValueError(
-                f'Would not update status to same value.'
-            )
+            raise wfe.StudentStatusAlreadyTheSame()
         if self.status == self.STATUS_VOTED:
-            raise ValueError(
-                f'Can not change status from "{self.status_verbose}".')
-        if self.status == self.STATUS_FREE and status == self.STATUS_VOTED:
-            raise ValueError(
-                f'Can not change status from [{self.STATUS_FREE}] '
-                f'to [{self.STATUS_VOTED}].')
+            raise wfe.StudentStatusCantChangeBecauseVoted()
 
         self.status = status
-        self.status_update_time = timezone.make_naive(timezone.now()).time()
+        self.status_update_dt = get_current_naive_datetime()
+        log.info(f'Student #{self.id} updated status: [{self.status}] {self.status_verbose}')
         self.save()
+
+    def change_state_in_progress(self):
+        self._update_status(self.STATUS_IN_PROGRESS)
+
+    def change_state_free(self):
+
+        self._update_status(self.STATUS_FREE)
+
+    def change_state_voted(self):
+        if self.status == self.STATUS_FREE:
+            raise wfe.StudentStatusCantChangeBecauseFree()
+        self._update_status(self.STATUS_VOTED)
 
     def show_registration_time(self) -> str:
         yesterday = timezone.datetime.today() - timezone.timedelta(1)
@@ -249,7 +279,7 @@ class Student(models.Model):
     show_registration_time.short_description = 'Час реєстрації'
 
     def show_specialty(self) -> str:
-        return str(self.specialty)
+        return str(self.specialty) if self.specialty else '(не вказана)'
 
     def get_joined_edu_year_display(self) -> str:
         return f'{self.get_educational_degree_display()}-{self.get_year_display()}'

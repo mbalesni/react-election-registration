@@ -5,12 +5,11 @@ html, body {
   height: 100%;
 }
 body {
-  background-color: #f7f7f7;
+  background-color: #f7f7f7 !important;
   color: #626262;
   font-family: 'Roboto', sans-serif;
   font-weight: 400;
   max-height: 100%;
-  overflow: hidden;
 }
 #root {
   height: 100%;
@@ -29,4 +28,16 @@ audio {
 }
 img {
   user-select: none;
+}
+
+
+
+/* overriding global ANTD styles */
+
+p { 
+  margin-bottom: 0px !important;
+}
+
+footer {
+  display: flex !important;
 }

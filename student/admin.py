@@ -26,28 +26,28 @@ class StudentAdmin(admin.ModelAdmin):
         'year',
         'form_of_study',
         'status',
-        'status_update_time',
+        'status_update_dt',
     )
     list_display = (
         'full_name',
         'ticket_number',
         'show_registration_time',
         'status',
-        'status_update_time',
-        'structural_unit',
+        'status_update_dt',
+        #'structural_unit',
         'specialty',
         'educational_degree',
         'year',
         'form_of_study',
     )
     list_filter = (
-        'structural_unit',
+        #'structural_unit',
         'specialty',
         'educational_degree',
         'year',
         'form_of_study',
         'status',
-        'status_update_time',
+        #'status_update_dt',
     )
     ordering = tuple([*list_filter, 'full_name'])
     search_fields = ('full_name', 'ticket_number',)
@@ -71,7 +71,7 @@ class StudentAdmin(admin.ModelAdmin):
         {
             'fields': (
                 'show_registration_time',
-                ('status', 'status_update_time', ),
+                ('status', 'status_update_dt', ),
             ),
             'classes': ('grp-collapse grp-open',),
         },

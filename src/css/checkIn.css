@@ -1,8 +1,4 @@
-.check-in-controls {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-}
+
 .spinner {
   position: absolute;
   z-index: 1000;
@@ -18,7 +14,7 @@
 
 .page-content-wrapper .content {
   /* align-items: center; */
-  padding: 3rem 0 0rem;
+  padding: 3rem 0 1rem;
   /* display: flex; */
   /* flex-flow: column; */
   margin: 0;
@@ -28,6 +24,7 @@
 
 
 footer {
+  align-items: center;
   border-top: 1px solid rgba(98, 98, 98, 0.07);
   display: flex;
   font-size: 12px;
@@ -61,12 +58,12 @@ footer > * {
   margin: 0 auto;
 }
 .card .card-header {
+  border-bottom: 3px solid #f0f0f0;
   color: #333;
   display: flex;
   justify-content: space-between;
   text-transform: uppercase;
   align-items: center;
-  /* border-bottom: 1px solid #ddd; */
   padding: .5rem 1.5rem;
 
 }
@@ -91,12 +88,19 @@ footer > * {
 
 .card .card-block {
   padding: 1rem 1.5rem !important;
-  min-height: 350px;
+  min-height: 370px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   position: relative;
 }
+
+.found-students-num {
+  text-align: center;
+  margin-bottom: 1rem !important;
+}
+
+
 
 .card-footer {
   align-items: center;

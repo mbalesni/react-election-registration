@@ -1,13 +1,31 @@
+import logging
+
 from django.conf import settings
 from django.core import signing, exceptions
 from django.db import models
+from django.utils import timezone
 
 from student.models import Student, validate_student_ticket_number
 from .constants import Staff
-from .utils import get_current_naive_time, time_diff_formatted
+from .utils import get_current_naive_datetime, time_diff_formatted
+from errorsapp import exceptions as wfe
+from .num_code import num_code_generator
+from .time_limit import time_limit_controller
+
+log = logging.getLogger('elists.models')
+
+
+def validate_ticket_number(ticket_number: str):
+    try:
+        num = int(ticket_number)
+    except TypeError:
+        raise exceptions.ValidationError('Number must be a valid integer')
+    validate_student_ticket_number(num)
 
 
 def validate_gradebook_number(gradebook_number: str):
+    # TODO: validate gradebook
+    return 
     n1, sep, n2 = gradebook_number.partition('/')
     if sep == '':
         raise exceptions.ValidationError('"/" (slash) must be inside gradebook number.')
@@ -17,20 +35,14 @@ def validate_gradebook_number(gradebook_number: str):
 
 
 def validate_certificate_number(certificate_number: str):
+    # TODO: validate certificate number
+    return
     try:
         num = int(certificate_number)
     except TypeError:
         raise exceptions.ValidationError('Number must be a valid integer')
     if not (10_00 < num < 99_99):
         raise exceptions.ValidationError('Number must contain exact 4 digits.')
-
-
-def validate_ticket_number(ticket_number: str):
-    try:
-        num = int(ticket_number)
-    except TypeError:
-        raise exceptions.ValidationError('Number must be a valid integer')
-    validate_student_ticket_number(num)
 
 
 class CheckInSession(models.Model):
@@ -51,7 +63,7 @@ class CheckInSession(models.Model):
     STATUS_CHOICES = (
         (STATUS_STARTED, "Відкрита"),
         (STATUS_IN_PROGRESS, "В процесі"),
-        (STATUS_CANCELED, "Відмінена"),
+        (STATUS_CANCELED, "Скасована"),
         (STATUS_COMPLETED, "Завершена"),
     )
 
@@ -104,17 +116,26 @@ class CheckInSession(models.Model):
     )
 
     # time marks
-    start_time = models.TimeField(
+    start_dt = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Час початку',
     )
-    end_time = models.TimeField(
+    end_dt = models.DateTimeField(
         null=True,
         verbose_name='Час завершення',
     )
 
+    # identifiers
+    num_code = models.IntegerField(
+        null=True,
+        blank=True,
+        unique=True,
+        db_index=True,
+        verbose_name='Чисельний код',
+    )
+
     def __repr__(self) -> str:
-        return f'<CheckInSession #{self.id} [{self.status}] by "{self.staff}">'
+        return f'<CheckInSession #{self.id} [{self.status}] by @{self.staff.username}>'
 
     def __str__(self) -> str:
         return f'Чек-ін сесія {self.show_time_summary().lower()} під контролем @{self.staff.username}'
@@ -133,17 +154,25 @@ class CheckInSession(models.Model):
 
     @property
     def time_duration(self) -> str:
-        return time_diff_formatted(self.start_time, self.end_time)
+        return time_diff_formatted(self.start_dt.time(), self.end_dt.time())
 
     def show_time_summary(self) -> str:
-        parts = [f'Почата о {self.start_time.strftime(self.TIME_FMT)}']
+        parts = [f'Почата о {self.start_dt.strftime(self.TIME_FMT)}']
         if not self.is_open:
             parts.append(
                 f'тривала {self.time_duration} '
-                f'і була закрита о {self.end_time.strftime(self.TIME_FMT)}'
+                f'і була закрита о {self.end_dt.strftime(self.TIME_FMT)}'
             )
         return ' '.join(parts)
     show_time_summary.short_description = 'Заключення'
+
+    @classmethod
+    def filter_open(cls, qs: models.QuerySet) -> models.QuerySet:
+        return qs.filter(status__gt=0)
+
+    @classmethod
+    def filter_completed(cls, qs: models.QuerySet) -> models.QuerySet:
+        return qs.filter(status__exact=0)
 
     @classmethod
     def validate_doc_type_num_pair(cls, doc_type: int, doc_num: str):
@@ -174,17 +203,23 @@ class CheckInSession(models.Model):
     @classmethod
     def start_new_session(cls, staff: Staff) -> 'CheckInSession' or None:
         """ Checks if `staff` has open sessions. Starts new session for `staff`.
-        Records `start_time`, assigns `Status.std` status and lefts `student`
-        and `end_time` unassigned.
+        Records `start_dt`, assigns `Status.std` status and lefts `student`
+        and `end_dt` unassigned.
 
         :param staff: logged in staff
         :return: model if everything was OK, else returns None
         """
-        # assigns default "STARTED" status, NULL student_id and NULL end_time
+        if not time_limit_controller.check():
+            raise wfe.ElectionsTimeLimitReached()
+        if CheckInSession.staff_has_open_sessions(staff):
+            raise wfe.StaffHasOpenSession()
+
+        # assigns default "STARTED" status, NULL student_id and NULL end_dt
         new_check_in_session = cls(staff=staff, status=cls.STATUS_STARTED)
 
         # nothing to validate
         new_check_in_session.save()
+        log.info(f'Started #{new_check_in_session.id} by @{staff.username}')
         return new_check_in_session
 
     @classmethod
@@ -192,9 +227,9 @@ class CheckInSession(models.Model):
         try:
             query: dict = signing.loads(token, max_age=cls.get_token_max_age())
         except signing.SignatureExpired:
-            raise TimeoutError('Provided check-in session token expired.')
+            raise wfe.CheckInSessionTokenExpired()
         except signing.BadSignature:
-            raise RuntimeError('Bad check-in session token signature.')
+            raise wfe.CheckInSessionTokenBadSignature()
 
         # if we had given that token, than object must exist
         return cls.objects.get(**query)
@@ -202,40 +237,70 @@ class CheckInSession(models.Model):
     def assign_student(self, student: Student, doc_type: str, doc_num: str) -> 'CheckInSession':
         """ Checks if `student` has open sessions. Assigns `student` to given
         `session` and updates status to `IN_PROGRESS` value. """
+        if not student.allowed_to_assign:
+            raise wfe.StudentNotAllowedToAssign()
+        if not self.just_started:
+            raise wfe.CheckInSessionWrongStatus(
+                context={
+                    'current_status_code': self.status,
+                    'current_status_name': self.status_verbose,
+                },
+            )
+
         try:
             self.validate_doc_type_num_pair(int(doc_type), doc_num)
         except exceptions.ValidationError as exc:
-            raise ValueError(str(exc))
+            raise wfe.StudentDocNumberWrongFormat(context={
+                'msg': str(exc)
+            })
         except TypeError:
-            raise ValueError('`doc_type` must be an integer of [0, 1, 2] value.')
+            raise wfe.StudentDocTypeWrongFormat(context={
+                'msg': '`doc_type` must be an integer of [0, 1, 2] value.',
+            })
 
         self.student = student
         self.doc_type = doc_type
         self.doc_num = doc_num
         self.status = self.STATUS_IN_PROGRESS
-        self.student.update_status(Student.STATUS_IN_PROGRESS)
+        self.student.change_state_in_progress()
 
         self.save()
+        log.info(f'Assigned {student} #{self.id} by @{self.staff.username}')
         return self
 
     def complete(self) -> 'CheckInSession':
-        """ Assigns current time to `end_time` and `COMPLETED` status. """
-        self.end_time = get_current_naive_time()
+        """ Assigns current time to `end_dt` and `COMPLETED` status. """
+        if self.student is None:
+            raise wfe.CheckInSessionWithoutStudent()
+        if not self.is_open:
+            raise wfe.CheckInSessionAlreadyClosed()
+
+        self.end_dt = get_current_naive_datetime()
         self.status = self.STATUS_COMPLETED
-        self.student.update_status(Student.STATUS_VOTED)
+        self.student.change_state_voted()
 
         self.save()
+        log.info(f'Completed #{self.id} by @{self.staff.username}')
         return self
 
     def cancel(self) -> 'CheckInSession':
-        """ Assigns current time to `end_time` and `CANCELED` status. """
-        self.end_time = get_current_naive_time()
+        """ Assigns current time to `end_dt` and `CANCELED` status. """
+        if not self.is_open:
+            raise wfe.CheckInSessionAlreadyClosed()
+
+        self.end_dt = get_current_naive_datetime()
         self.status = self.STATUS_CANCELED
         if self.student:
-            self.student.update_status(Student.STATUS_FREE)
+            self.student.change_state_free()
 
         self.save()
+        log.info(f'Canceled #{self.id} by @{self.staff.username}')
         return self
 
     def create_token(self) -> str:
-        return signing.dumps(dict(id=self.id))
+        num_code = num_code_generator.encode(data=self.id)
+
+        self.num_code = num_code
+        self.save()
+
+        return signing.dumps(dict(num_code=self.num_code))

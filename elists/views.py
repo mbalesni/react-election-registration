@@ -1,35 +1,62 @@
+import logging
+
 from .constants import (
-    RESPONSE_STUDENT, REQUEST_STUDENT_TICKET_NUMBER, REQUEST_STUDENT_DOC_NUM,
+    RESPONSE_STUDENT, RESPONSE_STUDENTS, RESPONSE_STAFF,
+    REQUEST_STUDENT_TICKET_NUMBER, REQUEST_STUDENT_DOC_NUM,
     REQUEST_STUDENT_DOC_TYPE, REQUEST_STUDENT_TOKEN, REQUEST_STUDENT,
-    RESPONSE_STAFF
+    REQUEST_STUDENT_FULL_NAME,
 )
 from .middleware import Request, mark, serialize_student, serialize_staff
 from .models import CheckInSession, Student
+from errorsapp import exceptions as wfe
+
+log = logging.getLogger('elists.views')
 
 
 @mark(require_session=False)
 def start_new_session(request: Request):
     staff = request.elists_cisi.staff
-
-    if CheckInSession.staff_has_open_sessions(staff):
-        raise PermissionError('Staff already has open sessions.')
-
     session = CheckInSession.start_new_session(staff)
     request.elists_cisi.assign_session(session)
 
 
 @mark()
-def search_student_by_ticket_number(request: Request):
+def search_by_ticket_number(request: Request):
     session = request.elists_cisi.session
     if not session.just_started:
-        raise PermissionError(
-            f'Wrong session status: [{session.status}] "{session.status_verbose}".')
+        raise wfe.CheckInSessionWrongStatus(
+            context={
+                'current_status_code': session.status,
+                'current_status_name': session.status_verbose,
+            },
+        )
 
     ticket_number = request.elists_cisi.data[REQUEST_STUDENT][REQUEST_STUDENT_TICKET_NUMBER]
     student = Student.search_by_ticket_number(ticket_number)
 
     return {
         RESPONSE_STUDENT: serialize_student(student),
+    }
+
+
+@mark()
+def search_by_name(request: Request):
+    session = request.elists_cisi.session
+    if not session.just_started:
+        raise wfe.CheckInSessionWrongStatus(
+            context={
+                'current_status_code': session.status,
+                'current_status_name': session.status_verbose,
+            },
+        )
+
+    full_name = request.elists_cisi.data[REQUEST_STUDENT][REQUEST_STUDENT_FULL_NAME]
+    students = Student.search_by_full_name(full_name=full_name)
+
+    return {
+        RESPONSE_STUDENTS: [
+            serialize_student(student) for student in students
+        ]
     }
 
 
@@ -41,12 +68,6 @@ def submit_student(request: Request):
     student_doc_num = request.elists_cisi.data[REQUEST_STUDENT][REQUEST_STUDENT_DOC_NUM]
 
     student = Student.get_student_by_token(student_token)
-    if not student.allowed_to_assign:
-        raise PermissionError(f'This student is not allowed to assign.')
-    if not session.just_started:
-        raise PermissionError(
-            f'Wrong session status: [{session.status}] "{session.status_verbose}".')
-
     session.assign_student(
         student=student,
         doc_type=student_doc_type,
@@ -57,22 +78,12 @@ def submit_student(request: Request):
 @mark()
 def complete_session(request: Request):
     session = request.elists_cisi.session
-
-    if session.student is None:
-        raise ValueError('No student assigned.')
-    if not session.is_open:
-        raise ValueError('Session is already closed.')
-
     session.complete()
 
 
 @mark()
 def cancel_session(request: Request):
     session = request.elists_cisi.session
-
-    if not session.is_open:
-        raise ValueError('Session is already closed.')
-
     session.cancel()
 
 

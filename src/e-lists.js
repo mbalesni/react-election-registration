@@ -1,5 +1,4 @@
 import React from 'react'
-
 import axios from 'axios'
 import Raven from 'react-raven'
 import { MuiThemeProvider } from '@material-ui/core/styles';
@@ -12,51 +11,46 @@ import Footer from './footer.js'
 import { THEME } from './theme.js'
 import { BarLoader } from 'react-spinners';
 import { css } from 'react-emotion';
+import { message } from 'antd'
+import 'antd/dist/antd.css';
 import * as errors from './errors.json';
-
-console.log(errors)
 
 const spinnerStyles = css`
   position: absolute !important;
 `
 
-const DEV = true
-let BASE_URL = ''
-if (DEV) BASE_URL = 'http://localhost:8000'
-else BASE_URL = 'https://elists-dev.herokuapp.com/api/elists'
-console.log(BASE_URL)
+// retrieving environment variables
 
+const SENTRY_DSN = process.env.REACT_APP_SENTRY_DSN || ''
+const BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL || 'http://localhost:8000'
+const BASE_API_URL = BASE_URL + '/api/elists'
 
-function AppleNotSupported(props) {
-  return (
-    <div className="apple-not-supported">
-      {errors.user.apple_not_supported}
-    </div>
-  )
+const initialState = {
+  activeStudent: null,
+  auth: { loggedIn: false, user: '' },
+  docNumber: null,
+  docType: null,
+  sessionIsOpen: false,
+  checkInSessionToken: null,
+  foundStudents: [],
+  loading: false
 }
 
 export default class extends React.Component {
-  state = {
-    dev: true,
-    sessionIsOpen: false,
-    status: {},
-    foundStudents: [],
-    auth: { loggedIn: false, user: '' },
-    loading: true
-  }
+  state = { ...initialState }
 
   render() {
-    let { loggedIn } = this.state.auth
-    const isAppleMobileDevice = checkAppleMobileDevice()
+    const { loggedIn } = this.state.auth
+    const { ballotNumber } = this.state
 
     return (
-      <div className="page-content-wrapper ">
+      <div className="page-content-wrapper " >
 
-        <Raven dsn='https://6114eea799a146298b71db08a24d036d@sentry.io/1241630' />
+        <Raven dsn={SENTRY_DSN} />
 
         <MuiThemeProvider theme={THEME}>
           <div className="header-and-content">
-            <Header auth={this.state.auth} />
+            <Header auth={this.state.auth} baseUrl={BASE_URL} />
             <BarLoader
               color="rgba(33, 150, 243, 0.8)"
               className={spinnerStyles}
@@ -66,23 +60,23 @@ export default class extends React.Component {
               height={3}
             />
 
-            {isAppleMobileDevice && <AppleNotSupported />}
-
             <div className="content">
-              {loggedIn && !this.state.sessionIsOpen && !isAppleMobileDevice &&
+              {loggedIn && !this.state.sessionIsOpen &&
                 <OpenNewSession onSessionOpen={this.openSession.bind(this)} />
               }
 
               {loggedIn && this.state.sessionIsOpen &&
                 <CheckIn
                   activeStudent={this.state.activeStudent}
+                  ballotNumber={ballotNumber}
                   status={this.state.status}
                   foundStudents={this.state.foundStudents}
                   onStudentSubmit={this.submitStudent.bind(this)}
                   onScanStart={this.initScan.bind(this)}
-                  onScanCancel={this.cancelScan.bind(this)}
+                  // onScanCancel={this.cancelScan.bind(this)}
                   onCancelSession={this.cancelSession.bind(this)}
                   onCompleteSession={this.completeSession.bind(this)}
+                  onSearchByName={this.searchStudentByName.bind(this)}
                 />}
 
             </div>
@@ -92,10 +86,14 @@ export default class extends React.Component {
       </div>
     )
   }
-  
+
   componentDidMount() {
-    axios.defaults.baseURL = BASE_URL
+    axios.defaults.baseURL = BASE_API_URL
     axios.defaults.withCredentials = true
+    message.config({
+      maxCount: 1,
+      duration: 0
+    })
     this.getAuth()
     this.closeSessions()
   }
@@ -123,29 +121,10 @@ export default class extends React.Component {
 
       })
 
-    // fetch('https://elists-dev.herokuapp.com/api/elists/me', {
-    //   method: 'POST',
-    //   mode: 'cors',
-    //   credentials: 'include',
-    //   body: JSON.stringify({})
-    // })
-    // .then(response => response.json())
-    // .then(res => {console.log(res)})
-    // .catch(err => {console.error(err)})
-
-    // let request1 = request.defaults({ jar: true })
-    // request1.post({url: 'https://elists-dev.herokuapp.com/api/elists/me', body: '{}'}, function(err, res, body){
-    //   console.log(err && err)
-    //   console.log(res && res)
-    //   console.log(body && body)
-    // })
-
-    // })
-
   }
 
   closeSessions() {
-    axios.post('/close_sessions', {})
+    axios.post('/close_sessions')
       .catch(err => {
         this.handleError(err)
       })
@@ -155,15 +134,27 @@ export default class extends React.Component {
     this.setState({ loading: true })
     axios.post('/start_new_session', {})
       .then(res => {
+        // TODO: calculate ballot number HERE
+        const checkInSessionToken = res.data.data.check_in_session.token
+
+        let ballotNumber
+        if (checkInSessionToken) {
+          ballotNumber = checkInSessionToken.split(':')[0]
+          ballotNumber = JSON.parse(atob(ballotNumber))
+          ballotNumber = ballotNumber['num_code']
+        }
+
         this.setState({
           sessionIsOpen: true,
-          checkInSessionToken: res.data.data.check_in_session.token,
+          checkInSessionToken,
           status: {
             type: 'info',
-            message: 'Оберіть тип документа'
+            message: 'Оберіть тип документа та знайдіть студента в базі'
           },
-          loading: false
+          loading: false,
+          ballotNumber
         })
+        message.info('Оберіть тип документа та знайдіть студента в базі')
       })
       .catch(err => {
         this.handleError(err)
@@ -171,6 +162,7 @@ export default class extends React.Component {
   }
 
   searchStudentByTicketNumber(ticketNum) {
+
     let data = {}
     data.check_in_session_token = this.state.checkInSessionToken
     data.student = { ticket_number: ticketNum }
@@ -180,17 +172,8 @@ export default class extends React.Component {
     axios.post('/search_by_ticket_number', data)
       .then(res => {
         const studentObj = res.data.data.student
-        const studentData = studentObj.data
 
-        let student = {
-          ticketNum: ticketNum,
-          name: studentData.full_name,
-          degree: studentData.educational_degree === 1 ? 'Бакалавр' : 'Магістр',
-          formOfStudy: studentData.form_of_study === 1 ? 'Денна' : 'Заочна',
-          specialty: studentData.specialty,
-          year: studentData.year,
-          token: studentObj.token
-        }
+        let student = this.buildStudentData(studentObj)
 
         let foundStudents = this.state.foundStudents.slice()
         foundStudents[0] = { ...foundStudents[0], ...student }
@@ -205,10 +188,62 @@ export default class extends React.Component {
           },
           loading: false
         })
+        message.info('Підтвердіть правильність даних та оберіть студента')
       })
       .catch(err => {
-        this.handleError(err, errors.user.ticket_number_not_found)
+        this.handleError(err)
       })
+  }
+
+  searchStudentByName(name, docType, docNumber) {
+    let data = {}
+    data.check_in_session_token = this.state.checkInSessionToken
+    data.student = {}
+    data.student.full_name = name
+    data.student.doc_num = docNumber
+
+    console.log('Searching student by name ', name, ', saving document type ', docType, ' , number: ', docNumber)
+
+    this.setState({ loading: true })
+
+    axios.post('/search_by_name', data)
+      .then(res => {
+        console.log(res)
+        const students = res.data.data.students
+
+        let foundStudents = students.map(student => {
+          return this.buildStudentData(student)
+        })
+
+        this.setState({
+          docType: docType,
+          docNumber: docNumber,
+          foundStudents: foundStudents,
+          status: {
+            type: 'info',
+            message: 'Підтвердіть правильність даних та оберіть студента'
+          },
+          loading: false
+        })
+        message.info('Підтвердіть правильність даних та оберіть студента')
+
+      })
+      .catch(err => {
+        this.handleError(err)
+      })
+  }
+
+  buildStudentData(student) {
+    let data = {
+      name: student.data.full_name,
+      degree: student.data.educational_degree === 1 ? 'Бакалавр' : 'Магістр',
+      formOfStudy: student.data.form_of_study === 1 ? 'Денна' : 'Заочна',
+      structuralUnit: student.data.structural_unit,
+      specialty: student.data.specialty,
+      year: student.data.year,
+      token: student.token,
+    }
+    return data
   }
 
   submitStudent(student) {
@@ -218,6 +253,8 @@ export default class extends React.Component {
     data.student.token = student.token
     data.student.doc_type = this.state.docType
     data.student.doc_num = this.state.docNumber
+
+    console.log('Trying to submit student: ', data)
 
     this.setState({ loading: true })
 
@@ -231,25 +268,49 @@ export default class extends React.Component {
           },
           loading: false
         })
+        message.info('Заповніть та видайте бюлетень')
       })
       .catch(err => {
-        this.handleError(err, errors.user.student_already_voted)
+        this.handleError(err)
       })
   }
 
-  handleError(err, message) {
+  handleError(err, code) {
     let errData = err
-    if (err.response) errData = err.response.data.error
-    console.error(errData)
-    this.setState({
-      error: errData,
-      status: {
-        type: 'error',
-        message: message
-      },
-      loading: false
+    // console.log(err.message)
 
-    })
+    if (err.response) {
+      console.warn("Error response: ", err.response)
+      switch (err.response.status) {
+        case 400:
+          if (err.response.data && err.response.data.error) {
+            code = err.response.data.error.code
+            errData = err.response.data.error.message
+          } else {
+            code = 300
+            errData = err.response
+          }
+          break
+        case 403:
+          this.setState({ loading: false })
+          message.warn('Відмовлено в доступі.')
+          return
+        default:
+          code = 300
+          errData = err.message
+      }
+
+    } else {
+      code = 300
+      errData = err.message
+    }
+
+    console.warn('Error data: ', errData)
+    console.warn('Error code: ', code)
+
+    this.setState({ loading: false })
+    message.error(<span>{errors[code]} <span style={{ opacity: '.7' }}>Код помилки {code}</span></span>)
+
   }
 
   cancelSession() {
@@ -272,6 +333,7 @@ export default class extends React.Component {
     axios.post('/complete_session', data)
       .then(res => {
         this.onSessionEnd()
+        message.success('Студента успішно зареєстровано.', 3)
       })
       .catch(err => {
         this.handleError(err)
@@ -279,14 +341,15 @@ export default class extends React.Component {
   }
 
   onSessionEnd() {
-    this.setState({
-      activeStudent: null,
-      sessionIsOpen: false,
-      checkInSessionToken: null,
-      foundStudents: [],
-      loading: false
-    })
-    Quagga.stop()
+    message.destroy()
+    this.searchStudentByTicketNumberStarted = false
+    this.setState(initialState)
+    this.getAuth()
+    try {
+      Quagga.stop()
+    } catch (err) {
+      console.log('Quagga stop error: ', err)
+    }
   }
 
   initScan() {
@@ -295,7 +358,7 @@ export default class extends React.Component {
       { ...QUAGGA_OPTIONS, inputStream: { ...QUAGGA_OPTIONS.inputStream, target: document.querySelector('.scanner-container') } },
       (err) => {
         if (err) {
-          this.handleError(err, errors.user.scan_init_fail)
+          this.handleError(err, 506)
           return
         }
         Quagga.start()
@@ -306,37 +369,40 @@ export default class extends React.Component {
           },
           loading: false
         })
+        message.info('Піднесіть студентський квиток до камери')
         this.initOnDetected()
       })
   }
 
-  cancelScan() {
-    Quagga.stop();
-    this.setState({
-      sessionsStatus: 100,
-      status: {
-        type: 'info',
-        message: 'Оберіть тип документа'
-      }
-    })
-  }
+  // cancelScan() {
+  //   Quagga.stop();
+  //   this.setState({
+  //     sessionsStatus: 100,
+  //     status: {
+  //       type: 'info',
+  //       message: 'Оберіть тип документа'
+  //     }
+  //   })
+  //   message.info('Сканування скасовано. Оберыть тип документа')
+  // }
 
   initOnDetected() {
     Quagga.onDetected((data) => {
       const result = data.codeResult.code
       if (result.length === 8) {
         // playSuccessSound()
+
         Quagga.stop()
-        this.searchStudentByTicketNumber(result)
+
+        if (!this.searchStudentByTicketNumberStarted) {
+          this.searchStudentByTicketNumberStarted = true
+          this.searchStudentByTicketNumber(result)
+        }
+
       } else {
-        alert(errors.user.scan_error)
+        this.handleError('Error', 507)
       }
     })
   }
 
-}
-
-function checkAppleMobileDevice() {
-  if (window.navigator.userAgent.includes('iPad') || window.navigator.userAgent.includes('iPhone')) return true
-  else return false
 }

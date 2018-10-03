@@ -60,22 +60,22 @@ class TestStudent:
 
     def test_update_status(self):
         student = create_models(**STUDENT_KWARGS)[0]
-        student.update_status(student.STATUS_IN_PROGRESS)
+        student.change_state_in_progress()
         assert student.status == student.STATUS_IN_PROGRESS
 
-        student.update_status(student.STATUS_FREE)
+        student.change_state_free()
         assert student.status == student.STATUS_FREE
 
         with pytest.raises(ValueError) as exc:
-            student.update_status(student.STATUS_FREE)
+            student.change_state_free()
         with pytest.raises(ValueError) as exc:
-            student.update_status(student.STATUS_VOTED)
+            student.change_state_voted()
 
-        student.update_status(student.STATUS_IN_PROGRESS)
-        student.update_status(student.STATUS_VOTED)
+        student.change_state_in_progress()
+        student.change_state_voted()
         assert student.status == student.STATUS_VOTED
 
         with pytest.raises(ValueError) as exc:
-            student.update_status(student.STATUS_IN_PROGRESS)
+            student.change_state_in_progress()
         with pytest.raises(ValueError) as exc:
-            student.update_status(student.STATUS_FREE)
+            student.change_state_free()
