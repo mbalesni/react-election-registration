@@ -39,7 +39,7 @@ environ.Env.read_env(env_file=os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = env.str('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool('DEBUG')
+DEBUG = False
 
 BACKEND_DOMAIN = env.str('BACKEND_DOMAIN')
 
@@ -245,7 +245,7 @@ try:
     # release based on the git info.
     RAVEN_CONFIG['release'] = raven.fetch_git_sha(BASE_DIR)
 except:
-    RAVEN_CONFIG['release'] = env.str('RAVEN_RELEASE', default='onHeroku')
+    RAVEN_CONFIG['release'] = env.str('RAVEN_RELEASE', default='onHeroku-v0.2')
 
 # CORS headers
 CORS_ALLOW_CREDENTIALS = True
