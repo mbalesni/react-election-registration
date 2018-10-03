@@ -29,8 +29,12 @@ def validate_ticket_number(ticket_number: str):
 
 
 def validate_gradebook_number(gradebook_number: str):
+    if len(gradebook_number) != 8:
+        raise exceptions.ValidationError('Gradebook number must be no longer than 8 characters.')
+    return
+
     # TODO: validate gradebook
-    return 
+
     n1, sep, n2 = gradebook_number.partition('/')
     if sep == '':
         raise exceptions.ValidationError('"/" (slash) must be inside gradebook number.')
@@ -40,8 +44,12 @@ def validate_gradebook_number(gradebook_number: str):
 
 
 def validate_certificate_number(certificate_number: str):
-    # TODO: validate certificate number
+    if len(certificate_number) != 8:
+        raise exceptions.ValidationError('Certificate number must be no longer than 8 characters.')
     return
+
+    # TODO: validate certificate number
+
     try:
         num = int(certificate_number)
     except TypeError:
@@ -57,6 +65,7 @@ class CheckInSession(models.Model):
         verbose_name_plural = 'Чек-ін сесії'
 
     TIME_FMT = '%H:%M:%S'
+    DOC_NUM_MAX_LENGTH = 8
 
     STATUS_STARTED = 1
     STATUS_IN_PROGRESS = 2
@@ -89,6 +98,8 @@ class CheckInSession(models.Model):
         DOC_TYPE_CERTIFICATE: validate_certificate_number,
     }
 
+    DOC_TYPE_CODES = frozenset(code for code, name in DOC_TYPE_CHOICES)
+
     # references
     student = models.ForeignKey(
         Student,
@@ -109,7 +120,7 @@ class CheckInSession(models.Model):
         verbose_name='Тип документу',
     )
     doc_num = models.CharField(
-        max_length=8,
+        max_length=DOC_NUM_MAX_LENGTH,
         null=True,
         verbose_name='Номер документу',
     )
@@ -255,15 +266,30 @@ class CheckInSession(models.Model):
                 },
             )
 
+        # validation
+        try:
+            doc_type = int(doc_type)
+        except TypeError:
+            raise wfe.StudentDocTypeWrongFormat(context={
+                'msg'         : f'`doc_type` must be an integer',
+                'actual_value': doc_type,
+            })
+        if not doc_type in self.DOC_TYPE_CODES:
+            raise wfe.StudentDocTypeWrongFormat(context={
+                'msg': f'`doc_type` must be one of {self.DOC_TYPE_CODES}',
+                'actual_value': doc_type,
+            })
+        if len(doc_num) > self.DOC_NUM_MAX_LENGTH:
+            raise wfe.StudentDocNumberWrongFormat(context={
+                'msg'          : f'Document number must be no longer than '
+                                 f'{self.DOC_NUM_MAX_LENGTH} characters.',
+                'actual_length': len(doc_num),
+            })
         try:
             self.validate_doc_type_num_pair(int(doc_type), doc_num)
         except exceptions.ValidationError as exc:
             raise wfe.StudentDocNumberWrongFormat(context={
                 'msg': str(exc)
-            })
-        except TypeError:
-            raise wfe.StudentDocTypeWrongFormat(context={
-                'msg': '`doc_type` must be an integer of [0, 1, 2] value.',
             })
 
         self.student = student
@@ -271,9 +297,9 @@ class CheckInSession(models.Model):
         self.doc_num = doc_num
         self.ballot_number = _new_ballot_number(self.id)
         self.status = self.STATUS_IN_PROGRESS
-        self.student.change_state_in_progress()
 
         self.save()
+        self.student.change_state_in_progress()
         log.info(
             f'Assigned {student} to #{self.id} by @{self.staff.username} '
             f'with ballot number {self.show_ballot_number()}'
@@ -289,9 +315,9 @@ class CheckInSession(models.Model):
 
         self.end_dt = get_current_naive_datetime()
         self.status = self.STATUS_COMPLETED
-        self.student.change_state_voted()
 
         self.save()
+        self.student.change_state_voted()
         log.info(f'Completed #{self.id} by @{self.staff.username}')
         return self
 
@@ -304,10 +330,10 @@ class CheckInSession(models.Model):
 
         self.end_dt = get_current_naive_datetime()
         self.status = self.STATUS_CANCELED
-        if self.student:
-            self.student.change_state_free()
 
         self.save()
+        if self.student:
+            self.student.change_state_free()
         log.info(f'Canceled #{self.id} by @{self.staff.username}')
         return self
 
