@@ -129,6 +129,10 @@ class StudentTokenBadSignature(BaseUserError):
 class FullNameWrongFormat(BaseProgrammingError):
     code = 316
 
+
+class RequestJSONFieldMissing(BaseProgrammingError):
+    code = 317
+
 # end of programming errors
 # =========================
 

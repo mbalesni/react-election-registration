@@ -29,8 +29,6 @@ def validate_ticket_number(ticket_number: str):
 
 
 def validate_gradebook_number(gradebook_number: str):
-    if len(gradebook_number) != 8:
-        raise exceptions.ValidationError('Gradebook number must be no longer than 8 characters.')
     return
 
     # TODO: validate gradebook
@@ -44,8 +42,6 @@ def validate_gradebook_number(gradebook_number: str):
 
 
 def validate_certificate_number(certificate_number: str):
-    if len(certificate_number) != 8:
-        raise exceptions.ValidationError('Certificate number must be no longer than 8 characters.')
     return
 
     # TODO: validate certificate number
@@ -235,7 +231,7 @@ class CheckInSession(models.Model):
 
         # nothing to validate
         new_check_in_session.save()
-        log.info(f'Started #{new_check_in_session.id} by @{staff.username}')
+        log.info(f'Started check-in session #{new_check_in_session.id} by @{staff.username}')
         return new_check_in_session
 
     @classmethod
@@ -300,7 +296,7 @@ class CheckInSession(models.Model):
         self.save()
         self.student.change_status_in_progress()
         log.info(
-            f'Assigned {student} to #{self.id} by @{self.staff.username} '
+            f'Assigned {student} to check-in session #{self.id} by @{self.staff.username} '
             f'with ballot number {self.show_ballot_number()}'
         )
         return self
