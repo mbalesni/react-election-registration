@@ -256,8 +256,7 @@ class CheckInSession(models.Model):
     def assign_student(self, student: Student, doc_type: str, doc_num: str) -> 'CheckInSession':
         """ Checks if `student` has open sessions. Assigns `student` to given
         `session` and updates status to `IN_PROGRESS` value. """
-        if not student.allowed_to_assign:
-            raise wfe.StudentNotAllowedToAssign()
+        student.check_allowed_to_assign()
         if not self.just_started:
             raise wfe.CheckInSessionWrongStatus(
                 context={
@@ -299,7 +298,7 @@ class CheckInSession(models.Model):
         self.status = self.STATUS_IN_PROGRESS
 
         self.save()
-        self.student.change_state_in_progress()
+        self.student.change_status_in_progress()
         log.info(
             f'Assigned {student} to #{self.id} by @{self.staff.username} '
             f'with ballot number {self.show_ballot_number()}'
@@ -317,7 +316,7 @@ class CheckInSession(models.Model):
         self.status = self.STATUS_COMPLETED
 
         self.save()
-        self.student.change_state_voted()
+        self.student.change_status_voted()
         log.info(f'Completed #{self.id} by @{self.staff.username}')
         return self
 
@@ -333,7 +332,7 @@ class CheckInSession(models.Model):
 
         self.save()
         if self.student:
-            self.student.change_state_free()
+            self.student.change_status_free()
         log.info(f'Canceled #{self.id} by @{self.staff.username}')
         return self
 
