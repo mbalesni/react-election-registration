@@ -257,17 +257,32 @@ class Student(models.Model):
         log.info(f'Student #{self.id} updated status: [{self.status}] {self.status_verbose}')
         self.save()
 
-    def change_state_in_progress(self):
+    def change_status_in_progress(self):
         self._update_status(self.STATUS_IN_PROGRESS)
 
-    def change_state_free(self):
+    def change_status_free(self):
 
         self._update_status(self.STATUS_FREE)
 
-    def change_state_voted(self):
+    def change_status_voted(self):
         if self.status == self.STATUS_FREE:
             raise wfe.StudentStatusCantChangeBecauseFree()
         self._update_status(self.STATUS_VOTED)
+
+    def check_allowed_to_assign(self) -> None:
+        """
+        Raises proper workflow exception if student can not assign.
+        :return: no return
+        :raises StudentAlreadyVoted:
+        :raises StudentAlreadyInProgress:
+        """
+        if self.allowed_to_assign:
+            return
+
+        if self.has_voted:
+            raise wfe.StudentAlreadyVoted()
+        if self.has_open_session:
+            raise wfe.StudentAlreadyInProgress()
 
     def show_registration_time(self) -> str:
         yesterday = timezone.datetime.today() - timezone.timedelta(1)

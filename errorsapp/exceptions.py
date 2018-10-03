@@ -145,8 +145,12 @@ class StaffHasOpenSession(BaseUserError):
     code = 502
 
 
-class StudentNotAllowedToAssign(BaseUserError):
+class StudentAlreadyVoted(BaseUserError):
     code = 504
+
+
+class StudentAlreadyInProgress(BaseUserError):
+    code = 505
 
 
 class CheckInSessionTokenExpired(BaseUserError):
