@@ -96,7 +96,12 @@ export default class CheckIn extends React.Component {
             {this.props.activeStudent &&
               <Fragment>
                 <StudentInfo data={this.props.activeStudent} activeStudent={this.props.activeStudent} />
-                <StudentDocInput onScanStart={this.props.onScanStart.bind(this)} activeStudent={this.props.activeStudent} onCancelSession={this.props.onCancelSession} />
+                <StudentDocInput
+                  onScanStart={this.props.onScanStart.bind(this)}
+                  activeStudent={this.props.activeStudent}
+                  onCancelSession={this.props.onCancelSession}
+                  onSubmit={this.props.onStudentSubmit}
+                />
               </Fragment>
             }
 

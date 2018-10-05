@@ -145,7 +145,7 @@ export default class extends React.Component {
           checkInSessionToken,
           status: {
             type: 'info',
-            message: 'Оберіть тип документа та знайдіть студента в базі'
+            message: 'Знайдіть студента в базі'
           },
           loading: false
         })

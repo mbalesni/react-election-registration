@@ -1,25 +1,22 @@
 import React from 'react'
-import Button from '@material-ui/core/Button'
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import FormLabel from '@material-ui/core/FormLabel';
-import FormControl from '@material-ui/core/FormControl';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+import { Button, Radio, RadioGroup, FormLabel, FormControl, FormControlLabel, Input } from '@material-ui/core'
+import { message } from 'antd'
 import Video from './video.js'
+import './css/student-doc-input.css'
 
 const Fragment = React.Fragment
 
-const MIN_LENGTH = 3
+const MIN_LENGTH = {
+    '0': 8,     // ticket
+    '1': 3,     // gradebook
+    '2': 3,     // certificate
+}
 
 
 export class StudentDocInput extends React.Component {
     state = {
         value: '0',
-        docNumber: {
-            value: '',
-            label: `номер документа`,
-            name: 'docNumber'
-        },
+        docNumber: '',
         touched: false,
         isScanning: false
     }
@@ -31,11 +28,11 @@ export class StudentDocInput extends React.Component {
     }
 
     validate(docNumber) {
+        const docType = this.state.value
         // true condition means error
         // string is error explanation
-        return {
-            docNumber: docNumber.length < MIN_LENGTH.docNumber && `Номер документа повинен бути ${MIN_LENGTH.docNumber} або більше символів в довжину` || '',
-        }
+        let result = docNumber.length < MIN_LENGTH[docType] && `Номер документа повинен бути довше ${MIN_LENGTH[docType] - 1} символів` || ''
+        return result
     }
 
     handleBlur = (field) => (evt) => {
@@ -44,38 +41,23 @@ export class StudentDocInput extends React.Component {
         })
     }
 
-    handleSubmit(e) {
-        // const { docNumber } = this.state
-        // const errors = this.validate(docNumber.value)
+    handleSubmit() {
+        const { docNumber } = this.state
+        const docType = this.state.value
 
-        // let allTouched = { ...this.state.touched }
-        // Object.keys(allTouched).forEach(key => {
-        //     allTouched[key] = true
-        // })
-        // this.setState({ touched: allTouched })
+        const error = this.validate(docNumber)
 
+        if (error) {
+            let text = ''
+            text += `Номер документа має бути довше ${MIN_LENGTH[docType] - 1} символів`
 
-        // let noErrors = true
-
-        // const fields = [name]
-
-        // fields.forEach(field => {
-        //     const hasError = errors[field.name].length > 0
-
-        //     if (hasError) {
-        //         noErrors = false
-
-        //         let text = ''
-        //         text += `${capitalize(field.label)} має бути довше ${MIN_LENGTH[field.name] - 1} символів`
-
-        //         if (field.name === 'name') text += `, починатися з великої літери, та включати пробіл`
-        //         message.warn(text)
-        //     }
-
-        // })
-
-        // if (noErrors) this.search()
-
+            message.warn(text)
+        } else {
+            let student = { ...this.props.activeStudent }
+            student.docType = docType
+            student.docNumber = docNumber
+            this.props.onSubmit(student)
+        }
     }
 
     handleStartScan() {
@@ -90,9 +72,27 @@ export class StudentDocInput extends React.Component {
         } else return
     }
 
+    handleDocNumberChange = (e) => {
+        let docNumber = e.target.value
+        console.log('doc number: ', docNumber)
+        this.setState({ docNumber })
+    }
+
     render() {
         const { value } = this.state
-        const docNumber = this.props.activeStudent.docNumber || ''
+        const docNumber = this.props.activeStudent.docNumber || this.state.docNumber || ''
+
+        const error = this.validate(docNumber)
+
+
+        const shouldMarkError = (field) => {
+            const hasError = error.length > 0
+            const shouldShow = this.state.touched
+
+            const result = hasError ? shouldShow : false
+
+            return result
+        }
 
         const iconRight = {
             marginRight: '8px',
@@ -100,11 +100,11 @@ export class StudentDocInput extends React.Component {
             fontSize: '18px'
         }
 
-        let scanBtn = (value === '0')
+        let byTicket = (value === '0')
 
         return (
             <Fragment>
-                <div className="doc-type-picker">
+                <div className="doc-picker">
                     <FormControl component="fieldset">
                         <FormLabel component="legend">Тип документа</FormLabel>
                         <RadioGroup
@@ -120,33 +120,51 @@ export class StudentDocInput extends React.Component {
 
                     </FormControl>
 
+                    {!byTicket &&
+                        <div className="doc-number-field">
+                            <Input
+                                className="input doc-number"
+                                error={shouldMarkError('docNumber')}
+                                placeholder="Номер документа"
+                                value={this.state.docNumber}
+                                fullWidth={true}
+                                onChange={this.handleDocNumberChange}
+                                onBlur={this.handleBlur('docNumber')}
+                                tabIndex="0"
+                                onKeyPress={this.handleSubmitOnEnter.bind(this)}
+                            />
+                        </div>
+                    }
+
                 </div>
 
-                {scanBtn &&
+
+
+
+                {byTicket &&
                     <Button
-                        className="scan-btn"
+                        className="submit-btn"
                         onClick={this.handleStartScan.bind(this)}
                         variant="contained"
                         color="primary"
                     >
-                        <Fragment>
-                            <i className="fas fa-camera" style={iconRight}></i>
-                            сканувати
-                        </Fragment>
+                        <i className="fas fa-camera" style={iconRight}></i>
+                        сканувати
                     </Button>
                 }
 
-                {!scanBtn &&
+                {!byTicket &&
                     <Button
-                        className="scan-btn"
+                        className="submit-btn"
                         variant="contained"
                         color="primary"
+                        onClick={this.handleSubmit.bind(this)}
                     >
                         підтвердити
                     </Button>
                 }
 
-                {value === '0'  &&
+                {byTicket &&
                     <Video show={this.state.isScanning && docNumber.length === 0} onCancelSession={this.props.onCancelSession} />
                 }
 

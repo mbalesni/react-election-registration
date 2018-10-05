@@ -7,7 +7,7 @@ export default class StudentInfo extends React.Component {
     disabled: false
   }
 
-  handleSubmit(student) {
+  handleSelect(student) {
     console.log('success')
 
     // this.props.onSubmit(student)
@@ -57,7 +57,7 @@ export default class StudentInfo extends React.Component {
 
           <div className="actions">
             {!activeStudent &&
-              <Button disabled={disabled} variant="contained" color="primary" onClick={() => { this.handleSubmit(student) }}>
+              <Button disabled={disabled} variant="contained" color="primary" onClick={() => { this.handleSelect(student) }}>
                 {buttonName}
               </Button>
             }
