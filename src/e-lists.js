@@ -23,7 +23,7 @@ const spinnerStyles = css`
 
 const SENTRY_DSN = process.env.REACT_APP_SENTRY_DSN || ''
 const BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL || 'http://localhost:8000'
-const BASE_API_URL = BASE_URL + '/api/elists'
+const BASE_API_URL = BASE_URL + '/elists/api'
 
 const initialState = {
   activeStudent: null,
