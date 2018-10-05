@@ -28,6 +28,7 @@ const BASE_API_URL = BASE_URL + '/elists/api'
 const initialState = {
   activeStudent: null,
   auth: { loggedIn: false, user: '' },
+  ballotNumber: null,
   docNumber: null,
   docType: null,
   sessionIsOpen: false,
@@ -46,7 +47,7 @@ export default class extends React.Component {
     return (
       <div className="page-content-wrapper " >
 
-        <Raven dsn={SENTRY_DSN} />
+        {/* <Raven dsn={SENTRY_DSN} /> */}
 
         <MuiThemeProvider theme={THEME}>
           <div className="header-and-content">
@@ -73,11 +74,13 @@ export default class extends React.Component {
                   foundStudents={this.state.foundStudents}
                   onBack={this.goBack.bind(this)}
                   onStudentSubmit={this.submitStudent.bind(this)}
+                  onStudentSelect={this.selectStudent.bind(this)}
                   onScanStart={this.initScan.bind(this)}
                   // onScanCancel={this.cancelScan.bind(this)}
                   onCancelSession={this.cancelSession.bind(this)}
                   onCompleteSession={this.completeSession.bind(this)}
                   onSearchByName={this.searchStudentByName.bind(this)}
+                  onStudentUnselect={this.unselectStudent.bind(this)}
                 />}
 
             </div>
@@ -250,13 +253,23 @@ export default class extends React.Component {
     return data
   }
 
+  selectStudent(student) {
+    this.setState({
+      activeStudent: student,
+      status: {
+        type: 'info',
+        message: 'Введіть номер підтверджуючого документа'
+      }
+    })
+  }
+
   submitStudent(student) {
     let data = {}
     data.check_in_session_token = this.state.checkInSessionToken
     data.student = {}
     data.student.token = student.token
-    data.student.doc_type = this.state.docType
-    data.student.doc_num = this.state.docNumber
+    data.student.doc_type = student.docType
+    data.student.doc_num = student.docNumber
 
     this.setState({ loading: true })
 
@@ -285,10 +298,16 @@ export default class extends React.Component {
       foundStudents: [],
       status: {
         type: 'info',
-        message: 'Оберіть тип документа та знайдіть студента в базі'
+        message: "Знайдіть студента в базі"
       }
     })
     this.searchStudentByTicketNumberStarted = false
+  }
+
+  unselectStudent() {
+    this.setState({
+      activeStudent: null,
+    })
   }
 
   handleError(err, code) {
@@ -408,10 +427,11 @@ export default class extends React.Component {
 
         Quagga.stop()
 
-        if (!this.searchStudentByTicketNumberStarted) {
-          this.searchStudentByTicketNumberStarted = true
-          this.searchStudentByTicketNumber(result)
-        }
+        let activeStudent = this.state.activeStudent
+        activeStudent.docNumber = result
+        activeStudent.docType = '0'
+        this.setState({ activeStudent })
+        this.submitStudent( activeStudent )
 
       } else {
         this.handleError('Error', 507)

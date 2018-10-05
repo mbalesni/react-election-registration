@@ -27,7 +27,7 @@ export default class StudentFinder extends React.Component {
     isScanning: false,
     value: '0',
     name: {
-      value: '',
+      value: 'Балєсний Микита',
       label: `ім'я`,
       name: 'name'
     },
@@ -72,7 +72,7 @@ export default class StudentFinder extends React.Component {
     // string is error explanation
     return {
       name: (name.length < MIN_LENGTH.name || !isTitle(name) || !hasSpaces(name)) && `Ім'я повинно бути ${MIN_LENGTH.name} або більше символів в довжину` || '',
-      docNumber: docNumber.length < MIN_LENGTH.docNumber && `Номер документа повинен бути ${MIN_LENGTH.docNumber} або більше символів в довжину` || '',
+      // docNumber: docNumber.length < MIN_LENGTH.docNumber && `Номер документа повинен бути ${MIN_LENGTH.docNumber} або більше символів в довжину` || '',
     }
   }
 
@@ -95,7 +95,7 @@ export default class StudentFinder extends React.Component {
 
     let noErrors = true
 
-    const fields = [name, docNumber]
+    const fields = [name]
 
     fields.forEach(field => {
       const hasError = errors[field.name].length > 0
@@ -118,15 +118,16 @@ export default class StudentFinder extends React.Component {
 
   handleSubmitOnEnter(e) {
     if (e.key === 'Enter') {
+      e.preventDefault()
       this.handleSubmit()
     } else return
   }
 
 
   render() {
-    const { value, name, docNumber } = this.state
+    const { value, name } = this.state
 
-    const errors = this.validate(name.value, docNumber.value)
+    const errors = this.validate(name.value)
     const isDisabled = Object.keys(errors).some(x => errors[x].length > 0)
 
     const shouldMarkError = (field) => {
@@ -147,8 +148,8 @@ export default class StudentFinder extends React.Component {
     return (
       <div className={"student-finder " + (this.state.isScanning ? 'showVideo' : '')}>
 
-        {this.state.isScanning === false && <form >
-          <div className="doc-type-picker">
+        <form >
+          {/* <div className="doc-type-picker">
             <FormControl component="fieldset">
               <FormLabel component="legend">Тип документа</FormLabel>
               <RadioGroup
@@ -164,9 +165,9 @@ export default class StudentFinder extends React.Component {
 
             </FormControl>
 
-          </div>
+          </div> */}
 
-          {value === '0' &&
+          {/* {value === '0' &&
             <Button
               className="scan-btn"
               onClick={this.handleStartScan.bind(this)}
@@ -176,26 +177,25 @@ export default class StudentFinder extends React.Component {
               <i className="fas fa-camera" style={iconRight}></i>
               сканувати
             </Button>
-          }
+          } */}
 
 
 
-          {value !== '0' &&
-            <div className="student-by-name-finder">
+          <div className="student-by-name-finder">
 
-              <Input
-                className="input student-name"
-                error={shouldMarkError('name')}
-                placeholder="Повне ім'я"
-                value={this.state.name.value}
-                fullWidth={true}
-                onChange={this.handleNameChange}
-                onBlur={this.handleBlur('name')}
-                tabIndex="1"
-                onKeyPress={this.handleSubmitOnEnter.bind(this)}
-              />
+            <Input
+              className="input student-name"
+              error={shouldMarkError('name')}
+              placeholder="Повне ім'я"
+              value={this.state.name.value}
+              fullWidth={true}
+              onChange={this.handleNameChange}
+              onBlur={this.handleBlur('name')}
+              tabIndex="1"
+              onKeyPress={this.handleSubmitOnEnter.bind(this)}
+            />
 
-              <Input
+            {/* <Input
                 className="input doc-number"
                 error={shouldMarkError('docNumber')}
                 placeholder="Номер документа"
@@ -205,28 +205,26 @@ export default class StudentFinder extends React.Component {
                 onBlur={this.handleBlur('docNumber')}
                 tabIndex="2"
                 onKeyPress={this.handleSubmitOnEnter.bind(this)}
-              />
+              /> */}
 
-              <Button
-                className="search-btn"
-                variant="contained"
-                color="primary"
-                onClick={this.handleSubmit.bind(this)}
-              >
-                <i className="fas fa-address-book" style={iconRight}></i>
-                знайти
+            <Button
+              className="search-btn"
+              variant="contained"
+              color="primary"
+              onClick={this.handleSubmit.bind(this)}
+            >
+              <i className="fas fa-address-book" style={iconRight}></i>
+              знайти
               </Button>
 
 
-            </div>}
+          </div>
 
-        </form>}
+        </form>
 
 
 
-        {this.state.docType === '0' &&
-          <Video show={this.state.isScanning} onScanCancel={this.handleCancelScan.bind(this)} />
-        }
+        
 
 
 

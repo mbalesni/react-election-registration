@@ -8,6 +8,7 @@ import Ballot from './ballot.js'
 import { Alert } from 'antd'
 
 import './css/checkIn.css'
+import { StudentDocInput } from './student-doc-input.js';
 
 const Fragment = React.Fragment
 
@@ -17,6 +18,7 @@ export default class CheckIn extends React.Component {
       <StudentInfo
         key={this.props.foundStudents.indexOf(student)}
         onSubmit={this.props.onStudentSubmit}
+        onSelect={this.props.onStudentSelect}
         data={student}
         activeStudent={this.props.activeStudent}
       />))
@@ -24,8 +26,13 @@ export default class CheckIn extends React.Component {
     return foundStudents
   }
 
-  goBack() {
-    this.props.onBack()
+  handleGoBack() {
+
+    if (!this.props.activeStudent) {
+      this.props.onBack()
+    } else {
+      this.props.onStudentUnselect()
+    }
   }
 
   render() {
@@ -35,7 +42,7 @@ export default class CheckIn extends React.Component {
 
     return (
       <Fragment>
-        {this.props.activeStudent &&
+        {this.props.activeStudent && ballotNumber &&
           <Ballot
             number={ballotNumber}
             onComplete={this.props.onCompleteSession}
@@ -54,8 +61,8 @@ export default class CheckIn extends React.Component {
             </div>
 
             <div className="session-controls">
-              {this.props.foundStudents.length > 0 && !this.props.activeStudent &&
-                <Button onClick={this.goBack.bind(this)} variant="flat" color="primary">назад</Button>
+              {this.props.foundStudents.length > 0 &&
+                <Button onClick={this.handleGoBack.bind(this)} variant="flat" color="primary">назад</Button>
               }
               <Button onClick={this.props.onCancelSession} color="secondary">скасувати</Button>
             </div>
@@ -77,20 +84,21 @@ export default class CheckIn extends React.Component {
               />
             }
 
-              {this.props.foundStudents.length > 0 && !this.props.activeStudent &&
-                <Fragment>
-                  {/* <p className="found-students-num">
+            {this.props.foundStudents.length > 0 && !this.props.activeStudent &&
+              <Fragment>
+                {/* <p className="found-students-num">
                     Знайдено {foundStudents.length} студент{foundStudents.length > 1 ? 'ів' : 'а'}
                   </p> */}
-                  <div className="found-students">{foundStudents}</div>
-                </Fragment>
-              }
+                <div className="found-students">{foundStudents}</div>
+              </Fragment>
+            }
 
-              {this.props.activeStudent &&
-                <Fragment>
-                  <StudentInfo data={this.props.activeStudent} activeStudent={this.props.activeStudent} />
-                </Fragment>
-              }
+            {this.props.activeStudent &&
+              <Fragment>
+                <StudentInfo data={this.props.activeStudent} activeStudent={this.props.activeStudent} />
+                <StudentDocInput onScanStart={this.props.onScanStart.bind(this)} activeStudent={this.props.activeStudent} onCancelSession={this.props.onCancelSession} />
+              </Fragment>
+            }
 
 
           </div>

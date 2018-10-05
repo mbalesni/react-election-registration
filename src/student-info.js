@@ -4,29 +4,28 @@ import './css/studentInfo.css'
 
 export default class StudentInfo extends React.Component {
   state = {
-    disabled: false,
-    submitted: false
+    disabled: false
   }
 
   handleSubmit(student) {
     console.log('success')
 
-    this.props.onSubmit(student)
+    // this.props.onSubmit(student)
+    this.props.onSelect(student)
     this.setState({
       disabled: true,
-      submitted: true
     })
   }
 
   componentDidMount() {
-    if (this.props.activeStudent) this.setState({ submitted: true, disabled: true })
+    if (this.props.activeStudent) this.setState({ disabled: true })
     if (this.props.data.status !== 0) this.setState({ disabled: true })
   }
 
   render() {
     const { name, degree, year, activeStudent, formOfStudy, specialty, structuralUnit, status } = this.props.data
     const student = this.props.data
-    let { disabled, submitted } = this.state
+    let { disabled } = this.state
     let classes = ['student']
     if (disabled) classes.push('disabled')
 
