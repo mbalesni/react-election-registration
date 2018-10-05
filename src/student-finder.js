@@ -27,7 +27,7 @@ export default class StudentFinder extends React.Component {
     isScanning: false,
     value: '0',
     name: {
-      value: 'Балєсний Микита',
+      value: '',
       label: `ім'я`,
       name: 'name'
     },

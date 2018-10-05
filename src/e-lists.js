@@ -47,7 +47,7 @@ export default class extends React.Component {
     return (
       <div className="page-content-wrapper " >
 
-        {/* <Raven dsn={SENTRY_DSN} /> */}
+        <Raven dsn={SENTRY_DSN} />
 
         <MuiThemeProvider theme={THEME}>
           <div className="header-and-content">
