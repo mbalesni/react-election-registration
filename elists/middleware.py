@@ -3,6 +3,7 @@ import logging
 
 from django.http import JsonResponse, HttpRequest, HttpResponseForbidden
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from raven.contrib.django.raven_compat.models import client
 
 from errorsapp import exceptions as wfe
@@ -251,6 +252,7 @@ def api_wrap(*, require_session=True):
             return view(request, *view_args, **view_kwargs)
 
         decorated = require_POST(decorated)
+        decorated = csrf_exempt(decorated)
         return decorated
 
     return decorator
