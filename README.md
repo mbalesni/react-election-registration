@@ -1,4 +1,4 @@
-# E-Voting System
+# E-Voting System v0.2
 
 * Python v3.6
 * Django v2.1
@@ -23,8 +23,8 @@ docker run --name evs-redis -p 6379:6379 -d redis:4-alpine
 ### start Postgres with Docker
 
 #### launch Postgres
-```bash
-docker run --name evs-pg -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d postgres:10-alpine
+```
+docker run --name evs-pg -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 postgres:10
 ```
 
 #### create `evs` database
@@ -38,7 +38,7 @@ docker exec -it evs-pg psql -U postgres -W
 2. create databases
 ```
 CREATE DATABASE evs;
-CREATE DATABASE test_evs;
+\q
 ```
 
 #### migrate database
