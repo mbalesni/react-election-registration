@@ -1,3 +1,4 @@
+import io
 import logging
 import pprint
 
@@ -7,7 +8,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from evs.celeryapp import app
-from tgapp.tasks import async_publish
+from tgapp.tasks import async_publish, notifier_bot
 from .models import Student
 
 log = logging.getLogger('student.tasks')
@@ -43,3 +44,36 @@ def collect_statistics(self):
         f'collect_statistics: {pprint.pformat(stats)}')
 
     return stats
+
+
+@app.task(bind=True, name='student.mini_dump')
+def mini_dump(self):
+    EDUCATIONAL_DEGREE_CODE_TO_NAME = dict(Student.EDUCATIONAL_DEGREE_CHOICES)
+
+    log.debug(f'mini_dump: request accepted')
+
+    eng: sqlalchemy.engine.Engine = sqlalchemy.create_engine(settings.DATABASE_URL)
+    origin = pd.read_sql_table(Student._meta.db_table, eng)
+    dt_now = timezone.make_naive(timezone.now())
+
+    registered = origin[origin['status'] == Student.STATUS_VOTED]
+
+    df = pd.DataFrame({
+        'ПІБ': registered['full_name'],
+        'Час останнього оновлення': [
+            timezone.make_naive(dt).strftime('%H:%M')
+            for dt in registered['status_update_dt']
+        ],
+        'Освітній рівень': [EDUCATIONAL_DEGREE_CODE_TO_NAME[code] for code in registered['educational_degree']],
+        'Курс': registered['year'],
+    })
+
+    notifier_bot.send_message(
+        f'Список зареєстрованих студентів станом на {dt_now.strftime("%H:%M")}'
+    )
+    notifier_bot.send_doc(
+        file_obj=io.BytesIO(df.to_csv(index=False).encode('utf-8')),
+        file_name=dt_now.strftime("registered_students_%H-%M.csv"),
+    )
+
+    return df.to_dict(orient='list', into=dict)
