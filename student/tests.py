@@ -42,17 +42,6 @@ class TestStudent:
         with pytest.raises(exceptions.ValidationError) as excinfo:
             s.full_clean()
 
-    def test_search_student_by_ticket_number(self):
-        s, *_ = create_models(**STUDENT_KWARGS)
-
-        assert Student.search_by_ticket_number(STUDENT_KWARGS['ticket_number']) == s
-
-        with pytest.raises(IndexError) as exc:
-            Student.search_by_ticket_number('11111111')
-
-        with pytest.raises(ValueError) as exc:
-            Student.search_by_ticket_number('12345')
-
     def test_token(self):
         student = create_models(**STUDENT_KWARGS)[0]
         token = student.create_token()

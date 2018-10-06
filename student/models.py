@@ -94,6 +94,8 @@ class Student(models.Model):
     ticket_number = models.IntegerField(
         unique=True,
         db_index=True,
+        null=True,
+        blank=True,
         validators=[validate_student_ticket_number],
         verbose_name='Номер студентського квитка',  # Номер студентського квитка
     )
@@ -206,30 +208,6 @@ class Student(models.Model):
         if not students:
             raise wfe.StudentNameNotFound()
         return tuple(students)
-
-    @classmethod
-    def search_by_ticket_number(cls, ticket_number_string: str) -> 'Student':
-        """
-        Gets Student by provided ticket number and raises IndexError if failed.
-        Validates input and raises ValuerError if it has wrong format.
-
-        :raises ValueError: if string's format is invalid
-        :raises IndexError: if no student found
-        :param ticket_number_string: 8 digits string
-        :return: Student model
-        """
-        log.debug(f'searching by ticket number "{ticket_number_string}"')
-
-        try:
-            ticket_number = int(ticket_number_string)
-            validate_student_ticket_number(ticket_number)
-        except (exceptions.ValidationError, ValueError) as exc:
-            raise wfe.TicketNumberWrongFormat() from exc
-
-        try:
-            return cls.objects.get(ticket_number=ticket_number)
-        except models.ObjectDoesNotExist:
-            raise wfe.TicketNumberNotFound()
 
     @classmethod
     def get_student_by_token(cls, token: str) -> 'Student':

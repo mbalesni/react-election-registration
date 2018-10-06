@@ -21,25 +21,6 @@ def start_new_session(request: Request):
 
 
 @api_wrap()
-def search_by_ticket_number(request: Request):
-    session = request.elists_cisi.session
-    if not session.just_started:
-        raise wfe.CheckInSessionWrongStatus(
-            context={
-                'current_status_code': session.status,
-                'current_status_name': session.status_verbose,
-            },
-        )
-
-    ticket_number = request.elists_cisi.data[REQUEST_STUDENT][REQUEST_STUDENT_TICKET_NUMBER]
-    student = Student.search_by_ticket_number(ticket_number)
-
-    return {
-        RESPONSE_STUDENT: serialize_student(student),
-    }
-
-
-@api_wrap()
 def search_by_name(request: Request):
     session = request.elists_cisi.session
     if not session.just_started:

@@ -18,7 +18,7 @@ class StudentAdmin(admin.ModelAdmin):
 
     readonly_fields = (
         'full_name',
-        'ticket_number',
+        # 'ticket_number',
         'show_registration_time',
         'structural_unit',
         'specialty',
@@ -30,27 +30,30 @@ class StudentAdmin(admin.ModelAdmin):
     )
     list_display = (
         'full_name',
-        'ticket_number',
+        # 'ticket_number',
         'show_registration_time',
         'status',
         'status_update_dt',
-        #'structural_unit',
+        # 'structural_unit',
         'specialty',
         'educational_degree',
         'year',
         'form_of_study',
     )
     list_filter = (
-        #'structural_unit',
+        # 'structural_unit',
         'specialty',
         'educational_degree',
         'year',
         'form_of_study',
         'status',
-        #'status_update_dt',
+        # 'status_update_dt',
     )
     ordering = tuple([*list_filter, 'full_name'])
-    search_fields = ('full_name', 'ticket_number',)
+    search_fields = (
+        'full_name',
+        # 'ticket_number',
+    )
     FIELDSETS = (
         (None, {
             'fields': (
@@ -61,10 +64,10 @@ class StudentAdmin(admin.ModelAdmin):
                 ('educational_degree', 'year'),
             ),
         }),
-        ('Документи', {
-            'fields' : ('ticket_number',),
-            'classes': ('grp-collapse grp-open',),
-        }),
+        # ('Документи', {
+        #     'fields' : ('ticket_number',),
+        #     'classes': ('grp-collapse grp-open',),
+        # }),
     )
     STATE_FIELDSET = (
         'Стан',
