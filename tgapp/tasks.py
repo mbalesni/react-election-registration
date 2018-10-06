@@ -4,22 +4,22 @@ import string
 
 from elists.models import Staff
 from evs.celeryapp import app
-from .bots_api import notifier_bot, passwords_bot
+from .bots_api import notifier_bot, passwords_bot, publisher_bot
 
 log = logging.getLogger('tgapp.tasks')
 
 
 @app.task(bind=True, name='tgapp.notify')
 def notify(self, message: str, digest: str):
-    log.debug(f'sending message to {notifier_bot.chat_id} ::\n{message[:32]}...')
+    log.debug(f'sending notifier to {notifier_bot.chat_id} ::\n{message[:32]}...')
     notifier_bot.send_message(message=message)
     log.info(f'Successfully notified "{digest}" to {notifier_bot.chat_id}')
 
 
 @app.task(bind=True, name='tgapp.publish')
 def publish(self, message: str, digest: str):
-    log.debug(f'sending message to {notifier_bot.chat_id} ::\n{message[:32]}...')
-    notifier_bot.send_message(message=message)
+    log.debug(f'publishing message to {notifier_bot.chat_id} ::\n{message[:32]}...')
+    publisher_bot.send_message(message=message)
     log.info(f'Successfully published "{digest}" to {notifier_bot.chat_id}')
 
 
@@ -83,9 +83,11 @@ def reset_passwords(self, usernames: tuple):
 
 # Shortcuts
 # =========
-def tg_notify(msg: str, *, digest: str):
+def tg_notify(msg: str, *, digest: str, ):
     notify.delay(message=msg, digest=digest)
 
 
-def tg_publish(msg: str, *, digest: str):
-    publish.delay(message=msg, digest=digest)
+def tg_publish(msg: str, *, digest: str, doublicate=False):
+    publish.delay(message=msg, digest=digest, )
+    if doublicate:
+        notify.delay(message=msg, digest=f'{digest} (dubplicate)')
