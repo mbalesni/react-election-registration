@@ -54,56 +54,20 @@ def collect_statistics(self):
         BY_TICKET, BY_GRADEBOOK, BY_CERTIFICATE,
     )
     COLUMNS = (USERNAME, *INT16_COLUMNS)
+    FIRST_COLUMN_LENGTH = 10
 
-    eng: sqlalchemy.engine.Engine = sqlalchemy.create_engine(settings.DATABASE_URL)
-    origin = pd.read_sql_table(CheckInSession._meta.db_table, eng)
-    dt = timezone.make_naive(timezone.now())
-    df = pd.DataFrame({k: [] for k in COLUMNS})
+    def _append(source, target, username):
+        count = source.shape[0]
+        completed = _count_matches(source, 'status', CheckInSession.STATUS_COMPLETED, 0)
+        canceled = _count_matches(source, 'status', CheckInSession.STATUS_CANCELED, 0)
+        in_progress = _count_matches(source, 'status', CheckInSession.STATUS_IN_PROGRESS, 0)
+        just_started = _count_matches(source, 'status', CheckInSession.STATUS_STARTED, 0)
+        assigned = source['student_id'].count()
+        by_ticket = _count_matches(source, 'doc_type', CheckInSession.DOC_TYPE_TICKET, 0)
+        by_gradebook = _count_matches(source, 'doc_type', CheckInSession.DOC_TYPE_GRADEBOOK, 0)
+        by_certificate = _count_matches(source, 'doc_type', CheckInSession.DOC_TYPE_CERTIFICATE, 0)
 
-    staff_dbids = origin['staff_id'].unique()
-    dbid_to_username = {
-        dbid: f'@{Staff.objects.get(id=dbid).username}'
-        for dbid in staff_dbids
-    }
-
-    total_count = origin.shape[0]
-    total_completed = _count_matches(origin, 'status', CheckInSession.STATUS_COMPLETED, 0)
-    total_canceled = _count_matches(origin, 'status', CheckInSession.STATUS_CANCELED, 0)
-    total_in_progress = _count_matches(origin, 'status', CheckInSession.STATUS_IN_PROGRESS, 0)
-    total_just_started = _count_matches(origin, 'status', CheckInSession.STATUS_STARTED, 0)
-    total_assigned = origin['student_id'].count()
-    total_by_ticket = _count_matches(origin, 'doc_type', CheckInSession.DOC_TYPE_TICKET, 0)
-    total_by_gradebook = _count_matches(origin, 'doc_type', CheckInSession.DOC_TYPE_GRADEBOOK, 0)
-    total_by_certificate = _count_matches(origin, 'doc_type', CheckInSession.DOC_TYPE_CERTIFICATE, 0)
-
-    df = df.append({
-        USERNAME      : 'Всього',
-        TOTAL         : total_count,
-        COMPLETED     : total_completed,
-        CANCELED      : total_canceled,
-        IN_PROGRESS   : total_in_progress,
-        JUST_STARTED  : total_just_started,
-        ASSIGNED      : total_assigned,
-        BY_TICKET     : total_by_ticket,
-        BY_GRADEBOOK  : total_by_gradebook,
-        BY_CERTIFICATE: total_by_certificate,
-    }, ignore_index=True)
-
-    for staff_dbid in staff_dbids:
-        owned = origin[origin['staff_id'] == staff_dbid]
-        username = dbid_to_username[staff_dbid]
-
-        count = owned.shape[0]
-        completed = _count_matches(owned, 'status', CheckInSession.STATUS_COMPLETED, 0)
-        canceled = _count_matches(owned, 'status', CheckInSession.STATUS_CANCELED, 0)
-        in_progress = _count_matches(owned, 'status', CheckInSession.STATUS_IN_PROGRESS, 0)
-        just_started = _count_matches(owned, 'status', CheckInSession.STATUS_STARTED, 0)
-        assigned = owned['student_id'].count()
-        by_ticket = _count_matches(owned, 'doc_type', CheckInSession.DOC_TYPE_TICKET, 0)
-        by_gradebook = _count_matches(owned, 'doc_type', CheckInSession.DOC_TYPE_GRADEBOOK, 0)
-        by_certificate = _count_matches(owned, 'doc_type', CheckInSession.DOC_TYPE_CERTIFICATE, 0)
-
-        df = df.append({
+        return target.append({
             USERNAME      : username,
             TOTAL         : count,
             COMPLETED     : completed,
@@ -116,13 +80,35 @@ def collect_statistics(self):
             BY_CERTIFICATE: by_certificate,
         }, ignore_index=True)
 
+    eng: sqlalchemy.engine.Engine = sqlalchemy.create_engine(settings.DATABASE_URL)
+    origin = pd.read_sql_table(CheckInSession._meta.db_table, eng)
+    dt = timezone.make_naive(timezone.now())
+    df = pd.DataFrame({k: [] for k in COLUMNS})
+
+    staff_dbids = origin['staff_id'].unique()
+    dbid_to_username = {
+        dbid: f'@{Staff.objects.get(id=dbid).username}'
+        for dbid in staff_dbids
+    }
+
+    df = _append(origin, df, 'Всього')
+
+    for staff_dbid in staff_dbids:
+        owned = origin[origin['staff_id'] == staff_dbid]
+        username = dbid_to_username[staff_dbid]
+        short_username = username if len(username) <= FIRST_COLUMN_LENGTH \
+            else username[:FIRST_COLUMN_LENGTH - 1] + '\u2026'
+        df = _append(owned, df, short_username)
+
     for column in INT16_COLUMNS:
         df[column] = df[column].astype('int16')
+
+    df = df.sort_values(by=[TOTAL], ascending=False)
 
     msg = (
         f'--- Станом на {dt.strftime("%H:%M")} ---\n'
         f'```'
-        f'{df.to_string(index=True)}'
+        f'{" " * (FIRST_COLUMN_LENGTH - 2)}{df.to_string(index=False)}'
         f'```'
     )
     async_notify(msg, digest='check-in session stats')
@@ -188,6 +174,8 @@ def dump_table(self):
         ],
     })
 
+    df = df.sort_values(by='db ID')
+
     notifier_bot.send_message(f'Копія бази чек-ін сесій станом на {dt_now.strftime("%H:%M")}')
     notifier_bot.send_doc(
         file_obj=io.BytesIO(df.to_csv(index=False).encode('utf-8')),
@@ -198,7 +186,7 @@ def dump_table(self):
     return df.to_dict(orient='list', into=dict)
 
 
-@app.task(bind=True, name='student.dump_registered')
+@app.task(bind=True, name='elists.dump_registered')
 def dump_registered(self):
     EDUCATIONAL_DEGREE_CODE_TO_NAME = dict(Student.EDUCATIONAL_DEGREE_CHOICES)
 
@@ -218,21 +206,22 @@ def dump_registered(self):
     registered = origin[origin['status'] == Student.STATUS_VOTED]
 
     df = pd.DataFrame({
-        'ПІБ': registered['full_name'],
-        'Час останнього оновлення': [
-            timezone.make_naive(dt).strftime('%H:%M')
-            for dt in registered['status_update_dt']
-        ],
+        'ПІБ студента': registered['full_name'],
         'Освітній рівень': [
             EDUCATIONAL_DEGREE_CODE_TO_NAME[code]
             for code in registered['educational_degree']
         ],
         'Курс': registered['year'],
         'Номер бюлетеня': [
-            dbid_to_ballot_number[dbid]
+            dbid_to_ballot_number.get(dbid, '-')
             for dbid in registered['id']
-        ]
+        ],
+        'Час останнього оновлення': [
+            timezone.make_naive(dt).strftime('%H:%M') if not pd.isna(dt) else '-'
+            for dt in registered['status_update_dt']
+        ],
     })
+    df = df.sort_values(by=['Освітній рівень', 'Курс', 'ПІБ студента'])
 
     notifier_bot.send_message(
         f'Список зареєстрованих студентів станом на {dt_now.strftime("%H:%M")}'

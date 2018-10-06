@@ -26,7 +26,7 @@ def collect_statistics(self):
     total_voted = len(df[df['status'] == Student.STATUS_VOTED])
 
     stats = {
-        'datetime': dt,
+        'datetime': dt.strftime(f'%H:%M'),
         'total_voted': total_voted,
         'total_students': total_students,
     }

@@ -33,6 +33,7 @@ class TGBot(metaclass=abc.ABCMeta):
             chat_id=chat_id,
             text=content,
             parse_mode=self.PARSE_MODE,
+            timeout=60,
         )
 
     def _send_doc(self, file_obj, file_name: str, *, chat_id: int):
@@ -40,6 +41,7 @@ class TGBot(metaclass=abc.ABCMeta):
             chat_id=chat_id,
             document=file_obj,
             filename=file_name,
+            timeout=60,
         )
 
 
