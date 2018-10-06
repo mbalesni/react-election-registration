@@ -140,6 +140,7 @@ def dump_table(self):
         }
 
     STATUS_CODE_TO_VERBOSE = dict(CheckInSession.STATUS_CHOICES)
+    DOC_TYPE_CODE_TO_VERBOSE = dict(CheckInSession.DOC_TYPE_CHOICES)
 
     eng: sqlalchemy.engine.Engine = sqlalchemy.create_engine(settings.DATABASE_URL)
     origin = pd.read_sql_table(CheckInSession._meta.db_table, eng)
@@ -152,6 +153,7 @@ def dump_table(self):
     student_dbid_to_full_name = get_student_match()
 
     df = pd.DataFrame({
+        'db ID': origin['id'],
         'Член ВКС': [
             staff_dbid_to_username[dbid]
             for dbid in origin['staff_id']
@@ -176,9 +178,17 @@ def dump_table(self):
             STATUS_CODE_TO_VERBOSE[code]
             for code in origin['status']
         ],
+        'Тип документа': [
+            DOC_TYPE_CODE_TO_VERBOSE[code] if not pd.isna(code) else '-'
+            for code in origin['doc_type']
+        ],
+        'Номер документа': [
+            doc_num if not pd.isna(doc_num) else '-'
+            for doc_num in origin['doc_num']
+        ],
     })
 
-    notifier_bot.send_message(f'Копія бази чек-ін сесій станом на f{dt_now.strftime("%H:%M")}')
+    notifier_bot.send_message(f'Копія бази чек-ін сесій станом на {dt_now.strftime("%H:%M")}')
     notifier_bot.send_doc(
         file_obj=io.BytesIO(df.to_csv(index=False).encode('utf-8')),
         file_name=dt_now.strftime('check-in_sessions_%H-%M.csv'),
