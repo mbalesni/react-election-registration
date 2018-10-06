@@ -19,15 +19,18 @@ const spinnerStyles = css`
   position: absolute !important;
 `
 
+const Fragment = React.Fragment
+
 // retrieving environment variables
 
 const SENTRY_DSN = process.env.REACT_APP_SENTRY_DSN || ''
 const BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL || 'http://localhost:8000'
-const BASE_API_URL = BASE_URL + '/api/elists'
+const BASE_API_URL = BASE_URL + '/elists/api'
 
 const initialState = {
   activeStudent: null,
   auth: { loggedIn: false, user: '' },
+  ballotNumber: null,
   docNumber: null,
   docType: null,
   sessionIsOpen: false,
@@ -41,7 +44,7 @@ export default class extends React.Component {
 
   render() {
     const { loggedIn } = this.state.auth
-    const { ballotNumber } = this.state
+    const { ballotNumber, loading } = this.state
 
     return (
       <div className="page-content-wrapper " >
@@ -71,12 +74,16 @@ export default class extends React.Component {
                   ballotNumber={ballotNumber}
                   status={this.state.status}
                   foundStudents={this.state.foundStudents}
+                  onSearchBack={this.searchGoBack.bind(this)}
                   onStudentSubmit={this.submitStudent.bind(this)}
+                  onStudentSelect={this.selectStudent.bind(this)}
                   onScanStart={this.initScan.bind(this)}
-                  // onScanCancel={this.cancelScan.bind(this)}
+                  onScanCancel={this.cancelScan.bind(this)}
                   onCancelSession={this.cancelSession.bind(this)}
                   onCompleteSession={this.completeSession.bind(this)}
                   onSearchByName={this.searchStudentByName.bind(this)}
+                  onStudentUnselect={this.unselectStudent.bind(this)}
+                  loading={loading}
                 />}
 
             </div>
@@ -92,7 +99,7 @@ export default class extends React.Component {
     axios.defaults.withCredentials = true
     message.config({
       maxCount: 1,
-      duration: 0
+      duration: 5
     })
     this.getAuth()
     this.closeSessions()
@@ -126,7 +133,7 @@ export default class extends React.Component {
   closeSessions() {
     axios.post('/close_sessions')
       .catch(err => {
-        this.handleError(err)
+        console.warn(err)
       })
   }
 
@@ -134,75 +141,75 @@ export default class extends React.Component {
     this.setState({ loading: true })
     axios.post('/start_new_session', {})
       .then(res => {
-        // TODO: calculate ballot number HERE
         const checkInSessionToken = res.data.data.check_in_session.token
-
-        let ballotNumber
-        if (checkInSessionToken) {
-          ballotNumber = checkInSessionToken.split(':')[0]
-          ballotNumber = JSON.parse(atob(ballotNumber))
-          ballotNumber = ballotNumber['num_code']
-        }
 
         this.setState({
           sessionIsOpen: true,
           checkInSessionToken,
           status: {
             type: 'info',
-            message: 'Оберіть тип документа та знайдіть студента в базі'
-          },
-          loading: false,
-          ballotNumber
-        })
-        message.info('Оберіть тип документа та знайдіть студента в базі')
-      })
-      .catch(err => {
-        this.handleError(err)
-      })
-  }
-
-  searchStudentByTicketNumber(ticketNum) {
-
-    let data = {}
-    data.check_in_session_token = this.state.checkInSessionToken
-    data.student = { ticket_number: ticketNum }
-
-    this.setState({ loading: true })
-
-    axios.post('/search_by_ticket_number', data)
-      .then(res => {
-        const studentObj = res.data.data.student
-
-        let student = this.buildStudentData(studentObj)
-
-        let foundStudents = this.state.foundStudents.slice()
-        foundStudents[0] = { ...foundStudents[0], ...student }
-
-        this.setState({
-          docType: 0,
-          docNumber: ticketNum,
-          foundStudents: foundStudents,
-          status: {
-            type: 'info',
-            message: 'Підтвердіть правильність даних та оберіть студента'
+            message: 'Знайдіть студента в базі'
           },
           loading: false
         })
-        message.info('Підтвердіть правильність даних та оберіть студента')
       })
       .catch(err => {
         this.handleError(err)
       })
   }
 
-  searchStudentByName(name, docType, docNumber) {
+  // searchStudentByTicketNumber(ticketNum) {
+
+  //   let data = {}
+  //   data.check_in_session_token = this.state.checkInSessionToken
+  //   data.student = { ticket_number: ticketNum }
+
+  //   this.setState({ loading: true })
+
+  //   axios.post('/search_by_ticket_number', data)
+  //     .then(res => {
+  //       const studentObj = res.data.data.student
+
+  //       let student = this.buildStudentData(studentObj)
+
+  //       let foundStudents = this.state.foundStudents.slice()
+  //       foundStudents[0] = { ...foundStudents[0], ...student }
+
+  //       this.setState({
+  //         docType: 0,
+  //         docNumber: ticketNum,
+  //         foundStudents: foundStudents,
+  //         status: {
+  //           type: 'info',
+  //           message: this.getFoundStudentsNote(foundStudents),
+  //         },
+  //         loading: false
+  //       })
+  //     })
+  //     .catch(err => {
+  //       this.handleError(err)
+  //     })
+  // }
+
+  getFoundStudentsNote(foundStudents, query) {
+    const len = foundStudents.length
+    return (
+      <Fragment>
+        <div>{len > 1 ? 'Оберіть' : 'Перевірте дані та зареєструйте'} студента</div>
+        <div className="found-students-num">
+          За запитом <strong>{query}</strong> знайдено {len} студент{len > 1 ? 'ів' : 'а'}
+        </div>
+      </Fragment>
+    )
+  }
+
+  searchStudentByName(name) {
     let data = {}
     data.check_in_session_token = this.state.checkInSessionToken
     data.student = {}
     data.student.full_name = name
-    data.student.doc_num = docNumber
 
-    console.log('Searching student by name ', name, ', saving document type ', docType, ' , number: ', docNumber)
+    console.log('Searching student by name ', name)
 
     this.setState({ loading: true })
 
@@ -216,17 +223,13 @@ export default class extends React.Component {
         })
 
         this.setState({
-          docType: docType,
-          docNumber: docNumber,
-          foundStudents: foundStudents,
+          foundStudents,
           status: {
             type: 'info',
-            message: 'Підтвердіть правильність даних та оберіть студента'
+            message: this.getFoundStudentsNote(foundStudents, name),
           },
           loading: false
         })
-        message.info('Підтвердіть правильність даних та оберіть студента')
-
       })
       .catch(err => {
         this.handleError(err)
@@ -242,8 +245,19 @@ export default class extends React.Component {
       specialty: student.data.specialty,
       year: student.data.year,
       token: student.token,
+      status: student.status.code
     }
     return data
+  }
+
+  selectStudent(student) {
+    this.setState({
+      activeStudent: student,
+      status: {
+        type: 'info',
+        message: 'Введіть номер підтверджуючого документа'
+      }
+    })
   }
 
   submitStudent(student) {
@@ -251,28 +265,45 @@ export default class extends React.Component {
     data.check_in_session_token = this.state.checkInSessionToken
     data.student = {}
     data.student.token = student.token
-    data.student.doc_type = this.state.docType
-    data.student.doc_num = this.state.docNumber
-
-    console.log('Trying to submit student: ', data)
+    data.student.doc_type = student.docType
+    data.student.doc_num = student.docNumber
 
     this.setState({ loading: true })
 
     axios.post('/submit_student', data)
       .then(res => {
+        let ballotNumber = res.data.data.ballot_number
+
         this.setState({
           activeStudent: student,
           status: {
             type: 'info',
-            message: 'Видайте бюлетень'
+            message: 'Заповніть та видайте бюлетень'
           },
-          loading: false
+          loading: false,
+          ballotNumber
         })
-        message.info('Заповніть та видайте бюлетень')
       })
       .catch(err => {
         this.handleError(err)
       })
+  }
+
+  searchGoBack() {
+    this.setState({
+      foundStudents: [],
+      status: {
+        type: 'info',
+        message: "Знайдіть студента в базі"
+      }
+    })
+    this.searchStudentByTicketNumberStarted = false
+  }
+
+  unselectStudent() {
+    this.setState({
+      activeStudent: null,
+    })
   }
 
   handleError(err, code) {
@@ -327,13 +358,15 @@ export default class extends React.Component {
   }
 
   completeSession() {
-    let data = { check_in_session_token: this.state.checkInSessionToken }
+    const data = { check_in_session_token: this.state.checkInSessionToken }
+    const studentName = this.state.activeStudent.name
+
 
     this.setState({ loading: true })
     axios.post('/complete_session', data)
       .then(res => {
         this.onSessionEnd()
-        message.success('Студента успішно зареєстровано.', 3)
+        message.success(<span><strong>{studentName}</strong> – успішно зареєстровано.</span>, 3)
       })
       .catch(err => {
         this.handleError(err)
@@ -363,10 +396,6 @@ export default class extends React.Component {
         }
         Quagga.start()
         this.setState({
-          status: {
-            type: 'info',
-            message: 'Піднесіть студентський квиток до камери'
-          },
           loading: false
         })
         message.info('Піднесіть студентський квиток до камери')
@@ -374,30 +403,31 @@ export default class extends React.Component {
       })
   }
 
-  // cancelScan() {
-  //   Quagga.stop();
-  //   this.setState({
-  //     sessionsStatus: 100,
-  //     status: {
-  //       type: 'info',
-  //       message: 'Оберіть тип документа'
-  //     }
-  //   })
-  //   message.info('Сканування скасовано. Оберыть тип документа')
-  // }
+  cancelScan() {
+    Quagga.stop();
+    this.setState({
+      status: {
+        type: 'info',
+        message: 'Введіть номер підтверджуючого документа'
+      }
+    })
+    message.destroy()
+  }
 
   initOnDetected() {
     Quagga.onDetected((data) => {
       const result = data.codeResult.code
       if (result.length === 8) {
-        // playSuccessSound()
+        message.destroy()
 
         Quagga.stop()
 
-        if (!this.searchStudentByTicketNumberStarted) {
-          this.searchStudentByTicketNumberStarted = true
-          this.searchStudentByTicketNumber(result)
-        }
+        let activeStudent = this.state.activeStudent
+        activeStudent.docNumber = result
+        activeStudent.docType = '0'
+        this.setState({ activeStudent })
+        this.submitStudent(activeStudent)
+        message.success('Студентський квиток відскановано.')
 
       } else {
         this.handleError('Error', 507)

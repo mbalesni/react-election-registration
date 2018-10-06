@@ -1,4 +1,4 @@
-# E-Voting System v0.2
+# E-Voting System v0.3
 
 * Python v3.6
 * Django v2.1

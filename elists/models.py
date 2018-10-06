@@ -1,18 +1,23 @@
 import logging
+import secrets
 
 from django.conf import settings
 from django.core import signing, exceptions
 from django.db import models
-from django.utils import timezone
 
+from errorsapp import exceptions as wfe
 from student.models import Student, validate_student_ticket_number
 from .constants import Staff
-from .utils import get_current_naive_datetime, time_diff_formatted
-from errorsapp import exceptions as wfe
-from .num_code import num_code_generator
 from .time_limit import time_limit_controller
+from .utils import get_current_naive_datetime, time_diff_formatted
 
 log = logging.getLogger('elists.models')
+
+
+def _new_ballot_number(seed: int) -> int:
+    encoded = (seed + 34_649) * 2_651_579_387_927
+    salt = secrets.randbelow(800) + 200
+    return salt * 100_000 + encoded % 100_000
 
 
 def validate_ticket_number(ticket_number: str):
@@ -24,8 +29,10 @@ def validate_ticket_number(ticket_number: str):
 
 
 def validate_gradebook_number(gradebook_number: str):
+    return
+
     # TODO: validate gradebook
-    return 
+
     n1, sep, n2 = gradebook_number.partition('/')
     if sep == '':
         raise exceptions.ValidationError('"/" (slash) must be inside gradebook number.')
@@ -35,8 +42,10 @@ def validate_gradebook_number(gradebook_number: str):
 
 
 def validate_certificate_number(certificate_number: str):
-    # TODO: validate certificate number
     return
+
+    # TODO: validate certificate number
+
     try:
         num = int(certificate_number)
     except TypeError:
@@ -52,6 +61,7 @@ class CheckInSession(models.Model):
         verbose_name_plural = 'Чек-ін сесії'
 
     TIME_FMT = '%H:%M:%S'
+    DOC_NUM_MAX_LENGTH = 8
 
     STATUS_STARTED = 1
     STATUS_IN_PROGRESS = 2
@@ -84,6 +94,8 @@ class CheckInSession(models.Model):
         DOC_TYPE_CERTIFICATE: validate_certificate_number,
     }
 
+    DOC_TYPE_CODES = frozenset(code for code, name in DOC_TYPE_CHOICES)
+
     # references
     student = models.ForeignKey(
         Student,
@@ -104,7 +116,7 @@ class CheckInSession(models.Model):
         verbose_name='Тип документу',
     )
     doc_num = models.CharField(
-        max_length=8,
+        max_length=DOC_NUM_MAX_LENGTH,
         null=True,
         verbose_name='Номер документу',
     )
@@ -126,12 +138,12 @@ class CheckInSession(models.Model):
     )
 
     # identifiers
-    num_code = models.IntegerField(
+    ballot_number = models.IntegerField(
         null=True,
         blank=True,
         unique=True,
         db_index=True,
-        verbose_name='Чисельний код',
+        verbose_name='Номер бюлетеня',
     )
 
     def __repr__(self) -> str:
@@ -219,26 +231,28 @@ class CheckInSession(models.Model):
 
         # nothing to validate
         new_check_in_session.save()
-        log.info(f'Started #{new_check_in_session.id} by @{staff.username}')
+        log.info(f'Started check-in session #{new_check_in_session.id} by @{staff.username}')
         return new_check_in_session
 
     @classmethod
     def get_session_by_token(cls, token: str) -> 'CheckInSession':
         try:
             query: dict = signing.loads(token, max_age=cls.get_token_max_age())
+            session_id = query['id']
         except signing.SignatureExpired:
             raise wfe.CheckInSessionTokenExpired()
         except signing.BadSignature:
             raise wfe.CheckInSessionTokenBadSignature()
+        except KeyError:
+            raise wfe.ProgrammingError({'msg': 'missing "id" field'})
 
         # if we had given that token, than object must exist
-        return cls.objects.get(**query)
+        return cls.objects.get(id=session_id)
 
     def assign_student(self, student: Student, doc_type: str, doc_num: str) -> 'CheckInSession':
         """ Checks if `student` has open sessions. Assigns `student` to given
         `session` and updates status to `IN_PROGRESS` value. """
-        if not student.allowed_to_assign:
-            raise wfe.StudentNotAllowedToAssign()
+        student.check_allowed_to_assign()
         if not self.just_started:
             raise wfe.CheckInSessionWrongStatus(
                 context={
@@ -247,25 +261,44 @@ class CheckInSession(models.Model):
                 },
             )
 
+        # validation
+        try:
+            doc_type = int(doc_type)
+        except TypeError:
+            raise wfe.StudentDocTypeWrongFormat(context={
+                'msg'         : f'`doc_type` must be an integer',
+                'actual_value': doc_type,
+            })
+        if not doc_type in self.DOC_TYPE_CODES:
+            raise wfe.StudentDocTypeWrongFormat(context={
+                'msg': f'`doc_type` must be one of {self.DOC_TYPE_CODES}',
+                'actual_value': doc_type,
+            })
+        if len(doc_num) > self.DOC_NUM_MAX_LENGTH:
+            raise wfe.StudentDocNumberWrongFormat(context={
+                'msg'          : f'Document number must be no longer than '
+                                 f'{self.DOC_NUM_MAX_LENGTH} characters.',
+                'actual_length': len(doc_num),
+            })
         try:
             self.validate_doc_type_num_pair(int(doc_type), doc_num)
         except exceptions.ValidationError as exc:
             raise wfe.StudentDocNumberWrongFormat(context={
                 'msg': str(exc)
             })
-        except TypeError:
-            raise wfe.StudentDocTypeWrongFormat(context={
-                'msg': '`doc_type` must be an integer of [0, 1, 2] value.',
-            })
 
         self.student = student
         self.doc_type = doc_type
         self.doc_num = doc_num
+        self.ballot_number = _new_ballot_number(self.id)
         self.status = self.STATUS_IN_PROGRESS
-        self.student.change_state_in_progress()
 
         self.save()
-        log.info(f'Assigned {student} #{self.id} by @{self.staff.username}')
+        self.student.change_status_in_progress()
+        log.info(
+            f'Assigned {student} to check-in session #{self.id} by @{self.staff.username} '
+            f'with ballot number {self.show_ballot_number()}'
+        )
         return self
 
     def complete(self) -> 'CheckInSession':
@@ -277,30 +310,34 @@ class CheckInSession(models.Model):
 
         self.end_dt = get_current_naive_datetime()
         self.status = self.STATUS_COMPLETED
-        self.student.change_state_voted()
 
         self.save()
+        self.student.change_status_voted()
         log.info(f'Completed #{self.id} by @{self.staff.username}')
         return self
 
     def cancel(self) -> 'CheckInSession':
         """ Assigns current time to `end_dt` and `CANCELED` status. """
         if not self.is_open:
-            raise wfe.CheckInSessionAlreadyClosed()
+            # FIXME: alarm if trying to cancel already closed session
+            # raise wfe.CheckInSessionAlreadyClosed()
+            return self
 
         self.end_dt = get_current_naive_datetime()
         self.status = self.STATUS_CANCELED
-        if self.student:
-            self.student.change_state_free()
 
         self.save()
+        if self.student:
+            self.student.change_status_free()
         log.info(f'Canceled #{self.id} by @{self.staff.username}')
         return self
 
     def create_token(self) -> str:
-        num_code = num_code_generator.encode(data=self.id)
+        data = dict({'id': self.id})
+        return signing.dumps(data)
 
-        self.num_code = num_code
-        self.save()
-
-        return signing.dumps(dict(num_code=self.num_code))
+    def show_ballot_number(self) -> str:
+        if not self.ballot_number:
+            return 'Н/Д'
+        bn = str(self.ballot_number)
+        return f'{bn[:2]}-{bn[2:4]}-{bn[4:6]}-{bn[6:]}'

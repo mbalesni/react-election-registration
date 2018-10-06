@@ -129,6 +129,10 @@ class StudentTokenBadSignature(BaseUserError):
 class FullNameWrongFormat(BaseProgrammingError):
     code = 316
 
+
+class RequestJSONFieldMissing(BaseProgrammingError):
+    code = 317
+
 # end of programming errors
 # =========================
 
@@ -145,8 +149,12 @@ class StaffHasOpenSession(BaseUserError):
     code = 502
 
 
-class StudentNotAllowedToAssign(BaseUserError):
+class StudentAlreadyVoted(BaseUserError):
     code = 504
+
+
+class StudentAlreadyInProgress(BaseUserError):
+    code = 505
 
 
 class CheckInSessionTokenExpired(BaseUserError):

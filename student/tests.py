@@ -42,17 +42,6 @@ class TestStudent:
         with pytest.raises(exceptions.ValidationError) as excinfo:
             s.full_clean()
 
-    def test_search_student_by_ticket_number(self):
-        s, *_ = create_models(**STUDENT_KWARGS)
-
-        assert Student.search_by_ticket_number(STUDENT_KWARGS['ticket_number']) == s
-
-        with pytest.raises(IndexError) as exc:
-            Student.search_by_ticket_number('11111111')
-
-        with pytest.raises(ValueError) as exc:
-            Student.search_by_ticket_number('12345')
-
     def test_token(self):
         student = create_models(**STUDENT_KWARGS)[0]
         token = student.create_token()
@@ -60,22 +49,22 @@ class TestStudent:
 
     def test_update_status(self):
         student = create_models(**STUDENT_KWARGS)[0]
-        student.change_state_in_progress()
+        student.change_status_in_progress()
         assert student.status == student.STATUS_IN_PROGRESS
 
-        student.change_state_free()
+        student.change_status_free()
         assert student.status == student.STATUS_FREE
 
         with pytest.raises(ValueError) as exc:
-            student.change_state_free()
+            student.change_status_free()
         with pytest.raises(ValueError) as exc:
-            student.change_state_voted()
+            student.change_status_voted()
 
-        student.change_state_in_progress()
-        student.change_state_voted()
+        student.change_status_in_progress()
+        student.change_status_voted()
         assert student.status == student.STATUS_VOTED
 
         with pytest.raises(ValueError) as exc:
-            student.change_state_in_progress()
+            student.change_status_in_progress()
         with pytest.raises(ValueError) as exc:
-            student.change_state_free()
+            student.change_status_free()

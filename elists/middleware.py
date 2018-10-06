@@ -3,8 +3,11 @@ import logging
 
 from django.http import JsonResponse, HttpRequest, HttpResponseForbidden
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from raven.contrib.django.raven_compat.models import client
 
+from errorsapp import exceptions as wfe
+from tgapp.tasks import async_notify
 from .constants import (
     RESPONSE_STUDENT_DATA_EDUCATIONAL_DEGREE, RESPONSE_STUDENT_DATA_FORM_OF_STUDY,
     RESPONSE_STUDENT_DATA, RESPONSE_STUDENT_DATA_FULL_NAME, RESPONSE_STUDENT_TOKEN, RESPONSE_STUDENT_DATA_YEAR,
@@ -17,8 +20,6 @@ from .constants import (
     RESPONSE_STAFF_FIRST_NAME, RESPONSE_STAFF_LAST_NAME, RESPONSE_STAFF_USERNAME,
 )
 from .models import Student, CheckInSession
-from errorsapp import exceptions as wfe
-from tgapp.tasks import tg_notify
 
 log = logging.getLogger('elists.api')
 
@@ -33,15 +34,14 @@ def serialize_exception(exc: Exception) -> dict:
 
 
 def serialize_student(student: Student) -> dict:
-    return {
-        RESPONSE_STUDENT_TOKEN: student.create_token(),
+    dictionary = {
         RESPONSE_STUDENT_DATA: {
             RESPONSE_STUDENT_DATA_FULL_NAME          : student.full_name,
             RESPONSE_STUDENT_DATA_EDUCATIONAL_DEGREE : student.educational_degree,
             RESPONSE_STUDENT_DATA_YEAR               : student.year,
             RESPONSE_STUDENT_DATA_FORM_OF_STUDY      : student.form_of_study,
-            RESPONSE_STUDENT_DATA_SPECIALTY          : str(student.specialty),
-            RESPONSE_STUDENT_DATA_STRUCTURAL_UNIT    : str(student.structural_unit),
+            RESPONSE_STUDENT_DATA_SPECIALTY          : student.show_specialty(),
+            RESPONSE_STUDENT_DATA_STRUCTURAL_UNIT    : student.show_structural_unit(),
             RESPONSE_STUDENT_DATA_TICKET_NUMBER      : student.ticket_number,
         },
         RESPONSE_STUDENT_STATUS: {
@@ -49,6 +49,9 @@ def serialize_student(student: Student) -> dict:
             RESPONSE_STUDENT_STATUS_NAME: student.status_verbose,
         },
     }
+    if student.allowed_to_assign:
+        dictionary[RESPONSE_STUDENT_TOKEN] = student.create_token()
+    return dictionary
 
 
 def serialize_session(session: CheckInSession) -> dict:
@@ -73,39 +76,90 @@ def serialize_staff(staff: Staff) -> dict:
     }
 
 
+class InData:
+
+    def __init__(self, initial: dict, path: str =None):
+        self._storage = dict()
+        self._path = path
+
+        self._recursively_load(dictionary=initial)
+
+    @property
+    def path(self) -> str:
+        return self._path
+
+    def _recursively_load(self, dictionary: dict):
+        for key, val in dictionary.items():
+            if isinstance(val, dict):
+                path = f'{self._path}.{key}' if self._path else key
+                self._storage[key] = InData(val, path=path)
+            else:
+                self._storage[key] = val
+
+    def get(self, item: str, default=None):
+        return self._storage.get(item, default)
+
+    def __getitem__(self, item: str):
+        if item not in self._storage.keys():
+            raise wfe.RequestJSONFieldMissing(
+                context={
+                    'msg': f'"{item}" not found under "{self.path}" path.',
+                }
+            )
+
+        return self._storage[item]
+
+    def __setitem__(self, key, value):
+        raise wfe.ProgrammingError(
+            context={'msg': f'{self.__class__.__name__} is read-only.'},
+        )
+
+
 class EListsCheckInSessionInfo:
 
     def __init__(self, staff: Staff, data: dict, session: CheckInSession =None):
-        self.staff = staff
-        self.data = data
-        self.session = session
+        self._staff = staff
+        self._data = InData(data)
+        self._session = session
 
-    def assign_session(self, session: CheckInSession):
-        self.session = session
+    @property
+    def data(self):
+        return self._data
+
+    @property
+    def staff(self) -> Staff:
+        return self._staff
+
+    @property
+    def session(self) -> CheckInSession:
+        return self._session
 
     @property
     def status_code(self) -> int:
-        return self.session.status
+        return self._session.status
 
     @property
     def status_name(self) -> str:
-        return self.session.status_verbose
+        return self._session.status_verbose
+
+    def assign_session(self, session: CheckInSession):
+        self._session = session
 
     def retrieve_session(self) -> CheckInSession:
-        token = self.data.get(REQUEST_CHECK_IN_SESSION_TOKEN, None)
+        token = self._data.get(REQUEST_CHECK_IN_SESSION_TOKEN, None)
         if token is None:
             raise wfe.MissingCheckInSessionToken()
         try:
             session = CheckInSession.get_session_by_token(token)
         except wfe.CheckInSessionTokenExpired:
             # because there must be no more than 1 open session
-            CheckInSession.close_sessions(self.staff)
+            CheckInSession.close_sessions(self._staff)
             # session = CheckInSession.get_session_by_staff(self.staff)
             # if session:
             #     session.cancel()
             raise
 
-        self.session = session
+        self._session = session
         return session
 
 
@@ -151,7 +205,7 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
         except Exception as exc:
             log_msg = f'Unexpected error ({endpoint} {user_name} {user_ip}): {str(exc)}'
             log.exception(log_msg)
-            tg_notify(f'`elists.api` *middleware*\n{log_msg}')
+            async_notify(f'`elists.api` *middleware*\n{log_msg}', digest='api error')
             client.captureException()
             raise wfe.ProgrammingError() from exc
     except wfe.CheckInSessionAlreadyClosed:
@@ -187,7 +241,7 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
     return response
 
 
-def mark(*, require_session=True):
+def api_wrap(*, require_session=True):
     def decorator(view):
         setattr(view, REQUIRE_SESSION_MARK, require_session)
 
@@ -198,6 +252,7 @@ def mark(*, require_session=True):
             return view(request, *view_args, **view_kwargs)
 
         decorated = require_POST(decorated)
+        decorated = csrf_exempt(decorated)
         return decorated
 
     return decorator

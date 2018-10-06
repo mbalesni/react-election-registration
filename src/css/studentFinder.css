@@ -1,35 +1,41 @@
-.scanner-container-top {
-  height: 100%;
-  width: 100%;
-}
-#video.show * {
+
+/* #video.show * {
   opacity: 1;
   visibility: visible;
-  /* box-shadow: 0 2px 3px rgba(0,0,0,0.18); */
-}
+} */
 
 .student-finder {
+  min-height: 50px;
+  transition: .3s ease-in-out;
+}
+.student-finder.showVideo {
   min-height: 418px;
+
 }
 .row {
   /* display: flex;
   flex-direction: row;
   justify-content: flex-start; */
 }
-.student-finder > form {
+/* .student-finder > form {
   align-items: flex-start;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  /* flex-direction: row; */
-  /* justify-content: space-between; */
-  /* justify-items: center */
-}
+  flex-direction: row;
+  justify-content: space-between;
+  justify-items: center
+} */
 .scan-btn {
-  margin-top: 20px !important;
+  margin-top: 28px !important;
   justify-self: flex-end;
 }
 .search-btn {
-  float: right;
+  margin-top: 1rem !important;
+  /* float: right; */
+}
+.student-by-name-finder {
+  /* margin-top: 1rem; */
+  /* display: flex; */
 }
 .student-by-name-finder .input {
   margin-bottom: 1rem;

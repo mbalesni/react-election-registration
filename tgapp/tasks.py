@@ -4,20 +4,23 @@ import string
 
 from elists.models import Staff
 from evs.celeryapp import app
-from .bots_api import notifier_bot, passwords_bot
+from .bots_api import notifier_bot, passwords_bot, publisher_bot
 
 log = logging.getLogger('tgapp.tasks')
 
 
 @app.task(bind=True, name='tgapp.notify')
-def notify(self, message: str):
-    log.debug(f'sending message to {notifier_bot.chat_id} ::\n{message[:32]}...')
+def notify(self, message: str, digest: str):
+    log.debug(f'sending notifier to {notifier_bot.chat_id} ::\n{message[:32]}...')
     notifier_bot.send_message(message=message)
-    log.info(f'successfully sent message to {notifier_bot.chat_id}')
+    log.info(f'Successfully notified "{digest}" to {notifier_bot.chat_id}')
 
 
-def tg_notify(msg: str):
-    notify.delay(message=msg)
+@app.task(bind=True, name='tgapp.publish')
+def publish(self, message: str, digest: str):
+    log.debug(f'publishing message to {notifier_bot.chat_id} ::\n{message[:32]}...')
+    publisher_bot.send_message(message=message)
+    log.info(f'Successfully published "{digest}" to {notifier_bot.chat_id}')
 
 
 @app.task(bind=True, name='tgapp.reset_passwords')
@@ -36,6 +39,7 @@ def reset_passwords(self, usernames: tuple):
             f'{", ".join("@"+un for un in usernames)}'
         )
         log.error(error_msg)
+        async_notify(error_msg, digest='reset passwords failed')
         return error_msg
 
     username_to_password = {
@@ -50,6 +54,7 @@ def reset_passwords(self, usernames: tuple):
         except Staff.DoesNotExist:
             error_msg = f'Can not reset passwords: staff account with username "{username}" does not exist.'
             log.error(error_msg)
+            async_notify(error_msg, digest='reset passwords failed')
             return error_msg
         else:
             staff.set_password(raw_password=password)
@@ -72,4 +77,17 @@ def reset_passwords(self, usernames: tuple):
         "\n".join(f'@{un} - {pw}' for un, pw in username_to_password_hash.items())
     )
     log.info(success_msg)
+    async_notify(success_msg, digest='reset passwords success')
     return success_msg
+
+
+# Shortcuts
+# =========
+def async_notify(msg: str, *, digest: str):
+    notify.delay(message=msg, digest=digest)
+
+
+def async_publish(msg: str, *, digest: str, duplicate=False):
+    publish.delay(message=msg, digest=digest, )
+    if duplicate:
+        notify.delay(message=msg, digest=f'{digest} (dubplicate)')

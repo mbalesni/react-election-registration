@@ -94,6 +94,8 @@ class Student(models.Model):
     ticket_number = models.IntegerField(
         unique=True,
         db_index=True,
+        null=True,
+        blank=True,
         validators=[validate_student_ticket_number],
         verbose_name='Номер студентського квитка',  # Номер студентського квитка
     )
@@ -208,30 +210,6 @@ class Student(models.Model):
         return tuple(students)
 
     @classmethod
-    def search_by_ticket_number(cls, ticket_number_string: str) -> 'Student':
-        """
-        Gets Student by provided ticket number and raises IndexError if failed.
-        Validates input and raises ValuerError if it has wrong format.
-
-        :raises ValueError: if string's format is invalid
-        :raises IndexError: if no student found
-        :param ticket_number_string: 8 digits string
-        :return: Student model
-        """
-        log.debug(f'searching by ticket number "{ticket_number_string}"')
-
-        try:
-            ticket_number = int(ticket_number_string)
-            validate_student_ticket_number(ticket_number)
-        except (exceptions.ValidationError, ValueError) as exc:
-            raise wfe.TicketNumberWrongFormat() from exc
-
-        try:
-            return cls.objects.get(ticket_number=ticket_number)
-        except models.ObjectDoesNotExist:
-            raise wfe.TicketNumberNotFound()
-
-    @classmethod
     def get_student_by_token(cls, token: str) -> 'Student':
         try:
             query: dict = signing.loads(token, max_age=None)
@@ -257,17 +235,32 @@ class Student(models.Model):
         log.info(f'Student #{self.id} updated status: [{self.status}] {self.status_verbose}')
         self.save()
 
-    def change_state_in_progress(self):
+    def change_status_in_progress(self):
         self._update_status(self.STATUS_IN_PROGRESS)
 
-    def change_state_free(self):
+    def change_status_free(self):
 
         self._update_status(self.STATUS_FREE)
 
-    def change_state_voted(self):
+    def change_status_voted(self):
         if self.status == self.STATUS_FREE:
             raise wfe.StudentStatusCantChangeBecauseFree()
         self._update_status(self.STATUS_VOTED)
+
+    def check_allowed_to_assign(self) -> None:
+        """
+        Raises proper workflow exception if student can not assign.
+        :return: no return
+        :raises StudentAlreadyVoted:
+        :raises StudentAlreadyInProgress:
+        """
+        if self.allowed_to_assign:
+            return
+
+        if self.has_voted:
+            raise wfe.StudentAlreadyVoted()
+        if self.has_open_session:
+            raise wfe.StudentAlreadyInProgress()
 
     def show_registration_time(self) -> str:
         yesterday = timezone.datetime.today() - timezone.timedelta(1)
@@ -280,6 +273,9 @@ class Student(models.Model):
 
     def show_specialty(self) -> str:
         return str(self.specialty) if self.specialty else '(не вказана)'
+
+    def show_structural_unit(self) -> str:
+        return str(self.structural_unit)
 
     def get_joined_edu_year_display(self) -> str:
         return f'{self.get_educational_degree_display()}-{self.get_year_display()}'

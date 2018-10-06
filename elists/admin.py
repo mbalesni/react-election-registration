@@ -28,7 +28,7 @@ class CheckInSessionAdmin(admin.ModelAdmin):
         'doc_type',
         'doc_num',
         'end_dt',
-        'num_code',
+        'show_ballot_number',
         'student__full_name',
         'student__structural_unit',
         'student__specialty',
@@ -47,7 +47,7 @@ class CheckInSessionAdmin(admin.ModelAdmin):
         'student',
         'doc_type',
         'end_dt',
-        'num_code',
+        'show_ballot_number',
     )
     list_display_links = ('show_time_summary',)
     list_filter = (
@@ -66,7 +66,7 @@ class CheckInSessionAdmin(admin.ModelAdmin):
                 'show_time_summary',
                 ('start_dt', 'end_dt'),
                 'status',
-                'num_code',
+                'show_ballot_number',
             ),
         }),
         ('Про члена ВКС', {
@@ -126,11 +126,11 @@ class CheckInSessionAdmin(admin.ModelAdmin):
     student__full_name.short_description = 'ПІБ'
 
     def student__structural_unit(self, obj):
-        return obj.student.structural_unit
+        return obj.student.show_structural_unit()
     student__structural_unit.short_description = 'Структурний підрозділ'
 
     def student__specialty(self, obj):
-        return obj.student.specialty
+        return obj.student.show_specialty()
     student__specialty.short_description = 'Спеціальність'
 
     def student__year(self, obj):

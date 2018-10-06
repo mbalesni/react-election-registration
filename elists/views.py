@@ -4,42 +4,23 @@ from .constants import (
     RESPONSE_STUDENT, RESPONSE_STUDENTS, RESPONSE_STAFF,
     REQUEST_STUDENT_TICKET_NUMBER, REQUEST_STUDENT_DOC_NUM,
     REQUEST_STUDENT_DOC_TYPE, REQUEST_STUDENT_TOKEN, REQUEST_STUDENT,
-    REQUEST_STUDENT_FULL_NAME,
+    REQUEST_STUDENT_FULL_NAME, RESPONSE_BALLOT_NUMBER,
 )
-from .middleware import Request, mark, serialize_student, serialize_staff
+from .middleware import Request, api_wrap, serialize_student, serialize_staff
 from .models import CheckInSession, Student
 from errorsapp import exceptions as wfe
 
 log = logging.getLogger('elists.views')
 
 
-@mark(require_session=False)
+@api_wrap(require_session=False)
 def start_new_session(request: Request):
     staff = request.elists_cisi.staff
     session = CheckInSession.start_new_session(staff)
     request.elists_cisi.assign_session(session)
 
 
-@mark()
-def search_by_ticket_number(request: Request):
-    session = request.elists_cisi.session
-    if not session.just_started:
-        raise wfe.CheckInSessionWrongStatus(
-            context={
-                'current_status_code': session.status,
-                'current_status_name': session.status_verbose,
-            },
-        )
-
-    ticket_number = request.elists_cisi.data[REQUEST_STUDENT][REQUEST_STUDENT_TICKET_NUMBER]
-    student = Student.search_by_ticket_number(ticket_number)
-
-    return {
-        RESPONSE_STUDENT: serialize_student(student),
-    }
-
-
-@mark()
+@api_wrap()
 def search_by_name(request: Request):
     session = request.elists_cisi.session
     if not session.just_started:
@@ -60,7 +41,7 @@ def search_by_name(request: Request):
     }
 
 
-@mark()
+@api_wrap()
 def submit_student(request: Request):
     session = request.elists_cisi.session
     student_token = request.elists_cisi.data[REQUEST_STUDENT][REQUEST_STUDENT_TOKEN]
@@ -74,26 +55,30 @@ def submit_student(request: Request):
         doc_num=student_doc_num,
     )
 
+    return {
+        RESPONSE_BALLOT_NUMBER: session.ballot_number,
+    }
 
-@mark()
+
+@api_wrap()
 def complete_session(request: Request):
     session = request.elists_cisi.session
     session.complete()
 
 
-@mark()
+@api_wrap()
 def cancel_session(request: Request):
     session = request.elists_cisi.session
     session.cancel()
 
 
-@mark(require_session=False)
+@api_wrap(require_session=False)
 def close_sessions(request: Request):
     staff = request.elists_cisi.staff
     CheckInSession.close_sessions(staff)
 
 
-@mark(require_session=False)
+@api_wrap(require_session=False)
 def me(request: Request):
     return {
         RESPONSE_STAFF: serialize_staff(request.elists_cisi.staff),

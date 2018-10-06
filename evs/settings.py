@@ -20,12 +20,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 env = environ.Env(
     DEBUG=(bool, False),
+    # FRONTEND_DOMAIN
     # BACKEND_DOMAIN
     # SENTRY_DSN
     # RAVEN_RELEASE
     # SECRET_KEY
     # DATABASE_URL
     # REDIS_URL
+    # TG_PASSWORDS_BOT_TOKEN
+    # TG_NOTIFIER_BOT_TOKEN
+    # TG_NOTIFIER_CHAT_ID
+    # ELECTIONS_ENABLE_TIME_LIMIT
 )
 
 # reading .env file
@@ -39,11 +44,13 @@ environ.Env.read_env(env_file=os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = env.str('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = env.bool('DEBUG')
 
+FRONTEND_DOMAIN = env.str('FRONTEND_DOMAIN')
 BACKEND_DOMAIN = env.str('BACKEND_DOMAIN')
+GOVOTE_DOMAIN = 'govote.com.ua'
 
-ALLOWED_HOSTS = [BACKEND_DOMAIN, ]
+ALLOWED_HOSTS = [GOVOTE_DOMAIN, BACKEND_DOMAIN, FRONTEND_DOMAIN, ]
 
 
 # Application definition
@@ -81,7 +88,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # FIXME: enable CSRF token checks ## 'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -245,18 +252,19 @@ try:
     # release based on the git info.
     RAVEN_CONFIG['release'] = raven.fetch_git_sha(BASE_DIR)
 except:
-    RAVEN_CONFIG['release'] = env.str('RAVEN_RELEASE', default='onHeroku-v0.2')
+    RAVEN_CONFIG['release'] = env.str('RAVEN_RELEASE', default='onHeroku-0.3')
 
 # CORS headers
 CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_WHITELIST = [BACKEND_DOMAIN, ]
+CORS_ORIGIN_WHITELIST = [GOVOTE_DOMAIN, BACKEND_DOMAIN, FRONTEND_DOMAIN, ]
 
 
 # Telegram
 TG_PASSWORDS_BOT_TOKEN = env.str('TG_PASSWORDS_BOT_TOKEN')
 TG_NOTIFIER_BOT_TOKEN = env.str('TG_NOTIFIER_BOT_TOKEN')
 TG_NOTIFIER_CHAT_ID = env.int('TG_NOTIFIER_CHAT_ID')
-
+TG_PUBLISHER_BOT_TOKEN = env.str('TG_PUBLISHER_BOT_TOKEN')
+TG_PUBLISHER_CHAT_ID = env.int('TG_PUBLISHER_CHAT_ID')
 
 # development
 if DEBUG:

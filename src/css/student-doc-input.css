@@ -1,0 +1,13 @@
+.submit-btn {
+    margin-top: 1rem !important;
+}
+
+.doc-picker {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.input.doc-number {
+    margin-top: 1.5rem;
+}
+

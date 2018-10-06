@@ -1,14 +1,5 @@
 import React from 'react';
 import Button from '@material-ui/core/Button'
-import Video from './video.js'
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import FormLabel from '@material-ui/core/FormLabel';
-import FormControl from '@material-ui/core/FormControl';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import TextField from '@material-ui/core/TextField';
 import Input from '@material-ui/core/Input';
 import './css/studentFinder.css'
 import { message } from 'antd'
@@ -18,8 +9,6 @@ const MIN_LENGTH = {
   name: 5,
   docNumber: 3
 }
-const NAME_MIN_LENGTH = 5
-const DOCNUMBER_MIN_LENGTH = 3
 
 export default class StudentFinder extends React.Component {
   state = {
@@ -30,11 +19,6 @@ export default class StudentFinder extends React.Component {
       value: '',
       label: `ім'я`,
       name: 'name'
-    },
-    docNumber: {
-      value: '',
-      label: `номер документа`,
-      name: 'docNumber'
     },
     touched: {
       name: false,
@@ -61,18 +45,17 @@ export default class StudentFinder extends React.Component {
 
   search() {
     console.log('Handling search... ')
-    let { name, value, docNumber } = this.state
+    let { name } = this.state
 
-    this.props.onSearchByName(name.value, value, docNumber.value)
+    this.props.onSearchByName(name.value)
 
   }
 
-  validate(name, docNumber) {
+  validate(name) {
     // true condition means error
     // string is error explanation
     return {
       name: (name.length < MIN_LENGTH.name || !isTitle(name) || !hasSpaces(name)) && `Ім'я повинно бути ${MIN_LENGTH.name} або більше символів в довжину` || '',
-      docNumber: docNumber.length < MIN_LENGTH.docNumber && `Номер документа повинен бути ${MIN_LENGTH.docNumber} або більше символів в довжину` || '',
     }
   }
 
@@ -83,19 +66,19 @@ export default class StudentFinder extends React.Component {
   }
 
   handleSubmit(e) {
-    const { name, docNumber } = this.state
-    const errors = this.validate(name.value, docNumber.value)
+    const { name } = this.state
+    const errors = this.validate(name.value)
 
-    let allTouched = {...this.state.touched}
+    let allTouched = { ...this.state.touched }
     Object.keys(allTouched).forEach(key => {
       allTouched[key] = true
     })
-    this.setState({ touched: allTouched})
+    this.setState({ touched: allTouched })
 
 
     let noErrors = true
 
-    const fields = [name, docNumber]
+    const fields = [name]
 
     fields.forEach(field => {
       const hasError = errors[field.name].length > 0
@@ -104,8 +87,8 @@ export default class StudentFinder extends React.Component {
         noErrors = false
 
         let text = ''
-        text += `${capitalize(field.label)} має бути довше ${MIN_LENGTH[field.name]-1} символів`
-        
+        text += `${capitalize(field.label)} має бути довше ${MIN_LENGTH[field.name] - 1} символів`
+
         if (field.name === 'name') text += `, починатися з великої літери, та включати пробіл`
         message.warn(text)
       }
@@ -118,16 +101,16 @@ export default class StudentFinder extends React.Component {
 
   handleSubmitOnEnter(e) {
     if (e.key === 'Enter') {
+      e.preventDefault()
       this.handleSubmit()
     } else return
   }
 
 
   render() {
-    const { value, name, docNumber } = this.state
+    const { value, name } = this.state
 
-    const errors = this.validate(name.value, docNumber.value)
-    const isDisabled = Object.keys(errors).some(x => errors[x].length > 0)
+    const errors = this.validate(name.value)
 
     const shouldMarkError = (field) => {
       const hasError = errors[field].length > 0
@@ -138,87 +121,43 @@ export default class StudentFinder extends React.Component {
       return result
     }
 
-    return (
-      <div className="student-finder">
+    const iconRight = {
+      marginRight: '8px',
+      marginBottom: '2px',
+      fontSize: '18px'
+    }
 
-        {this.state.isScanning === false && <form >
-          <div className="doc-type-picker">
-            <FormControl component="fieldset">
-              <FormLabel component="legend">Тип документа</FormLabel>
-              <RadioGroup
-                aria-label="Тип документа"
-                name="docType"
-                value={value}
-                onChange={this.handleChange}
-              >
-                <FormControlLabel value="0" control={<Radio />} label="Студентський квиток" />
-                <FormControlLabel value="1" control={<Radio />} label="Заліковка" />
-                <FormControlLabel value="2" control={<Radio />} label="Довідка" />
-              </RadioGroup>
-            </FormControl>
+    return (
+      <div className={"student-finder " + (this.state.isScanning ? 'showVideo' : '')}>
+
+        <form >
+          <div className="student-by-name-finder">
+
+            <Input
+              className="input student-name"
+              error={shouldMarkError('name')}
+              placeholder="Повне ім'я"
+              value={this.state.name.value}
+              fullWidth={true}
+              onChange={this.handleNameChange}
+              onBlur={this.handleBlur('name')}
+              tabIndex="1"
+              onKeyPress={this.handleSubmitOnEnter.bind(this)}
+            />
+
+            <Button
+              className="search-btn"
+              variant="contained"
+              color="primary"
+              onClick={this.handleSubmit.bind(this)}
+            >
+              <i className="fas fa-address-book" style={iconRight}></i>
+              знайти
+            </Button>
 
 
           </div>
-
-          {value === '0' &&
-            <Button
-              className="scan-btn"
-              onClick={this.handleStartScan.bind(this)}
-              variant="contained"
-              color="primary"
-            >
-              почати сканування
-            </Button>}
-
-          {value !== '0' &&
-            <div className="student-by-name-finder" style={{ marginTop: 20 }}>
-
-              <Input
-                className="input student-name"
-                error={shouldMarkError('name')}
-                placeholder="Повне ім'я"
-                value={this.state.name.value}
-                fullWidth={true}
-                onChange={this.handleNameChange}
-                onBlur={this.handleBlur('name')}
-                tabIndex="1"
-                onKeyPress={this.handleSubmitOnEnter.bind(this)}
-              />
-
-              <Input
-                className="input doc-number"
-                error={shouldMarkError('docNumber')}
-                placeholder="Номер документа"
-                value={this.state.docNumber.value}
-                fullWidth={true}
-                onChange={this.handleDocNumberChange}
-                onBlur={this.handleBlur('docNumber')}
-                tabIndex="2"
-                onKeyPress={this.handleSubmitOnEnter.bind(this)}
-              />
-
-              <Button
-                className="search-btn"
-                variant="contained"
-                color="primary"
-                onClick={this.handleSubmit.bind(this)}
-              // disabled={isDisabled}
-
-              >
-                знайти
-              </Button>
-
-
-            </div>}
-
-        </form>}
-
-
-
-        {this.state.docType === '0' &&
-          <Video show={this.state.isScanning} onScanCancel={this.handleCancelScan.bind(this)} />
-        }
-
+        </form>
 
       </div>
     )

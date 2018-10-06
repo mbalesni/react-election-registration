@@ -173,6 +173,6 @@ fabric.properties
 .idea/httpRequests
 
 staticfiles/
-!/build/
+build/
 .DS_Store
 node_modules/
