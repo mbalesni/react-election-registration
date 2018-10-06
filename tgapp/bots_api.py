@@ -35,10 +35,11 @@ class TGBot(metaclass=abc.ABCMeta):
             parse_mode=self.PARSE_MODE,
         )
 
-    def _send_doc(self, file_obj, *, chat_id: int):
+    def _send_doc(self, file_obj, file_name: str, *, chat_id: int):
         self._bot.send_document(
             chat_id=chat_id,
             document=file_obj,
+            filename=file_name,
         )
 
 
@@ -95,8 +96,12 @@ class NotifierBot(TGBot):
             content=message,
         )
 
-    def send_doc(self, file_obj):
-        self._send_doc(file_obj=file_obj, chat_id=self._chat_id)
+    def send_doc(self, file_obj, file_name: str):
+        self._send_doc(
+            file_obj=file_obj,
+            file_name=file_name,
+            chat_id=self._chat_id,
+        )
 
 
 passwords_bot = UsernameBot(
