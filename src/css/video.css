@@ -1,11 +1,6 @@
 .scanner-container-top {
     height: 100%;
     width: 100%;
-  }
-.scanner-container {
-    /* display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(435px, 1fr));
-    grid-gap: 1rem; */
 }
 
 .scanner {
@@ -25,6 +20,7 @@
     transform: translate(-50%, -50%);
     visibility: hidden;
 }
+
 .video-card.show {
     visibility: visible;
 }
@@ -34,21 +30,19 @@
 }
 
 #video video {
-    /* border-radius: 5px; */
-    /* box-shadow: 0 2px 3px rgba(0, 0, 0, 0.18); */
-    /* position: absolute; */
     visibility: hidden;
     opacity: 0;
     width: 100%;
     top: 0rem;
     left: 0rem;
-    transition-delay: 2s;
+    transition-delay: .25s;
 }
 
 .video-card.show * {
     opacity: 1 !important;
     visibility: visible !important;
 }
+
 .card-actions {
     padding: .5rem;
     display: flex;
