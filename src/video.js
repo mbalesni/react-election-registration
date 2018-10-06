@@ -10,7 +10,7 @@ export default function Video(props) {
         <div className={"video-card " + (props.show ? 'show' : '')}>
           <div id="video" className="scanner-container" ></div>
           <div className="card-actions">
-            <Button onClick={props.onCancelSession} color="default">скасувати</Button>
+            <Button disabled={props.loading} onClick={props.onCancel} color="default">назад</Button>
           </div>
         </div>
       </div>

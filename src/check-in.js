@@ -29,7 +29,7 @@ export default class CheckIn extends React.Component {
   handleGoBack() {
 
     if (!this.props.activeStudent) {
-      this.props.onBack()
+      this.props.onSearchBack()
     } else {
       this.props.onStudentUnselect()
     }
@@ -42,14 +42,7 @@ export default class CheckIn extends React.Component {
 
     return (
       <Fragment>
-        {this.props.activeStudent && ballotNumber &&
-          <Ballot
-            number={ballotNumber}
-            onComplete={this.props.onCompleteSession}
-            onCancel={this.props.onCancelSession}
-            status={status}
-          />
-        }
+
 
         <div className="check-in card card-default" >
 
@@ -85,22 +78,19 @@ export default class CheckIn extends React.Component {
             }
 
             {this.props.foundStudents.length > 0 && !this.props.activeStudent &&
-              <Fragment>
-                {/* <p className="found-students-num">
-                    Знайдено {foundStudents.length} студент{foundStudents.length > 1 ? 'ів' : 'а'}
-                  </p> */}
-                <div className="found-students">{foundStudents}</div>
-              </Fragment>
+              <div className="found-students">{foundStudents}</div>
             }
 
             {this.props.activeStudent &&
               <Fragment>
                 <StudentInfo data={this.props.activeStudent} activeStudent={this.props.activeStudent} />
                 <StudentDocInput
-                  onScanStart={this.props.onScanStart.bind(this)}
                   activeStudent={this.props.activeStudent}
+                  onScanStart={this.props.onScanStart.bind(this)}
                   onCancelSession={this.props.onCancelSession}
+                  onScanCancel={this.props.onScanCancel.bind(this)}
                   onSubmit={this.props.onStudentSubmit}
+                  loading={this.props.loading}
                 />
               </Fragment>
             }
@@ -109,6 +99,15 @@ export default class CheckIn extends React.Component {
           </div>
 
         </div >
+
+        {this.props.activeStudent && ballotNumber &&
+          <Ballot
+            number={ballotNumber}
+            onComplete={this.props.onCompleteSession}
+            onCancel={this.props.onCancelSession}
+            status={status}
+          />
+        }
       </Fragment>
     )
   }

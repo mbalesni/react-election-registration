@@ -67,6 +67,11 @@ export class StudentDocInput extends React.Component {
         this.setState({ isScanning: true })
     }
 
+    handleCancelScan() {
+        this.props.onScanCancel()
+        this.setState({ isScanning: false })
+    }
+
     handleSubmitOnEnter(e) {
         if (e.key === 'Enter') {
             e.preventDefault()
@@ -115,7 +120,7 @@ export class StudentDocInput extends React.Component {
                             onChange={this.handleChange}
                         >
                             <FormControlLabel value="0" control={<Radio />} label="Студентський квиток" />
-                            <FormControlLabel value="1" control={<Radio />} label="Заліковка" />
+                            <FormControlLabel value="1" control={<Radio />} label="Залікова книжка" />
                             <FormControlLabel value="2" control={<Radio />} label="Довідка" />
                         </RadioGroup>
 
@@ -167,7 +172,11 @@ export class StudentDocInput extends React.Component {
                 }
 
                 {byTicket &&
-                    <Video show={this.state.isScanning && docNumber.length === 0} onCancelSession={this.props.onCancelSession} />
+                    <Video
+                        onCancel={this.handleCancelScan.bind(this)}
+                        show={this.state.isScanning && docNumber.length === 0}
+                        loading={this.props.loading}
+                    />
                 }
 
             </Fragment>

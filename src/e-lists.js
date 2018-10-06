@@ -42,7 +42,7 @@ export default class extends React.Component {
 
   render() {
     const { loggedIn } = this.state.auth
-    const { ballotNumber } = this.state
+    const { ballotNumber, loading } = this.state
 
     return (
       <div className="page-content-wrapper " >
@@ -72,15 +72,16 @@ export default class extends React.Component {
                   ballotNumber={ballotNumber}
                   status={this.state.status}
                   foundStudents={this.state.foundStudents}
-                  onBack={this.goBack.bind(this)}
+                  onSearchBack={this.searchGoBack.bind(this)}
                   onStudentSubmit={this.submitStudent.bind(this)}
                   onStudentSelect={this.selectStudent.bind(this)}
                   onScanStart={this.initScan.bind(this)}
-                  // onScanCancel={this.cancelScan.bind(this)}
+                  onScanCancel={this.cancelScan.bind(this)}
                   onCancelSession={this.cancelSession.bind(this)}
                   onCompleteSession={this.completeSession.bind(this)}
                   onSearchByName={this.searchStudentByName.bind(this)}
                   onStudentUnselect={this.unselectStudent.bind(this)}
+                  loading={loading}
                 />}
 
             </div>
@@ -203,14 +204,13 @@ export default class extends React.Component {
     )
   }
 
-  searchStudentByName(name, docType, docNumber) {
+  searchStudentByName(name) {
     let data = {}
     data.check_in_session_token = this.state.checkInSessionToken
     data.student = {}
     data.student.full_name = name
-    data.student.doc_num = docNumber
 
-    console.log('Searching student by name ', name, ', saving document type ', docType, ' , number: ', docNumber)
+    console.log('Searching student by name ', name)
 
     this.setState({ loading: true })
 
@@ -224,9 +224,7 @@ export default class extends React.Component {
         })
 
         this.setState({
-          docType: docType,
-          docNumber: docNumber,
-          foundStudents: foundStudents,
+          foundStudents,
           status: {
             type: 'info',
             message: this.getFoundStudentsNote(foundStudents),
@@ -286,14 +284,13 @@ export default class extends React.Component {
           loading: false,
           ballotNumber
         })
-        message.destroy()
       })
       .catch(err => {
         this.handleError(err)
       })
   }
 
-  goBack() {
+  searchGoBack() {
     this.setState({
       foundStudents: [],
       status: {
@@ -390,7 +387,7 @@ export default class extends React.Component {
   }
 
   initScan() {
-    this.setState({ loading: true, status: { type: null, message: null, show: false } })
+    this.setState({ loading: true })
     Quagga.init(
       { ...QUAGGA_OPTIONS, inputStream: { ...QUAGGA_OPTIONS.inputStream, target: document.querySelector('.scanner-container') } },
       (err) => {
@@ -407,17 +404,16 @@ export default class extends React.Component {
       })
   }
 
-  // cancelScan() {
-  //   Quagga.stop();
-  //   this.setState({
-  //     sessionsStatus: 100,
-  //     status: {
-  //       type: 'info',
-  //       message: 'Оберіть тип документа'
-  //     }
-  //   })
-  //   message.info('Сканування скасовано. Оберыть тип документа')
-  // }
+  cancelScan() {
+    Quagga.stop();
+    this.setState({
+      status: {
+        type: 'info',
+        message: 'Введіть номер підтверджуючого документа'
+      }
+    })
+    message.destroy()
+  }
 
   initOnDetected() {
     Quagga.onDetected((data) => {
@@ -432,6 +428,7 @@ export default class extends React.Component {
         activeStudent.docType = '0'
         this.setState({ activeStudent })
         this.submitStudent( activeStudent )
+        message.success('Студентський квиток відскановано.')
 
       } else {
         this.handleError('Error', 507)
