@@ -8,6 +8,9 @@ export default function Video(props) {
     <div className={"overlay " + (props.show ? 'show' : '')}>
       <div className="scanner-container-top">
         <div className={"video-card " + (props.show ? 'show' : '')}>
+          {props.loading &&
+            <p className="loading-message" >Запуск сканування...</p>
+          }
           <div id="video" className="scanner-container" ></div>
           <div className="card-actions">
             <Button disabled={props.loading} onClick={props.onCancel} color="default">назад</Button>

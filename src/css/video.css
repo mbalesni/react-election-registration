@@ -48,3 +48,14 @@
     display: flex;
     justify-content: flex-end;
 }
+
+.loading-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    text-align: center;
+    transform: translate(-50%, -50%);
+    transition-delay: 0;
+    width: 100%;
+    z-index: -1;
+}
