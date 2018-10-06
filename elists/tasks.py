@@ -24,7 +24,7 @@ def cancel_obsolete_checkin_sessions(self, td_seconds: int =None):
 
     for obj in idle_sessions:
         obj: CheckInSession
-        tg_notify(f'{obj} буде відмінена.')
+        tg_notify(f'{obj} буде відмінена.', digest='canceling check-in session')
         obj.cancel()
         log.info(f'Canceled "{obj}" due to its age.')
 
@@ -69,5 +69,5 @@ def collect_statistics(self):
         f'--- Станом на {timezone.now().strftime("%H:%M")} ---\n'
         f'``` {df.to_string(index=False)}```'
     )
-    tg_notify(msg)
+    tg_notify(msg, digest='check-in session stats')
     return username_to_stats

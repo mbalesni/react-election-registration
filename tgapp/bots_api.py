@@ -100,3 +100,7 @@ notifier_bot = NotifierBot(
     bot_token=settings.TG_NOTIFIER_BOT_TOKEN,
     chat_id=settings.TG_NOTIFIER_CHAT_ID,
 )
+publisher_bot = NotifierBot(
+    bot_token=settings.TG_PUBLISHER_BOT_TOKEN,
+    chat_id=settings.TG_PUBLISHER_CHAT_ID,
+)

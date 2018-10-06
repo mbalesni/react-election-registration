@@ -205,7 +205,7 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
         except Exception as exc:
             log_msg = f'Unexpected error ({endpoint} {user_name} {user_ip}): {str(exc)}'
             log.exception(log_msg)
-            tg_notify(f'`elists.api` *middleware*\n{log_msg}')
+            tg_notify(f'`elists.api` *middleware*\n{log_msg}', digest='api error')
             client.captureException()
             raise wfe.ProgrammingError() from exc
     except wfe.CheckInSessionAlreadyClosed:
