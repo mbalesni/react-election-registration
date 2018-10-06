@@ -19,6 +19,8 @@ const spinnerStyles = css`
   position: absolute !important;
 `
 
+const Fragment = React.Fragment
+
 // retrieving environment variables
 
 const SENTRY_DSN = process.env.REACT_APP_SENTRY_DSN || ''
@@ -156,51 +158,48 @@ export default class extends React.Component {
       })
   }
 
-  searchStudentByTicketNumber(ticketNum) {
+  // searchStudentByTicketNumber(ticketNum) {
 
-    let data = {}
-    data.check_in_session_token = this.state.checkInSessionToken
-    data.student = { ticket_number: ticketNum }
+  //   let data = {}
+  //   data.check_in_session_token = this.state.checkInSessionToken
+  //   data.student = { ticket_number: ticketNum }
 
-    this.setState({ loading: true })
+  //   this.setState({ loading: true })
 
-    axios.post('/search_by_ticket_number', data)
-      .then(res => {
-        const studentObj = res.data.data.student
+  //   axios.post('/search_by_ticket_number', data)
+  //     .then(res => {
+  //       const studentObj = res.data.data.student
 
-        let student = this.buildStudentData(studentObj)
+  //       let student = this.buildStudentData(studentObj)
 
-        let foundStudents = this.state.foundStudents.slice()
-        foundStudents[0] = { ...foundStudents[0], ...student }
+  //       let foundStudents = this.state.foundStudents.slice()
+  //       foundStudents[0] = { ...foundStudents[0], ...student }
 
-        this.setState({
-          docType: 0,
-          docNumber: ticketNum,
-          foundStudents: foundStudents,
-          status: {
-            type: 'info',
-            message: this.getFoundStudentsNote(foundStudents),
-          },
-          loading: false
-        })
-      })
-      .catch(err => {
-        this.handleError(err)
-      })
-  }
+  //       this.setState({
+  //         docType: 0,
+  //         docNumber: ticketNum,
+  //         foundStudents: foundStudents,
+  //         status: {
+  //           type: 'info',
+  //           message: this.getFoundStudentsNote(foundStudents),
+  //         },
+  //         loading: false
+  //       })
+  //     })
+  //     .catch(err => {
+  //       this.handleError(err)
+  //     })
+  // }
 
-  getFoundStudentsNote(foundStudents) {
+  getFoundStudentsNote(foundStudents, query) {
     const len = foundStudents.length
     return (
-      <div>
-        {len === 1 && 'Перевірте дані та зареєструйте студента'}
-        {len > 1 && 'Оберіть студента'}
-        {len > 1 &&
-          <div className="found-students-num">
-            Знайдено {len} студент{len > 1 ? 'ів' : 'а'}
-          </div>
-        }
-      </div>
+      <Fragment>
+        <div>{len > 1 ? 'Оберіть' : 'Перевірте дані та зареєструйте'} студента</div>
+        <div className="found-students-num">
+          За запитом <strong>{query}</strong> знайдено {len} студент{len > 1 ? 'ів' : 'а'}
+        </div>
+      </Fragment>
     )
   }
 
@@ -227,7 +226,7 @@ export default class extends React.Component {
           foundStudents,
           status: {
             type: 'info',
-            message: this.getFoundStudentsNote(foundStudents),
+            message: this.getFoundStudentsNote(foundStudents, name),
           },
           loading: false
         })
@@ -427,7 +426,7 @@ export default class extends React.Component {
         activeStudent.docNumber = result
         activeStudent.docType = '0'
         this.setState({ activeStudent })
-        this.submitStudent( activeStudent )
+        this.submitStudent(activeStudent)
         message.success('Студентський квиток відскановано.')
 
       } else {
