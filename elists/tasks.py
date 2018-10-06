@@ -1,14 +1,14 @@
+import io
 import logging
 
 import sqlalchemy
 import pandas as pd
-import numpy as np
 from django.conf import settings
 from django.utils import timezone
 
 from evs.celeryapp import app
-from tgapp.tasks import async_notify
-from .models import CheckInSession, Staff
+from tgapp.tasks import async_notify, notifier_bot
+from .models import CheckInSession, Staff, Student
 
 log = logging.getLogger('elists.tasks')
 
@@ -126,4 +126,63 @@ def collect_statistics(self):
         f'```'
     )
     async_notify(msg, digest='check-in session stats')
+    return df.to_dict(orient='list', into=dict)
+
+
+@app.task(bind=True, name='elists.dump')
+def dump(self):
+
+    def get_student_match() -> dict:
+        student_df = pd.read_sql_table(Student._meta.db_table, eng)
+        return {
+            dbid: full_name
+            for dbid, full_name in zip(student_df['id'], student_df['full_name'])
+        }
+
+    STATUS_CODE_TO_VERBOSE = dict(CheckInSession.STATUS_CHOICES)
+
+    eng: sqlalchemy.engine.Engine = sqlalchemy.create_engine(settings.DATABASE_URL)
+    origin = pd.read_sql_table(CheckInSession._meta.db_table, eng)
+    dt_now = timezone.make_naive(timezone.now())
+
+    staff_dbid_to_username = {
+        dbid: f'@{Staff.objects.get(id=dbid).username}'
+        for dbid in origin['staff_id'].unique()
+    }
+    student_dbid_to_full_name = get_student_match()
+
+    df = pd.DataFrame({
+        'Член ВКС': [
+            staff_dbid_to_username[dbid]
+            for dbid in origin['staff_id']
+        ],
+        'ПІБ студента': [
+            student_dbid_to_full_name.get(dbid, '-')
+            for dbid in origin['student_id']
+        ],
+        'Час початку': [
+            timezone.make_naive(dt).strftime('%H:%M')
+            for dt in origin['start_dt']
+        ],
+        'Час кінця': [
+            timezone.make_naive(dt).strftime('%H:%M') if not pd.isna(dt) else '-'
+            for dt in origin['end_dt']
+        ],
+        'Номер бюлетеня': [
+            f'{str(bn)[:3]}/{str(bn)[3:-2]}' if not pd.isna(bn) else '-'
+            for bn in origin['ballot_number']
+        ],
+        'Статус': [
+            STATUS_CODE_TO_VERBOSE[code]
+            for code in origin['status']
+        ],
+    })
+
+    notifier_bot.send_message(f'Копія бази чек-ін сесій станом на f{dt_now.strftime("%H:%M")}')
+    notifier_bot.send_doc(
+        file_obj=io.BytesIO(df.to_csv(index=False).encode('utf-8')),
+        file_name=dt_now.strftime('check-in_sessions_%H-%M.csv'),
+    )
+
+    log.info(f'Successfully dumped check-in sessions.')
     return df.to_dict(orient='list', into=dict)
