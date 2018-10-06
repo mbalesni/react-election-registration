@@ -7,7 +7,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from evs.celeryapp import app
-from tgapp.tasks import tg_notify
+from tgapp.tasks import async_notify
 from .models import CheckInSession, Staff
 
 log = logging.getLogger('elists.tasks')
@@ -31,7 +31,7 @@ def cancel_obsolete_checkin_sessions(self, td_seconds: int =None):
 
     for obj in idle_sessions:
         obj: CheckInSession
-        tg_notify(f'{obj} буде відмінена.', digest='canceling check-in session')
+        async_notify(f'{obj} буде відмінена.', digest='canceling check-in session')
         obj.cancel()
         log.info(f'Canceled "{obj}" due to its age.')
 
@@ -125,5 +125,5 @@ def collect_statistics(self):
         f'{df.to_string(index=True)}'
         f'```'
     )
-    tg_notify(msg, digest='check-in session stats')
+    async_notify(msg, digest='check-in session stats')
     return df.to_dict(orient='list', into=dict)

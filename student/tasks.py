@@ -7,7 +7,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from evs.celeryapp import app
-from tgapp.tasks import tg_publish
+from tgapp.tasks import async_publish
 from .models import Student
 
 log = logging.getLogger('student.tasks')
@@ -37,7 +37,7 @@ def collect_statistics(self):
         f'* Всього проголосувало {total_voted} студентів'
         f'```'
     )
-    tg_publish(msg=tg_msg, digest='student stats')
+    async_publish(msg=tg_msg, digest='student stats', duplicate=True)
 
     log.info(
         f'collect_statistics: {pprint.pformat(stats)}')

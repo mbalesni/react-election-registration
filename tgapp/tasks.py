@@ -39,7 +39,7 @@ def reset_passwords(self, usernames: tuple):
             f'{", ".join("@"+un for un in usernames)}'
         )
         log.error(error_msg)
-        tg_notify(error_msg, digest='reset passwords failed')
+        async_notify(error_msg, digest='reset passwords failed')
         return error_msg
 
     username_to_password = {
@@ -54,7 +54,7 @@ def reset_passwords(self, usernames: tuple):
         except Staff.DoesNotExist:
             error_msg = f'Can not reset passwords: staff account with username "{username}" does not exist.'
             log.error(error_msg)
-            tg_notify(error_msg, digest='reset passwords failed')
+            async_notify(error_msg, digest='reset passwords failed')
             return error_msg
         else:
             staff.set_password(raw_password=password)
@@ -77,17 +77,17 @@ def reset_passwords(self, usernames: tuple):
         "\n".join(f'@{un} - {pw}' for un, pw in username_to_password_hash.items())
     )
     log.info(success_msg)
-    tg_notify(success_msg, digest='reset passwords success')
+    async_notify(success_msg, digest='reset passwords success')
     return success_msg
 
 
 # Shortcuts
 # =========
-def tg_notify(msg: str, *, digest: str, ):
+def async_notify(msg: str, *, digest: str):
     notify.delay(message=msg, digest=digest)
 
 
-def tg_publish(msg: str, *, digest: str, doublicate=False):
+def async_publish(msg: str, *, digest: str, duplicate=False):
     publish.delay(message=msg, digest=digest, )
-    if doublicate:
+    if duplicate:
         notify.delay(message=msg, digest=f'{digest} (dubplicate)')

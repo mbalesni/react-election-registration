@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from raven.contrib.django.raven_compat.models import client
 
 from errorsapp import exceptions as wfe
-from tgapp.tasks import tg_notify
+from tgapp.tasks import async_notify
 from .constants import (
     RESPONSE_STUDENT_DATA_EDUCATIONAL_DEGREE, RESPONSE_STUDENT_DATA_FORM_OF_STUDY,
     RESPONSE_STUDENT_DATA, RESPONSE_STUDENT_DATA_FULL_NAME, RESPONSE_STUDENT_TOKEN, RESPONSE_STUDENT_DATA_YEAR,
@@ -205,7 +205,7 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
         except Exception as exc:
             log_msg = f'Unexpected error ({endpoint} {user_name} {user_ip}): {str(exc)}'
             log.exception(log_msg)
-            tg_notify(f'`elists.api` *middleware*\n{log_msg}', digest='api error')
+            async_notify(f'`elists.api` *middleware*\n{log_msg}', digest='api error')
             client.captureException()
             raise wfe.ProgrammingError() from exc
     except wfe.CheckInSessionAlreadyClosed:
