@@ -203,7 +203,9 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
                 session_before = request.elists_cisi.retrieve_session(raise_=do_raise)
 
             out_data = view_func(request, *view_args, **view_kwargs)
-        except wfe.BaseWorkflowError:
+        except wfe.BaseWorkflowError as exc:
+            if isinstance(exc, wfe.CancelSessionMixin) and 'session_before' in locals().keys():
+                session_before.cancel()
             raise
         except Exception as exc:
             log_msg = f'Unexpected error ({endpoint} {user_name} {user_ip}): {str(exc)}'
