@@ -1,14 +1,14 @@
 import logging
 
+from errorsapp import exceptions as wfe
 from .constants import (
-    RESPONSE_STUDENT, RESPONSE_STUDENTS, RESPONSE_STAFF,
-    REQUEST_STUDENT_TICKET_NUMBER, REQUEST_STUDENT_DOC_NUM,
+    RESPONSE_STUDENTS, RESPONSE_STAFF,
+    REQUEST_STUDENT_DOC_NUM,
     REQUEST_STUDENT_DOC_TYPE, REQUEST_STUDENT_TOKEN, REQUEST_STUDENT,
     REQUEST_STUDENT_FULL_NAME, RESPONSE_BALLOT_NUMBER,
 )
 from .middleware import Request, api_wrap, serialize_student, serialize_staff
 from .models import CheckInSession, Student
-from errorsapp import exceptions as wfe
 
 log = logging.getLogger('elists.views')
 
@@ -66,13 +66,13 @@ def complete_session(request: Request):
     session.complete()
 
 
-@api_wrap()
+@api_wrap(silent_token_expire=True)
 def cancel_session(request: Request):
     session = request.elists_cisi.session
     session.cancel()
 
 
-@api_wrap(require_session=False)
+@api_wrap(require_session=False, silent_token_expire=True)
 def close_sessions(request: Request):
     staff = request.elists_cisi.staff
     CheckInSession.close_sessions(staff)
