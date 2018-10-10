@@ -59,16 +59,6 @@ class BaseUserError(BaseWorkflowError, metaclass=abc.ABCMeta):
 # ===================
 
 
-# ======
-# mixins
-
-class CancelSessionMixin:
-    pass
-
-# end of mixins
-# =============
-
-
 # ===============
 # workflow errors
 # ---------------
@@ -104,7 +94,7 @@ class CheckInSessionWithoutStudent(BaseProgrammingError):
     code = 305
 
 
-class CheckInSessionAlreadyClosed(BaseProgrammingError, CancelSessionMixin):
+class CheckInSessionAlreadyClosed(BaseProgrammingError):
     code = 306
 
 
@@ -167,7 +157,7 @@ class StudentAlreadyInProgress(BaseUserError):
     code = 505
 
 
-class CheckInSessionTokenExpired(BaseUserError, CancelSessionMixin):
+class CheckInSessionTokenExpired(BaseUserError):
     code = 508
 
 

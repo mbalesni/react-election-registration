@@ -176,7 +176,7 @@ class Request(HttpRequest):
 def process_view(request: Request, view_func, view_args, view_kwargs):
     endpoint = request.path.split('/')[-1]
     user_name = f'@{"ANON" if request.user.is_anonymous else request.user.username}'
-    user_ip = f"IP{request.META.get('HTTP_X_FORWARDED_FOR') or request.META.get('REMOTE_ADDR')}"
+    user_ip = f"ip{request.META.get('HTTP_X_FORWARDED_FOR') or request.META.get('REMOTE_ADDR')}"
 
     log.debug(f'request: {endpoint} {user_name} from {user_ip}')
 
@@ -203,9 +203,7 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
                 session_before = request.elists_cisi.retrieve_session(raise_=do_raise)
 
             out_data = view_func(request, *view_args, **view_kwargs)
-        except wfe.BaseWorkflowError as exc:
-            if isinstance(exc, wfe.CancelSessionMixin) and 'session_before' in locals().keys():
-                session_before.cancel()
+        except wfe.BaseWorkflowError:
             raise
         except Exception as exc:
             log_msg = f'Unexpected error ({endpoint} {user_name} {user_ip}): {str(exc)}'
