@@ -1,6 +1,8 @@
 import pandas as pd
+import os
 
 from .models import Student, StructuralUnit, Specialty
+from django.conf import settings
 
 
 SPECIALTY_NAME = 'specialty NAME'
@@ -35,11 +37,12 @@ def load_structural_units(df: pd.DataFrame):
     for name in names_arr:
         structural_unit, created = StructuralUnit.objects.get_or_create(name=name)
         ids.append(structural_unit.id)
+        if created:
+            print(f'Created structural unit "{structural_unit.name}".')
 
     name_to_id = {name: id_ for name, id_ in zip(names_arr, ids)}
 
     df[STRUCTURAL_UNIT_ID] = df[STRUCTURAL_UNIT_NAME].apply(lambda name: name_to_id[name])
-    #df['structural_unit'] = df['structural_unit ID'].apply(lambda id_: StructuralUnit.objects.get(id=id_))
 
 
 def load_specialties(df: pd.DataFrame):
@@ -48,14 +51,19 @@ def load_specialties(df: pd.DataFrame):
 
     for name in names_arr:
         specialty, created = Specialty.objects.get_or_create(name=name)
+        ids.append(specialty.id)
+        if created:
+            print(f'Created structural unit "{specialty.name}".')
 
     name_to_id = {name: id_ for name, id_ in zip(names_arr, ids)}
 
     df[SPECIALTY_ID] = df[SPECIALTY_NAME].apply(lambda name: name_to_id[name])
-    #df['specialty'] = df['specialty ID'].apply(lambda id_: Specialty.objects.get(id=id_))
 
 
 def load_student(row):
+    FORM_OF_STUDY_DICT = {name: code for code, name in Student.FORM_OF_STUDY_CHOICES}
+    EDUCATIONAL_DEGREE_DICT = {name: code for code, name in Student.EDUCATIONAL_DEGREE_CHOICES}
+
     full_name = row[FULL_NAME]
     structural_unit_id = row[STRUCTURAL_UNIT_ID]
     specialty_id = row[SPECIALTY_ID]
@@ -65,21 +73,31 @@ def load_student(row):
     ticket_number = row[TICKET_NUMBER]
 
     # checks
-    # TODO
+    form_of_study_code = FORM_OF_STUDY_DICT[form_of_study]
+    educational_degree_code = EDUCATIONAL_DEGREE_DICT[educational_degree]
 
     # write into db
     student, created = Student.objects.get_or_create(
         full_name=full_name,
         structural_unit_id=structural_unit_id,
         specialty_id=specialty_id,
-        educational_degree=educational_degree,
+        educational_degree=educational_degree_code,
         year=year,
-        form_of_study=form_of_study,
-        ticket_number=ticket_number,
+        form_of_study=form_of_study_code,
+        ticket_number=None if pd.isna(ticket_number) else ticket_number,
     )
 
     return student.id
 
 
 def load_students(df: pd.DataFrame):
-    df[STUDENT_ID] = df.apply(load_student)
+    for i, row in df.iterrows():
+        load_student(row)
+
+
+def load_from(filename: str):
+    file_path = os.path.join(settings.BASE_DIR, filename)
+    df = read_csv(file_path=file_path)
+    load_structural_units(df)
+    load_specialties(df)
+    load_students(df)
