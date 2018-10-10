@@ -53,7 +53,7 @@ export default class extends React.Component {
 
         <MuiThemeProvider theme={THEME}>
           <div className="header-and-content">
-            <Header auth={this.state.auth} baseUrl={BASE_URL} />
+            <Header auth={this.state.auth} baseUrl={BASE_URL} onCloseSessions={this.closeSessions.bind(this)} />
             <BarLoader
               color="rgba(33, 150, 243, 0.8)"
               className={spinnerStyles}
@@ -65,7 +65,7 @@ export default class extends React.Component {
 
             <div className="content">
               {loggedIn && !this.state.sessionIsOpen &&
-                <OpenNewSession onSessionOpen={this.openSession.bind(this)} />
+                <OpenNewSession onSessionOpen={this.openSession.bind(this)} loading={loading}/>
               }
 
               {loggedIn && this.state.sessionIsOpen &&

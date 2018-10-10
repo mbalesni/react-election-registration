@@ -146,10 +146,11 @@ export default class StudentFinder extends React.Component {
             />
 
             <Button
-              className="search-btn"
-              variant="contained"
               color="primary"
+              className="search-btn"
+              disabled={this.props.loading}
               onClick={this.handleSubmit.bind(this)}
+              variant="contained"
             >
               <i className="fas fa-address-book" style={iconRight}></i>
               знайти

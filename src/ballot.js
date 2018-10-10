@@ -13,7 +13,7 @@ export default class Ballot extends React.Component {
     }
 
     render() {
-        const { number, status } = this.props
+        const { number, status, loading, onCancel, onComplete } = this.props
         const numberArr = number.toString().match(/.{1,2}/g)
 
         return (
@@ -27,8 +27,8 @@ export default class Ballot extends React.Component {
                             </div>
                         </div>
                         <div className="check-in-controls">
-                            <Button onClick={this.props.onCancel} color="secondary">скасувати</Button>
-                            <Button onClick={this.props.onComplete} variant="contained" color="primary">видано</Button>
+                            <Button disabled={loading} onClick={onCancel} color="secondary">скасувати</Button>
+                            <Button disabled={loading} onClick={onComplete} variant="contained" color="primary">видано</Button>
                         </div>
                     </div>
                 </div>

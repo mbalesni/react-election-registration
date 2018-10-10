@@ -57,7 +57,7 @@ export default class CheckIn extends React.Component {
               {this.props.foundStudents.length > 0 &&
                 <Button onClick={this.handleGoBack.bind(this)} variant="flat" color="primary">назад</Button>
               }
-              <Button onClick={this.props.onCancelSession} color="secondary">скасувати</Button>
+              <Button disabled={this.props.loading} onClick={this.props.onCancelSession} color="secondary">скасувати</Button>
             </div>
 
 
@@ -70,10 +70,11 @@ export default class CheckIn extends React.Component {
 
             {this.props.foundStudents.length < 1 &&
               <StudentFinder
+                activeStudent={this.props.activeStudent}
                 onScanStart={this.props.onScanStart.bind(this)}
                 onScanCancel={this.props.onScanCancel}
                 onSearchByName={this.props.onSearchByName}
-                activeStudent={this.props.activeStudent}
+                loading={this.props.loading}
               />
             }
 
@@ -105,6 +106,7 @@ export default class CheckIn extends React.Component {
             number={ballotNumber}
             onComplete={this.props.onCompleteSession}
             onCancel={this.props.onCancelSession}
+            loading={this.props.loading}
             status={status}
           />
         }
