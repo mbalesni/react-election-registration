@@ -65,7 +65,7 @@ export default class extends React.Component {
 
             <div className="content">
               {loggedIn && !this.state.sessionIsOpen &&
-                <OpenNewSession onSessionOpen={this.openSession.bind(this)} loading={loading}/>
+                <OpenNewSession onSessionOpen={this.openSession.bind(this)} loading={loading} />
               }
 
               {loggedIn && this.state.sessionIsOpen &&
@@ -375,7 +375,7 @@ export default class extends React.Component {
 
   onSessionEnd() {
     message.destroy()
-    this.searchStudentByTicketNumberStarted = false
+    this.studentSubmitted = false
     this.setState(initialState)
     this.getAuth()
     try {
@@ -418,9 +418,12 @@ export default class extends React.Component {
     Quagga.onDetected((data) => {
       const result = data.codeResult.code
       if (result.length === 8) {
-        message.destroy()
+        // prevent multi-requests
+        if (this.studentSubmitted) return
 
-        Quagga.stop()
+        this.studentSubmitted = true
+        message.destroy()
+        Quagga.stop()       
 
         let activeStudent = this.state.activeStudent
         activeStudent.docNumber = result
