@@ -199,7 +199,7 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
     try:
         try:
             if getattr(view_func, REQUIRE_SESSION_MARK):
-                do_raise = not getattr(view_args, SILENT_TOKEN_EXPIRE_MARK)
+                do_raise = not getattr(view_func, SILENT_TOKEN_EXPIRE_MARK)
                 session_before = request.elists_cisi.retrieve_session(raise_=do_raise)
 
             out_data = view_func(request, *view_args, **view_kwargs)
