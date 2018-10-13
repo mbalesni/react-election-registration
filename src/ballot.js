@@ -9,7 +9,7 @@ import './css/ballot.css'
 
 export default class Ballot extends React.Component {
     numberBoxes(numArr) {
-        return numArr.map(num => <NumberBox number={num} />)
+        return numArr.map((num, index) => <NumberBox key={index} number={num} />)
     }
 
     render() {
