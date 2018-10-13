@@ -62,10 +62,10 @@ def dump_table(self):
     dt_now = timezone.make_naive(timezone.now())
     df = CheckInSession.dump_table()
 
-    notifier_bot.send_message(f'Копія бази чек-ін сесій станом на {dt_now.strftime("%H:%M")}')
     notifier_bot.send_doc(
         file_obj=io.BytesIO(df.to_csv(index=False).encode('utf-8')),
         file_name=dt_now.strftime('check-in_sessions_%H-%M.csv'),
+        caption=f'Копія бази чек-ін сесій станом на {dt_now.strftime("%H:%M")}',
     )
 
     log.info(f'Successfully dumped check-in sessions table.')
@@ -79,12 +79,10 @@ def dump_registered(self):
     dt_now = timezone.make_naive(timezone.now())
     df = CheckInSession.dump_registered_students()
 
-    notifier_bot.send_message(
-        f'Список зареєстрованих студентів станом на {dt_now.strftime("%H:%M")}'
-    )
     notifier_bot.send_doc(
         file_obj=io.BytesIO(df.to_csv(index=False).encode('utf-8')),
         file_name=dt_now.strftime("registered_students_%H-%M.csv"),
+        caption=f'Список зареєстрованих студентів станом на {dt_now.strftime("%H:%M")}',
     )
 
     log.info(f'Successfully created mini-dump of registered students.')

@@ -513,8 +513,10 @@ class CheckInSession(models.Model):
             ],
         })
 
-        df = df.sort_values(by=['Освітній рівень', 'Курс', 'ПІБ студента'])
-        return df
+        df = df.sort_values(by=['Час останнього оновлення', 'ПІБ студента'])
+        df['№'] = tuple(range(1, df.shape[0] + 1))
+
+        return df[['№', 'Час останнього оновлення', 'Номер бюлетеня', 'ПІБ студента', 'Освітній рівень', 'Курс']]
 
     @classmethod
     def collect_stats(cls) -> dict:
@@ -530,3 +532,14 @@ class CheckInSession(models.Model):
             'ignored': ignored_elections,
         }
         return stats
+
+    @classmethod
+    def make_report(cls) -> pd.DataFrame:
+        registered_df = CheckInSession.dump_registered_students()
+        df = registered_df.copy()
+
+        df = df.sort_values(by=['Освітній рівень', 'Курс', 'ПІБ студента'])
+        df['№'] = tuple(range(1, df.shape[0] + 1))
+        df['Час видачі бюлетеня'] = df['Час останнього оновлення']
+
+        return df[['№', 'ПІБ студента', 'Освітній рівень', 'Курс', 'Час видачі бюлетеня', 'Номер бюлетеня']]
