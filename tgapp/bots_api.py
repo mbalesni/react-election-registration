@@ -36,11 +36,12 @@ class TGBot(metaclass=abc.ABCMeta):
             timeout=60,
         )
 
-    def _send_doc(self, file_obj, file_name: str, *, chat_id: int):
+    def _send_doc(self, file_obj, file_name: str, caption: str, *, chat_id: int):
         self._bot.send_document(
             chat_id=chat_id,
             document=file_obj,
             filename=file_name,
+            caption=caption,
             timeout=60,
         )
 
@@ -98,10 +99,11 @@ class NotifierBot(TGBot):
             content=message,
         )
 
-    def send_doc(self, file_obj, file_name: str):
+    def send_doc(self, file_obj, file_name: str, caption: str=None):
         self._send_doc(
             file_obj=file_obj,
             file_name=file_name,
+            caption=caption,
             chat_id=self._chat_id,
         )
 
