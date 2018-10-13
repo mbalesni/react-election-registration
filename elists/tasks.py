@@ -1,6 +1,9 @@
 import io
 import logging
+import os
 
+import matplotlib.pyplot
+import matplotlib.table
 from django.conf import settings
 from django.utils import timezone
 
@@ -86,4 +89,47 @@ def dump_registered(self):
     )
 
     log.info(f'Successfully created mini-dump of registered students.')
+    return df.to_dict(orient='list', into=dict)
+
+
+@app.task(bind=True, name='elists.make_pdf_report')
+def make_pdf_report(self):
+    log.debug(f'making pdf report...')
+
+    dt_now = timezone.make_naive(timezone.now())
+    df = CheckInSession.make_report()
+
+    os.environ['MLPBACKEND'] = 'agg'
+    ax = matplotlib.pyplot.subplot(111, frame_on=False)  # no visible frame
+    ax.xaxis.set_visible(False)  # hide the x axis
+    ax.yaxis.set_visible(False)  # hide the y axis
+    matplotlib.table.table(
+        ax,
+        cellText=df.values,
+        rowLabels=None,
+        colLabels=df.columns,
+        colWidths=[0.05, 0.3, 0.15, 0.1, 0.2, 0.2],
+        cellLoc='left',
+        loc='center',
+    )
+
+    buf = io.BytesIO()
+    matplotlib.pyplot.savefig(
+        buf,
+        format='pdf',
+        #papertype='a4',
+        #quality=95,
+        orientation='portrait',
+        bbox_inches='tight',
+    )
+    buf.seek(0)
+    matplotlib.pyplot.close()
+
+    notifier_bot.send_doc(
+        file_obj=buf,
+        file_name='report_23-10-18.pdf',
+        caption=f'Протокол виборів делегатів до КСУ 23 жовтня 2018 року',
+    )
+
+    log.info('Successfully sent PDF report.')
     return df.to_dict(orient='list', into=dict)
