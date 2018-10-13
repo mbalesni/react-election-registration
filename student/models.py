@@ -232,14 +232,16 @@ class Student(models.Model):
 
         self.status = status
         self.status_update_dt = get_current_naive_datetime()
-        log.info(f'Student #{self.id} updated status: [{self.status}] {self.status_verbose}')
+        log.info(
+            f'Student #{self.id} ("{self.full_name}") updated status: '
+            f'[{self.status}] {self.status_verbose}'
+        )
         self.save()
 
     def change_status_in_progress(self):
         self._update_status(self.STATUS_IN_PROGRESS)
 
     def change_status_free(self):
-
         self._update_status(self.STATUS_FREE)
 
     def change_status_voted(self):

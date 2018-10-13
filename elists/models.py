@@ -234,7 +234,7 @@ class CheckInSession(models.Model):
 
         # nothing to validate
         new_check_in_session.save()
-        log.info(f'Started check-in session #{new_check_in_session.id} by @{staff.username}')
+        log.info(f'Started new check-in session #{new_check_in_session.id} by @{staff.username}')
         return new_check_in_session
 
     @classmethod
@@ -299,7 +299,7 @@ class CheckInSession(models.Model):
         self.save()
         self.student.change_status_in_progress()
         log.info(
-            f'Assigned {student} to check-in session #{self.id} by @{self.staff.username} '
+            f'Assigned "{student.full_name}" to check-in session #{self.id} by @{self.staff.username} '
             f'with ballot number {self.show_ballot_number()}'
         )
         return self
@@ -316,7 +316,7 @@ class CheckInSession(models.Model):
 
         self.save()
         self.student.change_status_voted()
-        log.info(f'Completed #{self.id} by @{self.staff.username}')
+        log.info(f'Completed check-in session #{self.id} by @{self.staff.username}')
         return self
 
     def cancel(self) -> 'CheckInSession':
@@ -332,7 +332,7 @@ class CheckInSession(models.Model):
         self.save()
         if self.student:
             self.student.change_status_free()
-        log.info(f'Canceled #{self.id} by @{self.staff.username}')
+        log.info(f'Canceled check-in session #{self.id} by @{self.staff.username}')
         return self
 
     def create_token(self) -> str:

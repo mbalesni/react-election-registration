@@ -183,6 +183,7 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
     staff = request.user
     if not staff.is_staff:
         log.warning(f'Forbidden request to {endpoint} from {user_ip}')
+        async_notify(f'Forbidden request to {endpoint} from {user_ip}')
         return HttpResponseForbidden(b'Please, log in to access this page')
 
     # read body

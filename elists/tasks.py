@@ -15,7 +15,7 @@ log = logging.getLogger('elists.tasks')
 
 
 @app.task(bind=True, name='elists.cancel_idle_checkin_sessions')
-def cancel_obsolete_checkin_sessions(self, td_seconds: int =None):
+def cancel_idle_checkin_sessions(self, td_seconds: int =None):
     if td_seconds is None:
         td_seconds = settings.ELISTS_CHECKINSESSION_OBSOLETE_TDS
     td = timezone.timedelta(seconds=td_seconds)
@@ -29,7 +29,11 @@ def cancel_obsolete_checkin_sessions(self, td_seconds: int =None):
         obj: CheckInSession
         async_notify(f'{obj} буде відмінена.', digest='canceling check-in session')
         obj.cancel()
-        log.info(f'Canceled "{obj}" due to its age.')
+        log.info(
+            f'Canceled check-in session #{obj.id} '
+            f'(started at {obj.start_dt.strftime("%H:%M")} by @{obj.staff.username}) '
+            f'due to its age.'
+        )
 
 
 @app.task(bind=True, name='elists.collect_statistics')
@@ -53,8 +57,8 @@ def collect_statistics(self):
         f'{" " * (FIRST_COLUMN_LENGTH - 2)}{df.to_string(index=False)}'
         f'```'
     )
-    async_notify(msg, digest='check-in session stats')
-    log.info(f'Successfully collected check-in session stats.')
+    async_notify(msg, digest='staff stats')
+    log.info(f'Successfully collected staff stats.')
     return df.to_dict(orient='list', into=dict)
 
 
@@ -68,7 +72,8 @@ def dump_table(self):
     notifier_bot.send_doc(
         file_obj=io.BytesIO(df.to_csv(index=False).encode('utf-8')),
         file_name=dt_now.strftime('check-in_sessions_%H-%M.csv'),
-        caption=f'Копія бази чек-ін сесій станом на {dt_now.strftime("%H:%M")}',
+        caption=f'Копія бази чек-ін сесій станом на '
+                f'{dt_now.strftime("%H:%M")} #checkin_session_dump',
     )
 
     log.info(f'Successfully dumped check-in sessions table.')
@@ -85,7 +90,8 @@ def dump_registered(self):
     notifier_bot.send_doc(
         file_obj=io.BytesIO(df.to_csv(index=False).encode('utf-8')),
         file_name=dt_now.strftime("registered_students_%H-%M.csv"),
-        caption=f'Список зареєстрованих студентів станом на {dt_now.strftime("%H:%M")}',
+        caption=f'Список зареєстрованих студентів станом на '
+                f'{dt_now.strftime("%H:%M")} #registered_dump',
     )
 
     log.info(f'Successfully created mini-dump of registered students.')
@@ -128,7 +134,7 @@ def make_pdf_report(self):
     notifier_bot.send_doc(
         file_obj=buf,
         file_name='report_23-10-18.pdf',
-        caption=f'Протокол виборів делегатів до КСУ 23 жовтня 2018 року',
+        caption=f'Протокол виборів делегатів до КСУ 23 жовтня 2018 року #report',
     )
 
     log.info('Successfully sent PDF report.')
