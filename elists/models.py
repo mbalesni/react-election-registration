@@ -341,7 +341,7 @@ class CheckInSession(models.Model):
 
     def show_ballot_number(self) -> str:
         if not self.ballot_number:
-            return 'Н/Д'
+            return '-'
         bn = str(self.ballot_number)
         return f'{bn[:2]}-{bn[2:4]}-{bn[4:6]}-{bn[6:]}'
 
@@ -496,6 +496,10 @@ class CheckInSession(models.Model):
         dbid_to_ballot_number = get_ballot_match()
         registered = origin[origin['status'] == Student.STATUS_VOTED]
 
+        # check
+        if set(registered['id']).difference(set(dbid_to_ballot_number.keys())) != set():
+            raise RuntimeError('Not all students with status "voted" has related check-in session.')
+
         df = pd.DataFrame({
             'ПІБ студента'            : registered['full_name'],
             'Освітній рівень'         : [
@@ -504,11 +508,11 @@ class CheckInSession(models.Model):
             ],
             'Курс'                    : registered['year'],
             'Номер бюлетеня'          : [
-                dbid_to_ballot_number.get(dbid, '-')
+                dbid_to_ballot_number[dbid]
                 for dbid in registered['id']
             ],
             'Час останнього оновлення': [
-                timezone.make_naive(dt).strftime('%H:%M') if not pd.isna(dt) else '-'
+                timezone.make_naive(dt).strftime('%H:%M')
                 for dt in registered['status_update_dt']
             ],
         })
