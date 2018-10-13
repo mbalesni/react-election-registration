@@ -1,6 +1,9 @@
 import React from 'react'
 import axios from 'axios'
-import Raven from 'react-raven'
+
+// import Raven from 'react-raven'
+import Raven from 'raven-js'
+
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import Quagga from 'quagga'
 import { QUAGGA_OPTIONS } from './plugins/quagga-options.js'
@@ -48,8 +51,6 @@ export default class extends React.Component {
 
     return (
       <div className="page-content-wrapper " >
-
-        <Raven dsn={SENTRY_DSN} />
 
         <MuiThemeProvider theme={THEME}>
           <div className="header-and-content">
@@ -306,6 +307,10 @@ export default class extends React.Component {
     })
   }
 
+  componentDidCatch(err, errInfo) {
+    Raven.captureException(err, { extra: errInfo });
+  }
+
   handleError(err, code) {
     let errData = err
     // console.log(err.message)
@@ -316,7 +321,7 @@ export default class extends React.Component {
         case 400:
           if (err.response.data && err.response.data.error) {
             code = err.response.data.error.code
-            errData = err.response.data.error.message
+            errData = err.response.data.error.name
           } else {
             code = 300
             errData = err.response
@@ -335,6 +340,8 @@ export default class extends React.Component {
       code = 300
       errData = err.message
     }
+
+    Raven.captureException(new Error(`errno: ${code} – ${errData}`))
 
     console.warn('Error data: ', errData)
     console.warn('Error code: ', code)
@@ -423,7 +430,7 @@ export default class extends React.Component {
 
         this.studentSubmitted = true
         message.destroy()
-        Quagga.stop()       
+        Quagga.stop()
 
         let activeStudent = this.state.activeStudent
         activeStudent.docNumber = result
