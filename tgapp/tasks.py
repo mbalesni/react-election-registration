@@ -40,7 +40,7 @@ def reset_passwords(self, usernames: tuple):
         return ''.join(random.choice(chars) for x in range(size))
 
     username_to_chat_id = passwords_bot.match_username_to_chat_id(usernames=usernames)
-    not_found_usernames = set(username_to_chat_id.keys()).symmetric_difference(set(usernames))
+    not_found_usernames = set(usernames).difference(set(username_to_chat_id.keys()))
     if not_found_usernames:
         error_msg = (
             f'Can not reset passwords: Telegram private chat not found for '
@@ -81,7 +81,7 @@ def reset_passwords(self, usernames: tuple):
 
     success_msg = (
         f'Successfully reset passwords and sent messages:\n' +
-        "\n".join(f'@{un} - {pw}...' for un, pw in username_to_password_hash.items())
+        "\n".join(f'@{un} - `{pw}...`' for un, pw in username_to_password_hash.items())
     )
     log.info(success_msg)
     notify(success_msg, digest='reset passwords success')
