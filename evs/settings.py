@@ -239,6 +239,9 @@ CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 ELISTS_CHECKINSESSION_TOKEN_EXPIRE = 2 * 60  # 120 seconds == 2 minutes
 ELISTS_CHECKINSESSION_OBSOLETE_TDS = 10 * 60  # 600 seconds == 10 minutes
 
+# Student APP
+STUDENT_STUDENT_MAX_SEARCH_RESULTS = 5
+
 # Grappelli
 GRAPPELLI_SWITCH_USER = False
 GRAPPELLI_ADMIN_TITLE = 'EVS Адміністрування'

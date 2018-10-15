@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from elists.utils import get_current_naive_datetime
 from errorsapp import exceptions as wfe
+from evs import settings
 
 log = logging.getLogger('student.models')
 
@@ -205,8 +206,12 @@ class Student(models.Model):
         students = cls.objects.filter(
             full_name__lower__trigram_similar=full_name,
         )
+
         if not students:
             raise wfe.StudentNameNotFound()
+        if len(students) > settings.STUDENT_STUDENT_MAX_SEARCH_RESULTS:
+            raise wfe.StudentTooManySearchResults()
+
         return tuple(students)
 
     @classmethod

@@ -168,5 +168,9 @@ class StudentNameNotFound(BaseUserError):
 class ElectionsTimeLimitReached(BaseUserError):
     code = 510
 
+
+class StudentTooManySearchResults(BaseUserError):
+    code = 511
+
 # end of user errors
 # ==================
