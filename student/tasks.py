@@ -30,9 +30,9 @@ def collect_statistics(self):
 
     log.debug(f'collect_statistics: sending telegram message...')
     tg_msg = (
-        f'-- Статистика станом на {dt.strftime("%H:%M")} --'
-        f'```'
-        f'* Всього проголосувало {total_voted} студентів'
+        f'-- Статистика станом на {dt.strftime("%H:%M")} --\n'
+        f'```\n'
+        f'* Всього проголосувало {total_voted} студентів\n'
         f'```'
         f'#student_stats'
     )

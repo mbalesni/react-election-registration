@@ -10,20 +10,24 @@ log = logging.getLogger('tgapp.tasks')
 
 
 def digest_to_hashtag(digest: str) -> str:
-    return digest.lower().replace(' ', '_').replace('-', '_')
+    return ''.join(e.capitalize() for e in digest.replace('-', ' ').split(' '))
 
 
 @app.task(bind=True, name='tgapp.notify')
 def notify(self, message: str, digest: str):
-    log.debug(f'sending notifier to "{digest}" {notifier_bot.chat_id} ::\n{message[:32]}...')
-    notifier_bot.send_message(message=message+f'\n#{digest_to_hashtag(digest)}')
+    log.debug(f'sending notifier to "{digest}" {notifier_bot.chat_id} ::\n{message[:79]}\n...')
+    notifier_bot.send_message(
+        message=message + f'\n#{digest_to_hashtag(digest)}',
+    )
     log.info(f'Successfully notified "{digest}" to {notifier_bot.chat_id}')
 
 
 @app.task(bind=True, name='tgapp.publish')
 def publish(self, message: str, digest: str):
-    log.debug(f'publishing message "{digest}" to {notifier_bot.chat_id} ::\n{message[:32]}...')
-    publisher_bot.send_message(message=message+f'\n#{digest_to_hashtag(digest)}')
+    log.debug(f'publishing message "{digest}" to {notifier_bot.chat_id} ::\n{message[:79]}\n...')
+    publisher_bot.send_message(
+        message=message + f'\n#{digest_to_hashtag(digest)}',
+    )
     log.info(f'Successfully published "{digest}" to {notifier_bot.chat_id}')
 
 
@@ -40,7 +44,7 @@ def reset_passwords(self, usernames: tuple):
     if not_found_usernames:
         error_msg = (
             f'Can not reset passwords: Telegram private chat not found for '
-            f'{", ".join("@"+un for un in usernames)}'
+            f'{" , ".join("@"+un for un in usernames)}'
         )
         log.error(error_msg)
         notify(error_msg, digest='reset passwords failed')
@@ -56,7 +60,7 @@ def reset_passwords(self, usernames: tuple):
         try:
             staff = Staff.objects.get(username=username)
         except Staff.DoesNotExist:
-            error_msg = f'Can not reset passwords: staff account with username "{username}" does not exist.'
+            error_msg = f'Can not reset passwords: staff account with username @{username} does not exist.'
             log.error(error_msg)
             notify(error_msg, digest='reset passwords failed')
             return error_msg
@@ -76,9 +80,8 @@ def reset_passwords(self, usernames: tuple):
     )
 
     success_msg = (
-        f'Successfully reset passwords for {", ".join("@"+un for un in usernames)} '
-        f'and sent messages:\n' +
-        "\n".join(f'@{un} - {pw}' for un, pw in username_to_password_hash.items())
+        f'Successfully reset passwords and sent messages:\n' +
+        "\n".join(f'@{un} - {pw}...' for un, pw in username_to_password_hash.items())
     )
     log.info(success_msg)
     notify(success_msg, digest='reset passwords success')

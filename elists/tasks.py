@@ -8,7 +8,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from evs.celeryapp import app
-from tgapp.tasks import async_notify, notifier_bot
+from tgapp.tasks import notify, notifier_bot
 from .models import CheckInSession
 
 log = logging.getLogger('elists.tasks')
@@ -27,7 +27,7 @@ def cancel_idle_checkin_sessions(self, td_seconds: int =None):
 
     for obj in idle_sessions:
         obj: CheckInSession
-        async_notify(f'{obj} буде відмінена.', digest='canceling check-in session')
+        notify(f'{obj} буде відмінена.', digest='canceling check-in session')
         obj.cancel()
         log.info(
             f'Canceled check-in session #{obj.id} '
@@ -57,7 +57,7 @@ def collect_statistics(self):
         f'{" " * (FIRST_COLUMN_LENGTH - 2)}{df.to_string(index=False)}'
         f'```'
     )
-    async_notify(msg, digest='staff stats')
+    notify(msg, digest='staff stats')
     log.info(f'Successfully collected staff stats.')
     return df.to_dict(orient='list', into=dict)
 
@@ -73,7 +73,7 @@ def dump_table(self):
         file_obj=io.BytesIO(df.to_csv(index=False).encode('utf-8')),
         file_name=dt_now.strftime('check-in_sessions_%H-%M.csv'),
         caption=f'Копія бази чек-ін сесій станом на '
-                f'{dt_now.strftime("%H:%M")} #checkin_session_dump',
+                f'{dt_now.strftime("%H:%M")}\n#CheckInSessionDump',
     )
 
     log.info(f'Successfully dumped check-in sessions table.')
@@ -91,7 +91,7 @@ def dump_registered(self):
         file_obj=io.BytesIO(df.to_csv(index=False).encode('utf-8')),
         file_name=dt_now.strftime("registered_students_%H-%M.csv"),
         caption=f'Список зареєстрованих студентів станом на '
-                f'{dt_now.strftime("%H:%M")} #registered_dump',
+                f'{dt_now.strftime("%H:%M")}\n#RegisteredDump',
     )
 
     log.info(f'Successfully created mini-dump of registered students.')
@@ -134,7 +134,7 @@ def make_pdf_report(self):
     notifier_bot.send_doc(
         file_obj=buf,
         file_name='report_23-10-18.pdf',
-        caption=f'Протокол виборів делегатів до КСУ 23 жовтня 2018 року #report',
+        caption=f'Протокол виборів делегатів до КСУ 23 жовтня 2018 року\n#Report',
     )
 
     log.info('Successfully sent PDF report.')
