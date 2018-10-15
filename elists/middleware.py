@@ -24,7 +24,6 @@ from .models import Student, CheckInSession
 log = logging.getLogger('elists.api')
 
 REQUIRE_SESSION_MARK = 'elists__require_session'
-SILENT_TOKEN_EXPIRE_MARK = 'elists__silent_token_expire'
 
 
 def serialize_exception(exc: Exception) -> dict:
@@ -146,7 +145,7 @@ class EListsCheckInSessionInfo:
     def assign_session(self, session: CheckInSession):
         self._session = session
 
-    def retrieve_session(self, raise_: bool =True) -> CheckInSession:
+    def retrieve_session(self) -> CheckInSession:
         token = self._data.get(REQUEST_CHECK_IN_SESSION_TOKEN, None)
         if token is None:
             raise wfe.MissingCheckInSessionToken()
@@ -158,11 +157,10 @@ class EListsCheckInSessionInfo:
             # session = CheckInSession.get_session_by_staff(self.staff)
             # if session:
             #     session.cancel()
-            if raise_:
-                raise
-
-        self._session = session
-        return session
+            raise
+        else:
+            self._session = session
+            return session
 
 
 # created to abuse PyCharms type hints
@@ -200,8 +198,7 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
     try:
         try:
             if getattr(view_func, REQUIRE_SESSION_MARK):
-                do_raise = not getattr(view_func, SILENT_TOKEN_EXPIRE_MARK)
-                session_before = request.elists_cisi.retrieve_session(raise_=do_raise)
+                session_before = request.elists_cisi.retrieve_session()
 
             out_data = view_func(request, *view_args, **view_kwargs)
         except wfe.BaseWorkflowError:
@@ -212,7 +209,7 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
             async_notify(f'`elists.api` *middleware*\n{log_msg}', digest='api error')
             client.captureException()
             raise wfe.ProgrammingError() from exc
-    except wfe.CheckInSessionAlreadyClosed:
+    except (wfe.CheckInSessionAlreadyClosed, wfe.CheckInSessionTokenExpired):
         response_status_code = 200
         error = None
     except wfe.BaseWorkflowError as exc:
@@ -245,10 +242,9 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
     return response
 
 
-def api_wrap(*, require_session: bool =True, silent_token_expire: bool =False):
+def api_wrap(*, require_session: bool =True):
     def decorator(view):
         setattr(view, REQUIRE_SESSION_MARK, require_session)
-        setattr(view, SILENT_TOKEN_EXPIRE_MARK, silent_token_expire)
 
         def decorated(request, *view_args, **view_kwargs):
             r = process_view(request, view, view_args, view_kwargs)

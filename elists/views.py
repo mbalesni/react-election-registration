@@ -66,13 +66,13 @@ def complete_session(request: Request):
     session.complete()
 
 
-@api_wrap(silent_token_expire=True)
+@api_wrap()
 def cancel_session(request: Request):
     session = request.elists_cisi.session
     session.cancel()
 
 
-@api_wrap(require_session=False, silent_token_expire=True)
+@api_wrap(require_session=False)
 def close_sessions(request: Request):
     staff = request.elists_cisi.staff
     CheckInSession.close_sessions(staff)
