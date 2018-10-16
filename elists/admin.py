@@ -110,7 +110,7 @@ class CheckInSessionAdmin(admin.ModelAdmin):
             return ('status', 'doc_type', )
 
     def get_actions(self, request) -> OrderedDict:
-        if request.user.is_superuser and settings.DEBUG:
+        if settings.DEBUG:
             return super().get_actions(request)
         return OrderedDict()
 

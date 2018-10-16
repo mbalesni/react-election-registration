@@ -1,14 +1,14 @@
 import logging
 
+from errorsapp import exceptions as wfe
 from .constants import (
-    RESPONSE_STUDENT, RESPONSE_STUDENTS, RESPONSE_STAFF,
-    REQUEST_STUDENT_TICKET_NUMBER, REQUEST_STUDENT_DOC_NUM,
+    RESPONSE_STUDENTS, RESPONSE_STAFF,
+    REQUEST_STUDENT_DOC_NUM,
     REQUEST_STUDENT_DOC_TYPE, REQUEST_STUDENT_TOKEN, REQUEST_STUDENT,
     REQUEST_STUDENT_FULL_NAME, RESPONSE_BALLOT_NUMBER,
 )
 from .middleware import Request, api_wrap, serialize_student, serialize_staff
 from .models import CheckInSession, Student
-from errorsapp import exceptions as wfe
 
 log = logging.getLogger('elists.views')
 

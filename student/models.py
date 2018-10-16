@@ -1,21 +1,21 @@
-import typing
 import logging
+import typing
 
 from django.core import exceptions, signing
 from django.db import models
+from django.db.models.functions import Lower
 from django.utils import timezone
 
-# WorkFlow Errors
 from elists.utils import get_current_naive_datetime
 from errorsapp import exceptions as wfe
+from evs import settings
 
 log = logging.getLogger('student.models')
 
 
 ### validators
 def validate_student_full_name(value: str):
-    if not value.istitle() or \
-            len(value) <= 5 or \
+    if len(value) <= 5 or \
             len(value.split(' ')) < 1:
         raise exceptions.ValidationError(
             f'Full name must pass `istitle` check, '
@@ -202,11 +202,16 @@ class Student(models.Model):
         except (exceptions.ValidationError, ValueError) as exc:
             raise wfe.FullNameWrongFormat() from exc
 
+        models.CharField.register_lookup(Lower)
         students = cls.objects.filter(
-            full_name__trigram_similar=full_name,
+            full_name__lower__trigram_similar=full_name,
         )
+
         if not students:
             raise wfe.StudentNameNotFound()
+        if len(students) > settings.STUDENT_STUDENT_MAX_SEARCH_RESULTS:
+            raise wfe.StudentTooManySearchResults()
+
         return tuple(students)
 
     @classmethod
@@ -232,14 +237,16 @@ class Student(models.Model):
 
         self.status = status
         self.status_update_dt = get_current_naive_datetime()
-        log.info(f'Student #{self.id} updated status: [{self.status}] {self.status_verbose}')
+        log.info(
+            f'Student #{self.id} ("{self.full_name}") updated status: '
+            f'[{self.status}] {self.status_verbose}'
+        )
         self.save()
 
     def change_status_in_progress(self):
         self._update_status(self.STATUS_IN_PROGRESS)
 
     def change_status_free(self):
-
         self._update_status(self.STATUS_FREE)
 
     def change_status_voted(self):

@@ -2,8 +2,8 @@ import json
 import logging
 
 from django.http import JsonResponse, HttpRequest, HttpResponseForbidden
-from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from raven.contrib.django.raven_compat.models import client
 
 from errorsapp import exceptions as wfe
@@ -158,9 +158,9 @@ class EListsCheckInSessionInfo:
             # if session:
             #     session.cancel()
             raise
-
-        self._session = session
-        return session
+        else:
+            self._session = session
+            return session
 
 
 # created to abuse PyCharms type hints
@@ -174,13 +174,14 @@ class Request(HttpRequest):
 def process_view(request: Request, view_func, view_args, view_kwargs):
     endpoint = request.path.split('/')[-1]
     user_name = f'@{"ANON" if request.user.is_anonymous else request.user.username}'
-    user_ip = f"IP{request.META.get('HTTP_X_FORWARDED_FOR') or request.META.get('REMOTE_ADDR')}"
+    user_ip = f"ip{request.META.get('HTTP_X_FORWARDED_FOR') or request.META.get('REMOTE_ADDR')}"
 
     log.debug(f'request: {endpoint} {user_name} from {user_ip}')
 
     staff = request.user
     if not staff.is_staff:
         log.warning(f'Forbidden request to {endpoint} from {user_ip}')
+        async_notify(f'Forbidden request to {endpoint} from {user_ip}', digest='forbidden request')
         return HttpResponseForbidden(b'Please, log in to access this page')
 
     # read body
@@ -208,7 +209,7 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
             async_notify(f'`elists.api` *middleware*\n{log_msg}', digest='api error')
             client.captureException()
             raise wfe.ProgrammingError() from exc
-    except wfe.CheckInSessionAlreadyClosed:
+    except (wfe.CheckInSessionAlreadyClosed, wfe.CheckInSessionTokenExpired):
         response_status_code = 200
         error = None
     except wfe.BaseWorkflowError as exc:
@@ -241,7 +242,7 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
     return response
 
 
-def api_wrap(*, require_session=True):
+def api_wrap(*, require_session: bool =True):
     def decorator(view):
         setattr(view, REQUIRE_SESSION_MARK, require_session)
 

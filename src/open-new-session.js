@@ -14,7 +14,7 @@ export default function OpenNewSession(props) {
     <div className="card new-session-card">
       <img src={votingImg} alt="" />
       <div className="card-footer">
-        <Button variant="contained" color="primary" onClick={props.onSessionOpen}>
+        <Button disabled={props.loading} variant="contained" color="primary" onClick={props.onSessionOpen}>
           <i className={ICONS.userCheck} style={iconRight}></i>
           зареєструвати виборця
         </Button>

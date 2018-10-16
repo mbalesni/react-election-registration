@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from django.conf import settings
 from django.contrib import admin
 
 from .models import Student, StructuralUnit, Specialty
@@ -81,7 +82,7 @@ class StudentAdmin(admin.ModelAdmin):
     )
 
     def get_readonly_fields(self, request, obj=None):
-        if request.user.is_superuser or obj is None:
+        if settings.DEBUG or obj is None:
             return ('show_registration_time', )
         else:
             return self.readonly_fields

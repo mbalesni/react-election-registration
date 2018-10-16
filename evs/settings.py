@@ -216,7 +216,7 @@ LOGGING = {
 # Elections time limit
 ELECTIONS_DATEFMT = '%y-%m-%d %H:%M'
 ELECTIONS_START_DT = '18-10-23 14:00'
-ELECTIONS_END_DT = '18-10-23 19:20'
+ELECTIONS_END_DT = '18-10-23 19:30'
 ELECTIONS_ENABLE_TIME_LIMIT = env.bool('ELECTIONS_ENABLE_TIME_LIMIT')
 
 # Sessions & Cookies
@@ -239,6 +239,9 @@ CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 ELISTS_CHECKINSESSION_TOKEN_EXPIRE = 2 * 60  # 120 seconds == 2 minutes
 ELISTS_CHECKINSESSION_OBSOLETE_TDS = 10 * 60  # 600 seconds == 10 minutes
 
+# Student APP
+STUDENT_STUDENT_MAX_SEARCH_RESULTS = 5
+
 # Grappelli
 GRAPPELLI_SWITCH_USER = False
 GRAPPELLI_ADMIN_TITLE = 'EVS Адміністрування'
@@ -252,7 +255,7 @@ try:
     # release based on the git info.
     RAVEN_CONFIG['release'] = raven.fetch_git_sha(BASE_DIR)
 except:
-    RAVEN_CONFIG['release'] = env.str('RAVEN_RELEASE', default='onHeroku-0.3')
+    RAVEN_CONFIG['release'] = env.str('RAVEN_RELEASE', default='onHeroku-0.4')
 
 # CORS headers
 CORS_ALLOW_CREDENTIALS = True

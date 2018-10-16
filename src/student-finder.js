@@ -55,7 +55,7 @@ export default class StudentFinder extends React.Component {
     // true condition means error
     // string is error explanation
     return {
-      name: (name.length < MIN_LENGTH.name || !isTitle(name) || !hasSpaces(name)) && `Ім'я повинно бути ${MIN_LENGTH.name} або більше символів в довжину` || '',
+      name: (name.length < MIN_LENGTH.name || !hasSpaces(name)) && `Ім'я повинно бути ${MIN_LENGTH.name} або більше символів в довжину` || '',
     }
   }
 
@@ -146,10 +146,11 @@ export default class StudentFinder extends React.Component {
             />
 
             <Button
-              className="search-btn"
-              variant="contained"
               color="primary"
+              className="search-btn"
+              disabled={this.props.loading}
               onClick={this.handleSubmit.bind(this)}
+              variant="contained"
             >
               <i className="fas fa-address-book" style={iconRight}></i>
               знайти

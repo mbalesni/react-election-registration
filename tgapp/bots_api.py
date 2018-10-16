@@ -29,20 +29,42 @@ class TGBot(metaclass=abc.ABCMeta):
         return self._bot_token
 
     def _send_message(self, content: str, *, chat_id: int):
-        self._bot.send_message(
-            chat_id=chat_id,
-            text=content,
-            parse_mode=self.PARSE_MODE,
-            timeout=60,
-        )
+        try:
+            self._bot.send_message(
+                chat_id=chat_id,
+                text=content,
+                parse_mode=self.PARSE_MODE,
+                timeout=60,
+            )
+        except telegram.error.BadRequest as exc:
+            raise RuntimeError(f'Bad request on sending "{content}": {exc}') from None
+        except telegram.error.TimedOut as exc:
+            self._bot.send_message(
+                chat_id=chat_id,
+                text=content+'\n#retry',
+                parse_mode=self.PARSE_MODE,
+                timeout=60,
+            )
 
-    def _send_doc(self, file_obj, file_name: str, *, chat_id: int):
-        self._bot.send_document(
-            chat_id=chat_id,
-            document=file_obj,
-            filename=file_name,
-            timeout=60,
-        )
+    def _send_doc(self, file_obj, file_name: str, caption: str, *, chat_id: int):
+        try:
+            self._bot.send_document(
+                chat_id=chat_id,
+                document=file_obj,
+                filename=file_name,
+                caption=caption,
+                timeout=60,
+            )
+        except telegram.error.BadRequest as exc:
+            raise RuntimeError(f'Bad request on sending "{caption}" document: {exc}') from None
+        except telegram.error.TimedOut as exc:
+            self._bot.send_document(
+                chat_id=chat_id,
+                document=file_obj,
+                filename=file_name,
+                caption=caption+'\n#retry',
+                timeout=60,
+            )
 
 
 class UsernameBot(TGBot):
@@ -98,10 +120,11 @@ class NotifierBot(TGBot):
             content=message,
         )
 
-    def send_doc(self, file_obj, file_name: str):
+    def send_doc(self, file_obj, file_name: str, caption: str=None):
         self._send_doc(
             file_obj=file_obj,
             file_name=file_name,
+            caption=caption,
             chat_id=self._chat_id,
         )
 

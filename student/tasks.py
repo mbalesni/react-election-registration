@@ -1,4 +1,3 @@
-import io
 import logging
 import pprint
 
@@ -8,7 +7,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from evs.celeryapp import app
-from tgapp.tasks import async_publish, notifier_bot
+from tgapp.tasks import publish, notify
 from .models import Student
 
 log = logging.getLogger('student.tasks')
@@ -22,23 +21,23 @@ def collect_statistics(self):
     df = pd.read_sql_table(Student._meta.db_table, eng)
     dt = timezone.make_naive(timezone.now())
 
-    total_students = len(df)
     total_voted = len(df[df['status'] == Student.STATUS_VOTED])
 
     stats = {
         'datetime': dt.strftime(f'%H:%M'),
         'total_voted': total_voted,
-        'total_students': total_students,
     }
 
     log.debug(f'collect_statistics: sending telegram message...')
     tg_msg = (
-        f'-- Статистика станом на {dt.strftime("%H:%M")} --'
+        f'-- Статистика станом на {dt.strftime("%H:%M")} --\n'
+        f'```\n'
+        f'* Всього проголосувало {total_voted} студентів\n'
         f'```'
-        f'* Всього проголосувало {total_voted} студентів'
-        f'```'
+        f'#student_stats'
     )
-    async_publish(msg=tg_msg, digest='student stats', duplicate=True)
+    publish(message=tg_msg, digest='student stats')
+    notify(message=tg_msg, digest='student stats')
 
     log.info(
         f'collect_statistics: {pprint.pformat(stats)}')

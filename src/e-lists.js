@@ -1,6 +1,9 @@
 import React from 'react'
 import axios from 'axios'
-import Raven from 'react-raven'
+
+// import Raven from 'react-raven'
+import Raven from 'raven-js'
+
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import Quagga from 'quagga'
 import { QUAGGA_OPTIONS } from './plugins/quagga-options.js'
@@ -49,11 +52,9 @@ export default class extends React.Component {
     return (
       <div className="page-content-wrapper " >
 
-        <Raven dsn={SENTRY_DSN} />
-
         <MuiThemeProvider theme={THEME}>
           <div className="header-and-content">
-            <Header auth={this.state.auth} baseUrl={BASE_URL} />
+            <Header auth={this.state.auth} baseUrl={BASE_URL} onCloseSessions={this.closeSessions.bind(this)} />
             <BarLoader
               color="rgba(33, 150, 243, 0.8)"
               className={spinnerStyles}
@@ -65,7 +66,7 @@ export default class extends React.Component {
 
             <div className="content">
               {loggedIn && !this.state.sessionIsOpen &&
-                <OpenNewSession onSessionOpen={this.openSession.bind(this)} />
+                <OpenNewSession onSessionOpen={this.openSession.bind(this)} loading={loading} />
               }
 
               {loggedIn && this.state.sessionIsOpen &&
@@ -306,6 +307,10 @@ export default class extends React.Component {
     })
   }
 
+  componentDidCatch(err, errInfo) {
+    Raven.captureException(err, { extra: errInfo });
+  }
+
   handleError(err, code) {
     let errData = err
     // console.log(err.message)
@@ -316,7 +321,7 @@ export default class extends React.Component {
         case 400:
           if (err.response.data && err.response.data.error) {
             code = err.response.data.error.code
-            errData = err.response.data.error.message
+            errData = err.response.data.error.name
           } else {
             code = 300
             errData = err.response
@@ -335,6 +340,8 @@ export default class extends React.Component {
       code = 300
       errData = err.message
     }
+
+    Raven.captureException(new Error(`errno: ${code} – ${errData}`))
 
     console.warn('Error data: ', errData)
     console.warn('Error code: ', code)
@@ -375,7 +382,7 @@ export default class extends React.Component {
 
   onSessionEnd() {
     message.destroy()
-    this.searchStudentByTicketNumberStarted = false
+    this.studentSubmitted = false
     this.setState(initialState)
     this.getAuth()
     try {
@@ -418,8 +425,11 @@ export default class extends React.Component {
     Quagga.onDetected((data) => {
       const result = data.codeResult.code
       if (result.length === 8) {
-        message.destroy()
+        // prevent multi-requests
+        if (this.studentSubmitted) return
 
+        this.studentSubmitted = true
+        message.destroy()
         Quagga.stop()
 
         let activeStudent = this.state.activeStudent
