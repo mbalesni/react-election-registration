@@ -29,12 +29,15 @@ class TGBot(metaclass=abc.ABCMeta):
         return self._bot_token
 
     def _send_message(self, content: str, *, chat_id: int):
-        self._bot.send_message(
-            chat_id=chat_id,
-            text=content,
-            parse_mode=self.PARSE_MODE,
-            timeout=60,
-        )
+        try:
+            self._bot.send_message(
+                chat_id=chat_id,
+                text=content,
+                parse_mode=self.PARSE_MODE,
+                timeout=60,
+            )
+        except telegram.error.BadRequest as exc:
+            raise RuntimeError(f'Bad request on sending "{content}": {exc}') from None
 
     def _send_doc(self, file_obj, file_name: str, caption: str, *, chat_id: int):
         self._bot.send_document(
