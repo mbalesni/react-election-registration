@@ -255,7 +255,7 @@ try:
     # release based on the git info.
     RAVEN_CONFIG['release'] = raven.fetch_git_sha(BASE_DIR)
 except:
-    RAVEN_CONFIG['release'] = env.str('RAVEN_RELEASE', default='onHeroku-0.3')
+    RAVEN_CONFIG['release'] = env.str('RAVEN_RELEASE', default='onHeroku-0.4')
 
 # CORS headers
 CORS_ALLOW_CREDENTIALS = True
