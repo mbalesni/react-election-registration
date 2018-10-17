@@ -181,7 +181,7 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
     staff = request.user
     if not staff.is_staff:
         log.warning(f'Forbidden request to {endpoint} from {user_ip}')
-        async_notify(f'Forbidden request to {endpoint} from {user_ip}', digest='forbidden request')
+        async_notify(f'Forbidden request to `{endpoint}` from `{user_ip}`', digest='forbidden request')
         return HttpResponseForbidden(b'Please, log in to access this page')
 
     # read body
@@ -206,7 +206,7 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
         except Exception as exc:
             log_msg = f'Unexpected error ({endpoint} {user_name} {user_ip}): {str(exc)}'
             log.exception(log_msg)
-            async_notify(f'`elists.api` *middleware*\n{log_msg}', digest='api error')
+            async_notify(f'`elists.api` *middleware*\n```{log_msg}```', digest='api error')
             client.captureException()
             raise wfe.ProgrammingError() from exc
     except (wfe.CheckInSessionAlreadyClosed, wfe.CheckInSessionTokenExpired):
