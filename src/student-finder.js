@@ -55,7 +55,7 @@ export default class StudentFinder extends React.Component {
     // true condition means error
     // string is error explanation
     return {
-      name: (name.length < MIN_LENGTH.name || !hasSpaces(name)) && `Ім'я повинно бути ${MIN_LENGTH.name} або більше символів в довжину` || '',
+      name: (name.length < MIN_LENGTH.name) && `Ім'я повинно бути не коротше ${MIN_LENGTH.name} або більше символів в довжину` || '',
     }
   }
 
@@ -87,9 +87,8 @@ export default class StudentFinder extends React.Component {
         noErrors = false
 
         let text = ''
-        text += `${capitalize(field.label)} має бути довше ${MIN_LENGTH[field.name] - 1} символів`
+        text += `${capitalize(field.label)} має бути не коротше ${MIN_LENGTH[field.name]} символів`
 
-        if (field.name === 'name') text += `, починатися з великої літери, та включати пробіл`
         message.warn(text)
       }
 

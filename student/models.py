@@ -15,12 +15,10 @@ log = logging.getLogger('student.models')
 
 ### validators
 def validate_student_full_name(value: str):
-    if len(value) <= 5 or \
-            len(value.split(' ')) < 1:
+    if len(value) <= 5:
         raise exceptions.ValidationError(
-            f'Full name must pass `istitle` check, '
-            f'be longer than 5 symbols and'
-            f'contain at one space.')
+            f'Full name must pass `istitle` check.'
+        )
 
 
 def validate_student_ticket_number(value: int):
@@ -204,7 +202,7 @@ class Student(models.Model):
 
         models.CharField.register_lookup(Lower)
         students = cls.objects.filter(
-            full_name__lower__trigram_similar=full_name,
+            full_name__icontains=full_name,
         )
 
         if not students:
