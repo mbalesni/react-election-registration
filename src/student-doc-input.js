@@ -142,13 +142,14 @@ export class StudentDocInput extends React.Component {
                             <Input
                                 className="input doc-number"
                                 error={shouldMarkError('docNumber')}
-                                placeholder="Номер документа"
+                                placeholder={"Номер " + docNameByValue(value) }
                                 value={this.state.docNumber}
                                 fullWidth={true}
                                 onChange={this.handleDocNumberChange}
                                 onBlur={this.handleBlur('docNumber')}
                                 tabIndex="0"
                                 onKeyPress={this.handleSubmitOnEnter.bind(this)}
+                                startAdornment={byTicket && <span style={{marginTop: 6, marginRight: 3, opacity: .6}}>KB</span>}
                             />
 
                             {byTicket &&
@@ -187,4 +188,22 @@ export class StudentDocInput extends React.Component {
             </Fragment>
         )
     }
+}
+
+function docNameByValue(value) {
+    console.log('getting doc nam by value:', value)
+    let name
+    switch (value) {
+        case '0':
+            name = 'квитка'
+            break
+        case '1':
+            name = 'залікової книжки'
+            break
+        case '2':
+            name = 'довідки'
+            break
+    }
+    return name
+    
 }
