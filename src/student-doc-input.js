@@ -1,5 +1,7 @@
 import React from 'react'
 import { Button, Radio, RadioGroup, FormLabel, FormControl, FormControlLabel, Input } from '@material-ui/core'
+import IconButton from '@material-ui/core/IconButton'
+import PhotoCamera from '@material-ui/icons/PhotoCamera'
 import { message } from 'antd'
 import Video from './video.js'
 import './css/student-doc-input.css'
@@ -23,8 +25,6 @@ export class StudentDocInput extends React.Component {
     }
 
     handleChange = event => {
-        console.log(event)
-        console.log(event.target.value)
         this.setState({ value: event.target.value })
     }
 
@@ -85,6 +85,16 @@ export class StudentDocInput extends React.Component {
         this.setState({ docNumber })
     }
 
+    static getDerivedStateFromProps(nextProps, prevState) {
+        if (nextProps.activeStudent.docNumber && nextProps.activeStudent.docNumber !== prevState.docNumber) {
+            // this is setState equivalent
+            return ({
+                docNumber: nextProps.activeStudent.docNumber,
+                isScanning: false
+            }) 
+        } else return null
+    }
+
     render() {
         const { value, disabled } = this.state
         const docNumber = this.props.activeStudent.docNumber || this.state.docNumber || ''
@@ -126,8 +136,9 @@ export class StudentDocInput extends React.Component {
 
                     </FormControl>
 
-                    {!byTicket &&
+                    <div>
                         <div className="doc-number-field">
+
                             <Input
                                 className="input doc-number"
                                 error={shouldMarkError('docNumber')}
@@ -139,42 +150,36 @@ export class StudentDocInput extends React.Component {
                                 tabIndex="0"
                                 onKeyPress={this.handleSubmitOnEnter.bind(this)}
                             />
+
+                            {byTicket &&
+                                <IconButton
+                                    color="primary"
+                                    component="span"
+                                    style={{ marginTop: -6 }}
+                                    onClick={this.handleStartScan.bind(this)}
+                                >
+                                    <PhotoCamera />
+                                </IconButton>
+                            }
                         </div>
-                    }
+                    </div>
 
                 </div>
 
-
-
-
-                {byTicket &&
-                    <Button
-                        className="submit-btn"
-                        onClick={this.handleStartScan.bind(this)}
-                        variant="contained"
-                        color="primary"
-                    >
-                        <i className="fas fa-camera" style={iconRight}></i>
-                        сканувати
-                    </Button>
-                }
-
-                {!byTicket &&
-                    <Button
-                        className="submit-btn"
-                        variant="contained"
-                        color="primary"
-                        onClick={this.handleSubmit.bind(this)}
-                        disabled={disabled}
-                    >
-                        підтвердити
-                    </Button>
-                }
+                <Button
+                    className="submit-btn"
+                    variant="contained"
+                    color="primary"
+                    onClick={this.handleSubmit.bind(this)}
+                    disabled={disabled}
+                >
+                    підтвердити
+                </Button>
 
                 {byTicket &&
                     <Video
                         onCancel={this.handleCancelScan.bind(this)}
-                        show={this.state.isScanning && docNumber.length === 0}
+                        show={this.state.isScanning}
                         loading={this.props.loading}
                     />
                 }
