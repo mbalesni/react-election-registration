@@ -137,7 +137,7 @@ export class StudentDocInput extends React.Component {
                     </FormControl>
 
                     <div>
-                        <div className="doc-number-field">
+                        <div className="doc-number-field" style={{marginTop: 24 + (48 * value) }}>
 
                             <Input
                                 className="input doc-number"
