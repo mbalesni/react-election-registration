@@ -87,7 +87,7 @@ export default class StudentFinder extends React.Component {
         noErrors = false
 
         let text = ''
-        text += `${capitalize(field.label)} має бути не коротше ${MIN_LENGTH[field.name]} символів та мати пробіл`
+        text += `${capitalize(field.label)} має бути не коротше ${MIN_LENGTH[field.name]} символів.`
 
         message.warn(text)
       }
