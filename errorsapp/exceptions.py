@@ -172,5 +172,9 @@ class ElectionsTimeLimitReached(BaseUserError):
 class StudentTooManySearchResults(BaseUserError):
     code = 511
 
+
+class StudentWithSameDocumentExists(BaseUserError):
+    code = 512
+
 # end of user errors
 # ==================
