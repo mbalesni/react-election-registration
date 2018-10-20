@@ -55,7 +55,7 @@ export default class StudentFinder extends React.Component {
     // true condition means error
     // string is error explanation
     return {
-      name: (name.length < MIN_LENGTH.name) || !hasSpaces(name) && `Ім'я повинно бути не коротше ${MIN_LENGTH.name} або більше символів в довжину` || '',
+      name: (name.length < MIN_LENGTH.name) && `Ім'я повинно бути не коротше ${MIN_LENGTH.name} або більше символів в довжину` || '',
     }
   }
 
