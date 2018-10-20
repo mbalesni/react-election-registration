@@ -236,8 +236,8 @@ CELERY_RESULT_BACKEND = 'django-db'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 # ELists APP
-ELISTS_CHECKINSESSION_TOKEN_EXPIRE = 2 * 60  # 120 seconds == 2 minutes
-ELISTS_CHECKINSESSION_OBSOLETE_TDS = 10 * 60  # 600 seconds == 10 minutes
+ELISTS_CHECKINSESSION_TOKEN_EXPIRE = 5 * 60  # 300 seconds == 5 minutes
+ELISTS_CHECKINSESSION_OBSOLETE_TDS = 15 * 60  # 900 seconds == 15 minutes
 
 # Student APP
 STUDENT_STUDENT_MAX_SEARCH_RESULTS = 5
