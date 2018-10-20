@@ -209,7 +209,7 @@ def process_view(request: Request, view_func, view_args, view_kwargs):
             async_notify(f'`elists.api` *middleware*\n```{log_msg}```', digest='api error')
             client.captureException()
             raise wfe.ProgrammingError() from exc
-    except (wfe.CheckInSessionAlreadyClosed, wfe.CheckInSessionTokenExpired):
+    except (wfe.CheckInSessionAlreadyClosed, ):
         response_status_code = 200
         error = None
     except wfe.BaseWorkflowError as exc:
