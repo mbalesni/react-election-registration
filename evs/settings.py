@@ -52,6 +52,8 @@ GOVOTE_DOMAIN = 'govote.com.ua'
 
 ALLOWED_HOSTS = [GOVOTE_DOMAIN, BACKEND_DOMAIN, FRONTEND_DOMAIN, ]
 
+SECURE_SSL_REDIRECT = True
+
 
 # Application definition
 
@@ -277,6 +279,7 @@ if DEBUG:
     SESSION_EXPIRE_AT_BROWSER_CLOSE = False
     SESSION_SAVE_EVERY_REQUEST = False
     GRAPPELLI_SWITCH_USER = True
+    SECURE_SSL_REDIRECT = False
     ALLOWED_HOSTS += [
         '127.0.0.1',
         'localhost',
