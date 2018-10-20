@@ -14,6 +14,12 @@ const MIN_LENGTH = {
     '2': 3,     // certificate
 }
 
+const MAX_LENGTH = {
+    '0': 8,     // ticket
+    '1': 8,     // gradebook
+    '2': 8,     // certificate
+}
+
 
 export class StudentDocInput extends React.Component {
     state = {
@@ -32,7 +38,7 @@ export class StudentDocInput extends React.Component {
         const docType = this.state.value
         // true condition means error
         // string is error explanation
-        let result = docNumber.length < MIN_LENGTH[docType] && `Номер документа повинен бути довше ${MIN_LENGTH[docType] - 1} символів` || ''
+        let result = (docNumber.length < MIN_LENGTH[docType] || docNumber.length > MAX_LENGTH[docType]) && `Перевірте правильність номеру ${docNameByValue}.` || ''
         return result
     }
 
@@ -50,7 +56,7 @@ export class StudentDocInput extends React.Component {
 
         if (error) {
             let text = ''
-            text += `Номер документа має бути довше ${MIN_LENGTH[docType] - 1} символів`
+            text += `Перевірте правильність номеру ${docNameByValue(docType)}.`
 
             message.warn(text)
         } else {
@@ -116,6 +122,12 @@ export class StudentDocInput extends React.Component {
             fontSize: '18px'
         }
 
+        const startAdornment = {
+            marginTop: 6, 
+            marginRight: 3, 
+            opacity: .6,
+        }
+
         let byTicket = (value === '0')
 
         return (
@@ -149,7 +161,7 @@ export class StudentDocInput extends React.Component {
                                 onBlur={this.handleBlur('docNumber')}
                                 tabIndex="0"
                                 onKeyPress={this.handleSubmitOnEnter.bind(this)}
-                                startAdornment={byTicket && <span style={{marginTop: 6, marginRight: 3, opacity: .6}}>KB</span>}
+                                startAdornment={byTicket && <span style={startAdornment}>KB</span>}
                             />
 
                             {byTicket &&
@@ -191,7 +203,6 @@ export class StudentDocInput extends React.Component {
 }
 
 function docNameByValue(value) {
-    console.log('getting doc nam by value:', value)
     let name
     switch (value) {
         case '0':
