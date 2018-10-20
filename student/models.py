@@ -15,7 +15,7 @@ log = logging.getLogger('student.models')
 
 ### validators
 def validate_student_full_name(value: str):
-    if len(value) <= 5:
+    if len(value) < 5:
         raise exceptions.ValidationError(
             f'Full name must pass `istitle` check.'
         )
