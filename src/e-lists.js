@@ -361,6 +361,8 @@ export default class extends React.Component {
       })
       .catch(err => {
         this.handleError(err)
+        this.onSessionEnd()
+
       })
   }
 
