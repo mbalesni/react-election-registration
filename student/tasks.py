@@ -34,7 +34,6 @@ def collect_statistics(self):
         f'```\n'
         f'* Всього проголосувало {total_voted} студентів\n'
         f'```'
-        f'#student_stats'
     )
     publish(message=tg_msg, digest='student stats')
     notify(message=tg_msg, digest='student stats')
