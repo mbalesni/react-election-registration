@@ -108,6 +108,9 @@ export default class extends React.Component {
 
   getAuth() {
     axios.defaults.withCredentials = true
+    this.setState({
+      loading: true
+    })
 
     axios.post('/me', {})
       .then(res => {
@@ -123,7 +126,8 @@ export default class extends React.Component {
         this.setState({
           auth: {
             loggedIn: false
-          }
+          },
+          loading: false
         })
         window.location.href = `${BASE_URL}/admin/login?next=/elists/front`
 
