@@ -34,7 +34,8 @@ def load_structural_units(df: pd.DataFrame):
     names_arr = df[STRUCTURAL_UNIT_NAME].unique()
     ids = []
 
-    for name in names_arr:
+    names = tuple(filter(lambda e: not pd.isna(e), names_arr))
+    for name in names:
         structural_unit, created = StructuralUnit.objects.get_or_create(name=name)
         ids.append(structural_unit.id)
         if created:
@@ -42,14 +43,15 @@ def load_structural_units(df: pd.DataFrame):
 
     name_to_id = {name: id_ for name, id_ in zip(names_arr, ids)}
 
-    df[STRUCTURAL_UNIT_ID] = df[STRUCTURAL_UNIT_NAME].apply(lambda name: name_to_id[name])
+    df[STRUCTURAL_UNIT_ID] = df[STRUCTURAL_UNIT_NAME].apply(lambda name: None if pd.isna(name) else name_to_id[name])
 
 
 def load_specialties(df: pd.DataFrame):
     names_arr = df[SPECIALTY_NAME].unique()
     ids = []
 
-    for name in names_arr:
+    names = tuple(filter(lambda e: not pd.isna(e), names_arr))
+    for name in names:
         specialty, created = Specialty.objects.get_or_create(name=name)
         ids.append(specialty.id)
         if created:
@@ -57,7 +59,7 @@ def load_specialties(df: pd.DataFrame):
 
     name_to_id = {name: id_ for name, id_ in zip(names_arr, ids)}
 
-    df[SPECIALTY_ID] = df[SPECIALTY_NAME].apply(lambda name: name_to_id[name])
+    df[SPECIALTY_ID] = df[SPECIALTY_NAME].apply(lambda name: None if pd.isna(name) else name_to_id[name])
 
 
 def load_student(row):
@@ -86,8 +88,12 @@ def load_student(row):
         form_of_study=form_of_study_code,
         ticket_number=None if pd.isna(ticket_number) else ticket_number,
     )
+    student_id = student.id
 
-    return student.id
+    if created:
+        print(f'Created "{full_name}" #{student_id}')
+
+    return student_id
 
 
 def load_students(df: pd.DataFrame):

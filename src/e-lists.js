@@ -108,6 +108,9 @@ export default class extends React.Component {
 
   getAuth() {
     axios.defaults.withCredentials = true
+    this.setState({
+      loading: true
+    })
 
     axios.post('/me', {})
       .then(res => {
@@ -123,7 +126,8 @@ export default class extends React.Component {
         this.setState({
           auth: {
             loggedIn: false
-          }
+          },
+          loading: false
         })
         window.location.href = `${BASE_URL}/admin/login?next=/elists/front`
 
@@ -361,6 +365,8 @@ export default class extends React.Component {
       })
       .catch(err => {
         this.handleError(err)
+        this.onSessionEnd()
+
       })
   }
 
@@ -382,7 +388,7 @@ export default class extends React.Component {
 
   onSessionEnd() {
     message.destroy()
-    this.studentSubmitted = false
+    this.barcodeScanned = false
     this.setState(initialState)
     this.getAuth()
     try {
@@ -394,6 +400,7 @@ export default class extends React.Component {
 
   initScan() {
     this.setState({ loading: true })
+    this.barcodeScanned = false
     Quagga.init(
       { ...QUAGGA_OPTIONS, inputStream: { ...QUAGGA_OPTIONS.inputStream, target: document.querySelector('.scanner-container') } },
       (err) => {
@@ -426,9 +433,9 @@ export default class extends React.Component {
       const result = data.codeResult.code
       if (result.length === 8) {
         // prevent multi-requests
-        if (this.studentSubmitted) return
+        if (this.barcodeScanned) return
 
-        this.studentSubmitted = true
+        this.barcodeScanned = true
         message.destroy()
         Quagga.stop()
 
@@ -436,7 +443,7 @@ export default class extends React.Component {
         activeStudent.docNumber = result
         activeStudent.docType = '0'
         this.setState({ activeStudent })
-        this.submitStudent(activeStudent)
+        // this.submitStudent(activeStudent)
         message.success('Студентський квиток відскановано.')
 
       } else {

@@ -52,6 +52,8 @@ GOVOTE_DOMAIN = 'govote.com.ua'
 
 ALLOWED_HOSTS = [GOVOTE_DOMAIN, BACKEND_DOMAIN, FRONTEND_DOMAIN, ]
 
+SECURE_SSL_REDIRECT = True
+
 
 # Application definition
 
@@ -236,8 +238,8 @@ CELERY_RESULT_BACKEND = 'django-db'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 # ELists APP
-ELISTS_CHECKINSESSION_TOKEN_EXPIRE = 2 * 60  # 120 seconds == 2 minutes
-ELISTS_CHECKINSESSION_OBSOLETE_TDS = 10 * 60  # 600 seconds == 10 minutes
+ELISTS_CHECKINSESSION_TOKEN_EXPIRE = 5 * 60  # 300 seconds == 5 minutes
+ELISTS_CHECKINSESSION_OBSOLETE_TDS = 15 * 60  # 900 seconds == 15 minutes
 
 # Student APP
 STUDENT_STUDENT_MAX_SEARCH_RESULTS = 5
@@ -255,7 +257,7 @@ try:
     # release based on the git info.
     RAVEN_CONFIG['release'] = raven.fetch_git_sha(BASE_DIR)
 except:
-    RAVEN_CONFIG['release'] = env.str('RAVEN_RELEASE', default='onHeroku-0.4')
+    RAVEN_CONFIG['release'] = env.str('RAVEN_RELEASE', default='onHeroku-1.0')
 
 # CORS headers
 CORS_ALLOW_CREDENTIALS = True
@@ -277,6 +279,7 @@ if DEBUG:
     SESSION_EXPIRE_AT_BROWSER_CLOSE = False
     SESSION_SAVE_EVERY_REQUEST = False
     GRAPPELLI_SWITCH_USER = True
+    SECURE_SSL_REDIRECT = False
     ALLOWED_HOSTS += [
         '127.0.0.1',
         'localhost',

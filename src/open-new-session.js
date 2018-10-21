@@ -1,7 +1,8 @@
 import React from 'react';
 import Button from '@material-ui/core/Button';
 import { ICONS } from './icons.js'
-import votingImg from './img/voting.png'
+import votingImg from './img/hero.png'
+
 
 export default function OpenNewSession(props) {
   const iconRight = {

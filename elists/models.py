@@ -290,6 +290,26 @@ class CheckInSession(models.Model):
                 'msg': str(exc)
             })
 
+        # check uniqueness
+        try:
+            session_with_same_document: CheckInSession = CheckInSession.objects.get(
+                doc_num=doc_num,
+                doc_type=doc_type,
+            )
+        except self.DoesNotExist:
+            pass
+        else:
+            if session_with_same_document is not None:
+                raise wfe.StudentWithSameDocumentExists(
+                    context={
+                        'doc_num': doc_num,
+                        'doc_type': doc_type,
+                        'student__full_name': session_with_same_document.student.full_name,
+                        'student__last_update_dt': session_with_same_document.student.status_update_dt,
+                        'staff__username': session_with_same_document.staff.username,
+                    },
+                )
+
         self.student = student
         self.doc_type = doc_type
         self.doc_num = doc_num
