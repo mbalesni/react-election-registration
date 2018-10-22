@@ -295,6 +295,7 @@ class CheckInSession(models.Model):
             session_with_same_document: CheckInSession = CheckInSession.objects.get(
                 doc_num=doc_num,
                 doc_type=doc_type,
+                status=CheckInSession.STATUS_COMPLETED,
             )
         except self.DoesNotExist:
             pass
