@@ -56,7 +56,7 @@ export class StudentDocInput extends React.Component {
         if (error) {
             let text = ''
             text += `Перевірте правильність номеру ${docNameByValue(docType)}.`
-            
+
             console.warn(text)
             message.warn(text)
         } else {
@@ -95,7 +95,7 @@ export class StudentDocInput extends React.Component {
             return ({
                 docNumber: nextProps.activeStudent.docNumber,
                 isScanning: false
-            }) 
+            })
         } else return null
     }
 
@@ -121,8 +121,8 @@ export class StudentDocInput extends React.Component {
         // }
 
         const startAdornment = {
-            marginTop: 6, 
-            marginRight: 3, 
+            marginTop: 6,
+            marginRight: 3,
             opacity: .6,
         }
 
@@ -147,12 +147,13 @@ export class StudentDocInput extends React.Component {
                     </FormControl>
 
                     <div>
-                        <div className="doc-number-field" style={{marginTop: 24 + (48 * value) }}>
+                        <div className="doc-number-field" style={{ marginTop: 24 + (48 * value) }}>
 
                             <Input
                                 className="input doc-number"
+                                disabled={this.props.loading}
                                 error={shouldMarkError('docNumber')}
-                                placeholder={"Номер " + docNameByValue(value) }
+                                placeholder={"Номер " + docNameByValue(value)}
                                 value={this.state.docNumber}
                                 fullWidth={true}
                                 onChange={this.handleDocNumberChange}
@@ -216,5 +217,5 @@ function docNameByValue(value) {
             name = 'документа'
     }
     return name
-    
+
 }
