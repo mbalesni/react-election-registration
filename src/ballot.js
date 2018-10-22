@@ -1,7 +1,6 @@
 import React from 'react'
 import NumberBox from './number-box'
 import Button from '@material-ui/core/Button'
-import { ICONS } from './icons.js'
 import { Alert } from 'antd'
 
 import './css/ballot.css'

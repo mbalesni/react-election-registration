@@ -37,7 +37,7 @@ export class StudentDocInput extends React.Component {
         const docType = this.state.value
         // true condition means error
         // string is error explanation
-        let result = (docNumber.length < MIN_LENGTH[docType] || docNumber.length > MAX_LENGTH[docType]) && `Перевірте правильність номеру ${docNameByValue}.` || ''
+        let result = (docNumber.length < MIN_LENGTH[docType] || docNumber.length > MAX_LENGTH[docType]) ? `Перевірте правильність номеру ${docNameByValue}.` : ''
         return result
     }
 
@@ -114,11 +114,11 @@ export class StudentDocInput extends React.Component {
             return result
         }
 
-        const iconRight = {
-            marginRight: '8px',
-            marginBottom: '2px',
-            fontSize: '18px'
-        }
+        // const iconRight = {
+        //     marginRight: '8px',
+        //     marginBottom: '2px',
+        //     fontSize: '18px'
+        // }
 
         const startAdornment = {
             marginTop: 6, 
@@ -212,6 +212,8 @@ function docNameByValue(value) {
         case '2':
             name = 'довідки'
             break
+        default:
+            name = 'документа'
     }
     return name
     

@@ -3,7 +3,6 @@ import { ICONS } from './icons.js'
 import Button from '@material-ui/core/Button'
 import StudentFinder from './student-finder.js'
 import StudentInfo from './student-info.js'
-import SessionStatus from './session-status.js'
 import Ballot from './ballot.js'
 import { Alert } from 'antd'
 

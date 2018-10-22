@@ -41,6 +41,8 @@ export default class StudentInfo extends React.Component {
       case 2:
         buttonName = 'вже зареєстровано'
         break
+      default:
+        buttonName = 'зареєструвати'
     }
 
     return (
