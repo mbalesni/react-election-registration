@@ -27,8 +27,14 @@ def cancel_idle_checkin_sessions(self, td_seconds: int =None):
 
     for obj in idle_sessions:
         obj: CheckInSession
-        notify(f'{obj} буде відмінена.', digest='canceling check-in session')
+
+        notify(
+            f'Чек-ін сесія почата `@{obj.staff.username}` о '
+            f'{obj.start_dt.strftime("%H:%M")} буде відмінена.',
+            digest='canceling check-in session')
+
         obj.cancel()
+
         log.info(
             f'Canceled check-in session #{obj.id} '
             f'(started at {obj.start_dt.strftime("%H:%M")} by @{obj.staff.username}) '
