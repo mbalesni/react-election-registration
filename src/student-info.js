@@ -8,9 +8,8 @@ export default class StudentInfo extends React.Component {
   }
 
   handleSelect(student) {
-    console.log('success')
+    console.log("Selecting student: ", student)
 
-    // this.props.onSubmit(student)
     this.props.onSelect(student)
     this.setState({
       disabled: true,

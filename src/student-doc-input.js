@@ -56,7 +56,8 @@ export class StudentDocInput extends React.Component {
         if (error) {
             let text = ''
             text += `Перевірте правильність номеру ${docNameByValue(docType)}.`
-
+            
+            console.warn(text)
             message.warn(text)
         } else {
             let student = { ...this.props.activeStudent }
@@ -85,7 +86,6 @@ export class StudentDocInput extends React.Component {
 
     handleDocNumberChange = (e) => {
         let docNumber = e.target.value
-        console.log('doc number: ', docNumber)
         this.setState({ docNumber })
     }
 

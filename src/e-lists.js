@@ -142,6 +142,7 @@ export default class extends React.Component {
   }
 
   openSession() {
+    console.log('Starting new session...')
     this.setState({ loading: true })
     axios.post('/start_new_session', {})
       .then(res => {
@@ -161,39 +162,6 @@ export default class extends React.Component {
         this.handleError(err)
       })
   }
-
-  // searchStudentByTicketNumber(ticketNum) {
-
-  //   let data = {}
-  //   data.check_in_session_token = this.state.checkInSessionToken
-  //   data.student = { ticket_number: ticketNum }
-
-  //   this.setState({ loading: true })
-
-  //   axios.post('/search_by_ticket_number', data)
-  //     .then(res => {
-  //       const studentObj = res.data.data.student
-
-  //       let student = this.buildStudentData(studentObj)
-
-  //       let foundStudents = this.state.foundStudents.slice()
-  //       foundStudents[0] = { ...foundStudents[0], ...student }
-
-  //       this.setState({
-  //         docType: 0,
-  //         docNumber: ticketNum,
-  //         foundStudents: foundStudents,
-  //         status: {
-  //           type: 'info',
-  //           message: this.getFoundStudentsNote(foundStudents),
-  //         },
-  //         loading: false
-  //       })
-  //     })
-  //     .catch(err => {
-  //       this.handleError(err)
-  //     })
-  // }
 
   getFoundStudentsNote(foundStudents, query) {
     const len = foundStudents.length
@@ -274,8 +242,11 @@ export default class extends React.Component {
 
     this.setState({ loading: true })
 
+    console.log('Submitting student', data)
+
     axios.post('/submit_student', data)
       .then(res => {
+        console.log(res)
         let ballotNumber = res.data.data.ballot_number
 
         this.setState({
@@ -294,6 +265,7 @@ export default class extends React.Component {
   }
 
   searchGoBack() {
+    console.log('Going back to Search...')
     this.setState({
       foundStudents: [],
       status: {
@@ -305,6 +277,7 @@ export default class extends React.Component {
   }
 
   unselectStudent() {
+    console.log('Unselecting student...')
     this.setState({
       activeStudent: null,
     })
@@ -315,8 +288,8 @@ export default class extends React.Component {
   }
 
   handleError(err, code) {
+    console.log('Handling error...')
     let errData = err
-    // console.log(err.message)
 
     if (err.response) {
       console.warn("Error response: ", err.response)
@@ -346,8 +319,7 @@ export default class extends React.Component {
 
     Raven.captureException(new Error(`errno: ${code} – ${errData}`))
 
-    console.warn('Error data: ', errData)
-    console.warn('Error code: ', code)
+    console.warn('Error data: ', errData, code)
 
     this.setState({ loading: false })
     message.error(<span>{errors[code]} <span style={{ opacity: '.7' }}>Код помилки {code}</span></span>)
@@ -356,7 +328,8 @@ export default class extends React.Component {
 
   cancelSession() {
     let data = { check_in_session_token: this.state.checkInSessionToken }
-
+    
+    console.log('Canceling session', data)
     this.setState({ loading: true })
     axios.post('/cancel_session', data)
       .then(res => {
@@ -365,7 +338,6 @@ export default class extends React.Component {
       .catch(err => {
         this.handleError(err)
         this.onSessionEnd()
-
       })
   }
 
@@ -373,7 +345,7 @@ export default class extends React.Component {
     const data = { check_in_session_token: this.state.checkInSessionToken }
     const studentName = this.state.activeStudent.name
 
-
+    console.log('Completing session:', data)
     this.setState({ loading: true })
     axios.post('/complete_session', data)
       .then(res => {
@@ -442,7 +414,6 @@ export default class extends React.Component {
         activeStudent.docNumber = result
         activeStudent.docType = '0'
         this.setState({ activeStudent })
-        // this.submitStudent(activeStudent)
         message.success('Студентський квиток відскановано.')
 
       } else {
