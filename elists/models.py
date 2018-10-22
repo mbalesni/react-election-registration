@@ -320,7 +320,8 @@ class CheckInSession(models.Model):
         self.save()
         self.student.change_status_in_progress()
         log.info(
-            f'Assigned "{student.full_name}" to check-in session #{self.id} by @{self.staff.username} '
+            f'Assigned "{student.full_name}" to check-in session #{self.id} '
+            f'by @{self.staff.username} with [{doc_type}] "{doc_num}"'
             f'with ballot number {self.show_ballot_number()}'
         )
         return self
