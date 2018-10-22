@@ -47,18 +47,20 @@ export default class StudentFinder extends React.Component {
     let { name } = this.state
 
     let query = name.value
-                .trim()                   // remove leading and trailing whitespaces
-                .replace(/\s+/gm, ' ')    // remove double/triple/etc consecutive whitespaces
 
     this.props.onSearchByName(query)
 
   }
 
   validate(name) {
+    let parsedName = name
+        .trim()                   // remove leading and trailing whitespaces
+        .replace(/\s+/gm, ' ')    // remove double/triple/etc consecutive whitespaces
+
     // true condition means error
     // string is error explanation
     return {
-      name: (name.length < MIN_LENGTH.name) ? `Ім'я повинно бути не коротше ${MIN_LENGTH.name} або більше символів в довжину` : '',
+      name: (parsedName.length < MIN_LENGTH.name) ? `Ім'я повинно бути не коротше ${MIN_LENGTH.name} або більше символів в довжину` : '',
     }
   }
 

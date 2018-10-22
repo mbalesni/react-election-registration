@@ -308,7 +308,7 @@ export default class extends React.Component {
           message.warn('Відмовлено в доступі.')
           return
         default:
-          code = 300
+          if (!code) code = 300
           errData = err.message
       }
 
@@ -322,6 +322,7 @@ export default class extends React.Component {
     console.warn('Error data: ', errData, code)
 
     this.setState({ loading: false })
+    console.log('code', code, 'errors[code]', errors[code])
     message.error(<span>{errors[code]} <span style={{ opacity: '.7' }}>Код помилки {code}</span></span>)
 
   }
