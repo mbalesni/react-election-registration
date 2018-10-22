@@ -1,5 +1,6 @@
 import logging
 import secrets
+import typing
 
 import pandas as pd
 import sqlalchemy
@@ -325,6 +326,11 @@ class CheckInSession(models.Model):
             f'with ballot number {self.show_ballot_number()}'
         )
         return self
+
+    def search_by_name(self, full_name: str) -> typing.Tuple[Student]:
+        log.info(f'Searching for "{full_name}" in check-in session #{self.id}')
+        student = Student.search_by_full_name(full_name=full_name)
+        return student
 
     def complete(self) -> 'CheckInSession':
         """ Assigns current time to `end_dt` and `COMPLETED` status. """

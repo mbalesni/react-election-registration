@@ -32,7 +32,7 @@ def search_by_name(request: Request):
         )
 
     full_name = request.elists_cisi.data[REQUEST_STUDENT][REQUEST_STUDENT_FULL_NAME]
-    students = Student.search_by_full_name(full_name=full_name)
+    students = session.search_by_name(full_name=full_name)
 
     return {
         RESPONSE_STUDENTS: [
