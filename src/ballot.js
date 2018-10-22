@@ -27,7 +27,7 @@ export default class Ballot extends React.Component {
                         </div>
                         <div className="check-in-controls">
                             <Button disabled={loading} onClick={onCancel} color="secondary">скасувати</Button>
-                            <Button disabled={loading} onClick={onComplete} variant="contained" color="primary">видано</Button>
+                            <Button autoFocus disabled={loading} onClick={onComplete} variant="contained" color="primary">видано</Button>
                         </div>
                     </div>
                 </div>
