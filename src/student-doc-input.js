@@ -27,7 +27,6 @@ export class StudentDocInput extends React.Component {
         docNumber: '',
         touched: false,
         isScanning: false,
-        disabled: false,
     }
 
     handleChange = event => {
@@ -63,7 +62,6 @@ export class StudentDocInput extends React.Component {
             let student = { ...this.props.activeStudent }
             student.docType = docType
             student.docNumber = docNumber
-            this.setState({ disabled: true })
             this.props.onSubmit(student)
         }
     }
@@ -102,7 +100,7 @@ export class StudentDocInput extends React.Component {
     }
 
     render() {
-        const { value, disabled } = this.state
+        const { value } = this.state
         const docNumber = this.props.activeStudent.docNumber || this.state.docNumber || ''
 
         const error = this.validate(docNumber)
@@ -184,7 +182,7 @@ export class StudentDocInput extends React.Component {
                     variant="contained"
                     color="primary"
                     onClick={this.handleSubmit.bind(this)}
-                    disabled={disabled}
+                    disabled={this.props.loading}
                 >
                     підтвердити
                 </Button>
