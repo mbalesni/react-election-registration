@@ -52,7 +52,7 @@ export default class StudentInfo extends React.Component {
             <div className="student--info">
               <div>{structuralUnit}</div>
               <div>{specialty}</div>
-              <div>{year} курс | {degree} | {formOfStudy}</div>
+              <div>{year ? `${year} курс | ` : ''}{degree} | {formOfStudy}</div>
             </div>
           </div>
 
