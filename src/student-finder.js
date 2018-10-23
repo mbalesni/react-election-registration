@@ -44,18 +44,23 @@ export default class StudentFinder extends React.Component {
   }
 
   search() {
-    console.log('Handling search... ')
     let { name } = this.state
 
-    this.props.onSearchByName(name.value)
+    let query = name.value
+
+    this.props.onSearchByName(query)
 
   }
 
   validate(name) {
+    let parsedName = name
+        .trim()                   // remove leading and trailing whitespaces
+        .replace(/\s+/gm, ' ')    // remove double/triple/etc consecutive whitespaces
+
     // true condition means error
     // string is error explanation
     return {
-      name: (name.length < MIN_LENGTH.name) && `Ім'я повинно бути не коротше ${MIN_LENGTH.name} або більше символів в довжину` || '',
+      name: (parsedName.length < MIN_LENGTH.name) ? `Ім'я повинно бути не коротше ${MIN_LENGTH.name} або більше символів в довжину` : '',
     }
   }
 
@@ -107,7 +112,7 @@ export default class StudentFinder extends React.Component {
 
 
   render() {
-    const { value, name } = this.state
+    const { name } = this.state
 
     const errors = this.validate(name.value)
 
@@ -180,24 +185,6 @@ export default class StudentFinder extends React.Component {
 
 }
 
-function toTitleCase(str) {
-  return str.replace(
-    /\S*/g,
-    function (txt) {
-      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    }
-  )
-}
-
 function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-
-function isTitle(str) {
-  return str === toTitleCase(str)
-}
-
-function hasSpaces(str) {
-  return /\s/g.test(str);
 }

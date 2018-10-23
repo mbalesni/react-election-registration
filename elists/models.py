@@ -1,5 +1,6 @@
 import logging
 import secrets
+import typing
 
 import pandas as pd
 import sqlalchemy
@@ -295,6 +296,7 @@ class CheckInSession(models.Model):
             session_with_same_document: CheckInSession = CheckInSession.objects.get(
                 doc_num=doc_num,
                 doc_type=doc_type,
+                status=CheckInSession.STATUS_COMPLETED,
             )
         except self.DoesNotExist:
             pass
@@ -319,10 +321,16 @@ class CheckInSession(models.Model):
         self.save()
         self.student.change_status_in_progress()
         log.info(
-            f'Assigned "{student.full_name}" to check-in session #{self.id} by @{self.staff.username} '
+            f'Assigned "{student.full_name}" to check-in session #{self.id} '
+            f'by @{self.staff.username} with [{doc_type}] "{doc_num}"'
             f'with ballot number {self.show_ballot_number()}'
         )
         return self
+
+    def search_by_name(self, full_name: str) -> typing.Tuple[Student]:
+        log.info(f'Searching for "{full_name}" in check-in session #{self.id}')
+        student = Student.search_by_full_name(full_name=full_name)
+        return student
 
     def complete(self) -> 'CheckInSession':
         """ Assigns current time to `end_dt` and `COMPLETED` status. """

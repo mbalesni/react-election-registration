@@ -27,7 +27,6 @@ export class StudentDocInput extends React.Component {
         docNumber: '',
         touched: false,
         isScanning: false,
-        disabled: false,
     }
 
     handleChange = event => {
@@ -38,7 +37,7 @@ export class StudentDocInput extends React.Component {
         const docType = this.state.value
         // true condition means error
         // string is error explanation
-        let result = (docNumber.length < MIN_LENGTH[docType] || docNumber.length > MAX_LENGTH[docType]) && `Перевірте правильність номеру ${docNameByValue}.` || ''
+        let result = (docNumber.length < MIN_LENGTH[docType] || docNumber.length > MAX_LENGTH[docType]) ? `Перевірте правильність номеру ${docNameByValue}.` : ''
         return result
     }
 
@@ -58,12 +57,12 @@ export class StudentDocInput extends React.Component {
             let text = ''
             text += `Перевірте правильність номеру ${docNameByValue(docType)}.`
 
+            console.warn(text)
             message.warn(text)
         } else {
             let student = { ...this.props.activeStudent }
             student.docType = docType
             student.docNumber = docNumber
-            this.setState({ disabled: true })
             this.props.onSubmit(student)
         }
     }
@@ -87,7 +86,6 @@ export class StudentDocInput extends React.Component {
 
     handleDocNumberChange = (e) => {
         let docNumber = e.target.value
-        console.log('doc number: ', docNumber)
         this.setState({ docNumber })
     }
 
@@ -97,12 +95,12 @@ export class StudentDocInput extends React.Component {
             return ({
                 docNumber: nextProps.activeStudent.docNumber,
                 isScanning: false
-            }) 
+            })
         } else return null
     }
 
     render() {
-        const { value, disabled } = this.state
+        const { value } = this.state
         const docNumber = this.props.activeStudent.docNumber || this.state.docNumber || ''
 
         const error = this.validate(docNumber)
@@ -116,15 +114,15 @@ export class StudentDocInput extends React.Component {
             return result
         }
 
-        const iconRight = {
-            marginRight: '8px',
-            marginBottom: '2px',
-            fontSize: '18px'
-        }
+        // const iconRight = {
+        //     marginRight: '8px',
+        //     marginBottom: '2px',
+        //     fontSize: '18px'
+        // }
 
         const startAdornment = {
-            marginTop: 6, 
-            marginRight: 3, 
+            marginTop: 6,
+            marginRight: 3,
             opacity: .6,
         }
 
@@ -149,12 +147,13 @@ export class StudentDocInput extends React.Component {
                     </FormControl>
 
                     <div>
-                        <div className="doc-number-field" style={{marginTop: 24 + (48 * value) }}>
+                        <div className="doc-number-field" style={{ marginTop: 24 + (48 * value) }}>
 
                             <Input
                                 className="input doc-number"
+                                disabled={this.props.loading}
                                 error={shouldMarkError('docNumber')}
-                                placeholder={"Номер " + docNameByValue(value) }
+                                placeholder={"Номер " + docNameByValue(value)}
                                 value={this.state.docNumber}
                                 fullWidth={true}
                                 onChange={this.handleDocNumberChange}
@@ -184,7 +183,7 @@ export class StudentDocInput extends React.Component {
                     variant="contained"
                     color="primary"
                     onClick={this.handleSubmit.bind(this)}
-                    disabled={disabled}
+                    disabled={this.props.loading}
                 >
                     підтвердити
                 </Button>
@@ -214,7 +213,9 @@ function docNameByValue(value) {
         case '2':
             name = 'довідки'
             break
+        default:
+            name = 'документа'
     }
     return name
-    
+
 }

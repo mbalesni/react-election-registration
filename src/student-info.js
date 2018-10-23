@@ -8,9 +8,8 @@ export default class StudentInfo extends React.Component {
   }
 
   handleSelect(student) {
-    console.log('success')
+    console.log(`Selecting student ${student.name} (Year: ${student.year}, Specialty: ${student.specialty})`)
 
-    // this.props.onSubmit(student)
     this.props.onSelect(student)
     this.setState({
       disabled: true,
@@ -41,6 +40,8 @@ export default class StudentInfo extends React.Component {
       case 2:
         buttonName = 'вже зареєстровано'
         break
+      default:
+        buttonName = 'зареєструвати'
     }
 
     return (
@@ -51,7 +52,7 @@ export default class StudentInfo extends React.Component {
             <div className="student--info">
               <div>{structuralUnit}</div>
               <div>{specialty}</div>
-              <div>{year} курс | {degree} | {formOfStudy}</div>
+              <div>{year ? `${year} курс | ` : ''}{degree} | {formOfStudy}</div>
             </div>
           </div>
 

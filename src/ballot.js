@@ -1,7 +1,6 @@
 import React from 'react'
 import NumberBox from './number-box'
 import Button from '@material-ui/core/Button'
-import { ICONS } from './icons.js'
 import { Alert } from 'antd'
 
 import './css/ballot.css'
@@ -28,7 +27,7 @@ export default class Ballot extends React.Component {
                         </div>
                         <div className="check-in-controls">
                             <Button disabled={loading} onClick={onCancel} color="secondary">скасувати</Button>
-                            <Button disabled={loading} onClick={onComplete} variant="contained" color="primary">видано</Button>
+                            <Button autoFocus disabled={loading} onClick={onComplete} variant="contained" color="primary">видано</Button>
                         </div>
                     </div>
                 </div>
