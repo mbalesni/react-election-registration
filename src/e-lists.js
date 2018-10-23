@@ -181,7 +181,7 @@ export default class extends React.Component {
     data.student = {}
     data.student.full_name = name
 
-    console.log('Searching student by name ', name)
+    console.log('Searching student by name:', name)
 
     this.setState({ loading: true })
 
@@ -242,7 +242,7 @@ export default class extends React.Component {
 
     this.setState({ loading: true })
 
-    console.log('Submitting student', data)
+    console.log(`Submitting student with doc_num ${data.student.doc_num} (type ${data.student.doc_type}), token ${data.student.token}`)
 
     axios.post('/submit_student', data)
       .then(res => {
@@ -330,7 +330,7 @@ export default class extends React.Component {
   cancelSession() {
     let data = { check_in_session_token: this.state.checkInSessionToken }
     
-    console.log('Canceling session', data)
+    console.log('Canceling session...')
     this.setState({ loading: true })
     axios.post('/cancel_session', data)
       .then(res => {
@@ -346,7 +346,7 @@ export default class extends React.Component {
     const data = { check_in_session_token: this.state.checkInSessionToken }
     const studentName = this.state.activeStudent.name
 
-    console.log('Completing session:', data)
+    console.log('Completing session...')
     this.setState({ loading: true })
     axios.post('/complete_session', data)
       .then(res => {
@@ -407,6 +407,7 @@ export default class extends React.Component {
         // prevent multi-requests
         if (this.barcodeScanned) return
 
+        console.log('Successfuly scanned ticket:', result)
         this.barcodeScanned = true
         message.destroy()
         Quagga.stop()
