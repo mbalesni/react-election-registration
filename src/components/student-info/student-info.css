@@ -1,0 +1,69 @@
+.student {
+  /* background-color: #eee; */
+  /* border-radius: 4px; */
+  /* box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12); */
+  /* border-bottom: 1px solid #eee; */
+  border-left: 3px solid #2196f3;
+  display: flex;
+  justify-content: space-between;
+  padding: .5rem;
+  padding-left: 1rem;
+  margin-bottom: 1rem;
+  transition: .3s ease-in-out;
+}
+
+.student.disabled {
+  border-left: 3px solid #eee;
+}
+
+.student .data {
+  /* width: 80%; */
+  min-width: 250px;
+}
+
+.student .actions {
+  align-items: center;
+}
+
+.student--info {
+  margin-top: .5rem;
+  opacity: .8;
+}
+
+.student--name {
+  font-size: 15px;
+}
+
+.student--info>* {
+  margin-right: .5rem;
+  font-size: 13px;
+}
+
+/* .actions button {
+  min-width: 36px;
+  width: 36px;
+  height: 36px;
+  font-size: 22px;
+} */
+
+@media (max-width: 600px) {
+  .actions button {
+    min-width: 48px;
+    width: 48px;
+    height: 48px;
+    font-size: 26px;
+  }
+  .student {
+    /* background-color: #eee; */
+    /* border-radius: 4px; */
+    /* box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12); */
+    /* border-bottom: 1px solid #eee; */
+    border-left: 0 !important;
+    display: flex;
+    justify-content: space-between;
+    padding: .5rem;
+    margin-bottom: 1rem;
+    padding-left: 0 !important;
+    transition: .3s ease-in-out;
+  }
+}

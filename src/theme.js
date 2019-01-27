@@ -18,4 +18,15 @@ export const THEME = createMuiTheme({
       contrastText: '#fff'
     }
   },
+  overrides: {
+    MuiButton: { // Name of the component ⚛️ / style sheet
+      label: { // Name of the rule
+        textTransform: 'none', // Some CSS
+      },
+      root: {
+        fontSize: '.95rem'
+      }
+    },
+  },
+
 })
