@@ -4,7 +4,7 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import axios from 'axios'
-import './login-page.css'
+import './login-window.css'
 
 const fieldStyle = {
     marginBottom: '1rem',
@@ -18,7 +18,7 @@ const spinner = () => (
     <CircularProgress color="secondary" />
 )
 
-export default class LoginPage extends React.Component {
+export default class LoginWindow extends React.Component {
     state = {
         username: '',
         password: '',
@@ -56,7 +56,7 @@ export default class LoginPage extends React.Component {
         this.setState({ loading: true })
         const apiBaseUrl = "http://localhost:8011/"
         const { username, password } = this.state
-        const payload = { username, password }
+        const payload = { username, password: btoa(password) }
 
         axios.post(apiBaseUrl + 'login', payload)
             .then(function (response) {

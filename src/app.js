@@ -17,7 +17,7 @@ import { ICONS } from './utils/icons.js'
 import '../node_modules/izitoast/dist/css/iziToast.min.css'
 import './utils/override-izitoast.css'
 import * as errors from './utils/errors.json';
-// import LoginWindow from './login-page.js'
+import LoginWindow from './login-window.js'
 
 const spinnerStyles = css`
   position: absolute !important;
@@ -25,8 +25,10 @@ const spinnerStyles = css`
 
 // retrieving environment variables
 const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL || 'http://localhost:8000'
-// const BASE_API_URL = BACKEND_BASE_URL + '/elists/api'
 const PRINTAPP_BASE_URL = process.env.REACT_APP_PRINTAPP_HOST_URL || 'http://localhost:8012'
+
+axios.defaults.baseURL = BACKEND_BASE_URL
+axios.defaults.withCredentials = true
 
 const initialState = {
   activeStudent: null,
@@ -41,18 +43,6 @@ const initialState = {
   loading: false,
 }
 
-// // Set up Registration Backend API
-// const axios = axios.create({
-//   baseURL: BACKEND_BASE_URL,
-//   withCredentials: true,
-// })
-
-// // Set up PrintApp API
-// const axios = axios.create({
-//   baseURL: PRINTAPP_BASE_URL,
-//   withCredentials: true
-// })
-
 export default class App extends React.Component {
   state = { ...initialState }
 
@@ -65,7 +55,7 @@ export default class App extends React.Component {
 
         <MuiThemeProvider theme={THEME}>
           <div className="header-and-content">
-            <Header auth={this.state.auth} baseUrl={BACKEND_BASE_URL} onCloseSessions={this.closeSessions.bind(this)} />
+            <Header auth={this.state.auth} onCloseSessions={this.closeSessions.bind(this)} />
             <BarLoader
               color="rgba(33, 150, 243, 0.8)"
               className={spinnerStyles}
@@ -76,7 +66,7 @@ export default class App extends React.Component {
             />
 
             <div className="content">
-              {/* {!loggedIn && <LoginWindow />} */}
+              {!loggedIn && <LoginWindow />}
               {loggedIn && !this.state.sessionIsOpen &&
                 <NewSessionWindow onSessionStart={this.startSession.bind(this)} loading={loading} />
               }

@@ -72,9 +72,6 @@ export default class Header extends React.Component {
             >
               <MenuItem disabled>{auth.user}</MenuItem>
               <Divider />
-              <a href={baseUrl + '/admin/'} target="_blank" rel="noopener noreferrer">
-                <MenuItem onClick={this.handleClose}>Адмін панель</MenuItem>
-              </a>
               <MenuItem onClick={this.handleLogout.bind(this)}>Вийти</MenuItem>
             </Menu>
           </div>
