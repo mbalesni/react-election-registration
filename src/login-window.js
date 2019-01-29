@@ -54,7 +54,7 @@ export default class LoginWindow extends React.Component {
     login() {
         // FIXME: get from env
         this.setState({ loading: true })
-        const apiBaseUrl = "http://localhost:8011/"
+        const apiBaseUrl = "http://localhost:8015/"
         const { username, password } = this.state
         const payload = { username, password: btoa(password) }
 
