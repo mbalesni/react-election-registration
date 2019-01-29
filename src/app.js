@@ -110,7 +110,7 @@ export default class App extends React.Component {
   getAuth() {
     this.setState({ loading: true })
 
-    axios.post('/me')
+    axios.post('/me', {})
       .then(res => {
         this.setState({
           auth: {
@@ -134,7 +134,7 @@ export default class App extends React.Component {
   }
 
   closeSessions() {
-    axios.post('/close_sessions')
+    axios.post('/close_sessions', {})
       .catch(err => {
         console.warn(err)
       })
