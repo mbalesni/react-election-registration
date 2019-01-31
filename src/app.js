@@ -24,7 +24,7 @@ const spinnerStyles = css`
 `
 
 // retrieving environment variables
-const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL || 'http://localhost:8000'
+const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL || 'http://localhost:8015'
 const PRINTAPP_BASE_URL = process.env.REACT_APP_PRINTAPP_HOST_URL || 'http://localhost:8012'
 
 axios.defaults.baseURL = BACKEND_BASE_URL
@@ -66,7 +66,7 @@ export default class App extends React.Component {
             />
 
             <div className="content">
-              {!loggedIn && <LoginWindow />}
+              {!loggedIn && <LoginWindow url={BACKEND_BASE_URL} onSuccess={this.onSuccessfulLogin.bind(this)} />}
               {loggedIn && !this.state.sessionIsOpen &&
                 <NewSessionWindow onSessionStart={this.startSession.bind(this)} loading={loading} />
               }
@@ -131,6 +131,14 @@ export default class App extends React.Component {
 
       })
 
+  }
+
+  onSuccessfulLogin() {
+    this.setState({ 
+      auth: {
+        loggedIn: true,
+      }
+    })
   }
 
   closeSessions() {

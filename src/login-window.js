@@ -54,7 +54,7 @@ export default class LoginWindow extends React.Component {
     login() {
         // FIXME: get from env
         this.setState({ loading: true })
-        const apiBaseUrl = "http://localhost:8011/"
+        const apiBaseUrl = this.props.url
         const { username, password } = this.state
         const payload = { username, password: btoa(password) }
 
@@ -63,6 +63,7 @@ export default class LoginWindow extends React.Component {
                 console.log(response)
                 if (response.data.code === 200) {
                     console.log("Login successfull")
+                    this.props.onSuccess()
                 }
                 else if (response.data.code === 204) {
                     console.log("Username password do not match")
