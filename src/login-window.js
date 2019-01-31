@@ -54,23 +54,26 @@ export default class LoginWindow extends React.Component {
     login() {
         // FIXME: get from env
         this.setState({ loading: true })
-        const apiBaseUrl = "http://localhost:8015/"
+        const apiBaseUrl = this.props.url
         const { username, password } = this.state
         const payload = { username, password: btoa(password) }
 
-        axios.post(apiBaseUrl + 'login', payload)
-            .then(function (response) {
+        axios.post(apiBaseUrl + '/login', payload)
+            .then(response => {
                 console.log(response)
-                if (response.data.error === undefined) {
-                    console.log("Login successfull")
-                }
-                else if (response.data.error.code === 515) {
-                    console.log("Username password do not match")
-                    alert("username password do not match")
-                }
-                else {
-                    console.log("Unexpected response")
-                    alert("Unexpected response")
+                if (response.data){
+                    if (!response.data.error) {
+                        console.log("Login successfull")
+                        this.props.onSuccess()
+                    }
+                    else if (response.data.error.code === 515) {
+                        console.log("Username password do not match")
+                        alert("username password do not match")
+                    }
+                    else {
+                        console.log("Unexpected response")
+                        alert("Unexpected response")
+                    }
                 }
             })
             .catch(function (error) {
