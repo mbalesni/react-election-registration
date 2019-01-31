@@ -27,8 +27,18 @@ const spinnerStyles = css`
 const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL || 'http://localhost:8015'
 const PRINTAPP_BASE_URL = process.env.REACT_APP_PRINTAPP_HOST_URL || 'http://localhost:8012'
 
-axios.defaults.baseURL = BACKEND_BASE_URL
-axios.defaults.withCredentials = true
+// axios.defaults.baseURL = BACKEND_BASE_URL
+// axios.defaults.withCredentials = true
+
+const backend = axios.create({
+  baseURL: BACKEND_BASE_URL,
+  withCredentials: true,
+})
+
+const printer = axios.create({
+  baseURL: PRINTAPP_BASE_URL,
+  withCredentials: true,
+})
 
 const initialState = {
   activeStudent: null,
@@ -110,7 +120,7 @@ export default class App extends React.Component {
   getAuth() {
     this.setState({ loading: true })
 
-    axios.post('/me')
+    backend.post('/me', {})
       .then(res => {
         this.setState({
           auth: {
@@ -134,7 +144,7 @@ export default class App extends React.Component {
   }
 
   onSuccessfulLogin() {
-    this.setState({ 
+    this.setState({
       auth: {
         loggedIn: true,
       }
@@ -142,7 +152,7 @@ export default class App extends React.Component {
   }
 
   closeSessions() {
-    axios.post('/close_sessions')
+    backend.post('/close_sessions', {})
       .catch(err => {
         console.warn(err)
       })
@@ -151,7 +161,7 @@ export default class App extends React.Component {
   startSession() {
     console.log('Starting new session...')
     this.setState({ loading: true })
-    axios.post('/start_new_session', {})
+    backend.post('/start_new_session', {})
       .then(res => {
         if (!res.data.error) {
           const checkInSessionToken = res.data.data.check_in_session.token
@@ -196,7 +206,7 @@ export default class App extends React.Component {
 
     this.setState({ loading: true })
 
-    axios.post('/search_by_name', data)
+    backend.post('/search_by_name', data)
       .then(res => {
         if (res.data.error) return this.registerError(res.data.error.code, false)
 
@@ -256,7 +266,7 @@ export default class App extends React.Component {
 
     console.log(`Submitting student with doc_num ${data.student.doc_num} (type ${data.student.doc_type}), token ${data.student.token}`)
 
-    axios.post('/new_ballot', data)
+    backend.post('/new_ballot', data)
       .then(res => {
         if (res.data.error) return this.registerError(res.data.error.code)
 
@@ -273,8 +283,8 @@ export default class App extends React.Component {
       })
   }
 
-  printBallot(number) {
-    axios.post('/print_ballot', { number })
+  printBallot(number) {printer
+    printer.post('/print_ballot', { number })
       .then(res => {
         if (res.data.error) return this.registerError(res.data.error.code)
         console.log(res)
@@ -375,7 +385,7 @@ export default class App extends React.Component {
 
     console.log('Canceling session...')
     this.setState({ loading: true })
-    axios.post('/cancel_session', token)
+    backend.post('/cancel_session', token)
       .then(res => {
         if (res.data.error) this.registerError(res.data.error.code, true)
         this.onSessionEnd()
