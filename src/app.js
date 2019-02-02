@@ -143,7 +143,8 @@ export default class App extends React.Component {
 
   }
 
-  onSuccessfulLogin() {
+  onSuccessfulLogin(authToken) {
+    this.setState({authToken: authToken})
     this.setState({
       auth: {
         loggedIn: true,
@@ -161,7 +162,7 @@ export default class App extends React.Component {
   startSession() {
     console.log('Starting new session...')
     this.setState({ loading: true })
-    backend.post('/start_new_session', {})
+    backend.post('/start_new_session', {auth_token: this.state.authToken})
       .then(res => {
         if (!res.data.error) {
           const checkInSessionToken = res.data.data.check_in_session.token

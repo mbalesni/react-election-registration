@@ -61,10 +61,12 @@ export default class LoginWindow extends React.Component {
         axios.post(apiBaseUrl + '/login', payload)
             .then(response => {
                 console.log(response)
-                if (response.data){
+
+                const authToken = response.data.auth_token
+                if (authToken){
                     if (!response.data.error) {
                         console.log("Login successfull")
-                        this.props.onSuccess()
+                        this.props.onSuccess(authToken)
                     }
                     else if (response.data.error.code === 515) {
                         console.log("Username password do not match")
