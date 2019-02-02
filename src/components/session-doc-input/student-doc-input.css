@@ -17,6 +17,14 @@
 
 }
 
+.doc-number-field input {
+    padding: 6px 4px 6px;
+}
+
+.print-btn {
+    align-self: flex-end;
+}
+
 @media (max-width: 600px) {
     .doc-picker {
         display: block;

@@ -35,6 +35,10 @@ const PRINTAPP_BASE_URL = process.env.REACT_APP_PRINTAPP_HOST_URL || 'http://loc
 //   withCredentials: true,
 // })
 
+const backend = axios.create({
+  baseURL: BACKEND_BASE_URL,
+})
+
 const printer = axios.create({
   baseURL: PRINTAPP_BASE_URL,
   withCredentials: true,
@@ -112,15 +116,12 @@ export default class App extends React.Component {
       maxCount: 1,
       duration: 5
     })
-    // this.getAuth()
-    // this.closeSessions()
-
   }
 
   getAuth() {
     this.setState({ loading: true })
 
-    this.backend.post('/me', {})
+    backend.post('/me', {})
       .then(res => {
         this.setState({
           auth: {
@@ -150,14 +151,17 @@ export default class App extends React.Component {
         token: authToken
       }
     })
-    this.backend = axios.create({
-        headers: { 'X-Auth-Token': authToken },
-        baseURL: BACKEND_BASE_URL,
-    })
+
+    backend.defaults.headers = {
+      'X-Auth-Token': authToken
+    }
+
+    this.getAuth()
+    this.closeSessions()
   }
 
   closeSessions() {
-    this.backend.post('/close_sessions', {})
+    backend.post('/close_sessions', {})
       .catch(err => {
         console.warn(err)
       })
@@ -166,7 +170,7 @@ export default class App extends React.Component {
   startSession() {
     console.log('Starting new session...')
     this.setState({ loading: true })
-    this.backend.post('/start_new_session', {})
+    backend.post('/start_new_session', {})
       .then(res => {
         if (!res.data.error) {
           const checkInSessionToken = res.data.data.check_in_session.token
@@ -211,7 +215,7 @@ export default class App extends React.Component {
 
     this.setState({ loading: true })
 
-    this.backend.post('/search_by_name', data)
+    backend.post('/search_by_name', data)
       .then(res => {
         if (res.data.error) return this.registerError(res.data.error.code, false)
 
@@ -271,7 +275,7 @@ export default class App extends React.Component {
 
     console.log(`Submitting student with doc_num ${data.student.doc_num} (type ${data.student.doc_type}), token ${data.student.token}`)
 
-    this.backend.post('/new_ballot', data)
+    backend.post('/new_ballot', data)
       .then(res => {
         if (res.data.error) return this.registerError(res.data.error.code)
 
@@ -391,7 +395,7 @@ export default class App extends React.Component {
 
     console.log('Canceling session...')
     this.setState({ loading: true })
-    this.backend.post('/cancel_session', token)
+    backend.post('/cancel_session', token)
       .then(res => {
         if (res.data.error) this.registerError(res.data.error.code, true)
         this.onSessionEnd()

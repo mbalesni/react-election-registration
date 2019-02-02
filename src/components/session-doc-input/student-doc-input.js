@@ -137,8 +137,8 @@ export class StudentDocInput extends React.Component {
         // }
 
         const startAdornment = {
-            marginTop: 6,
-            marginRight: 3,
+            marginTop: 0,
+            marginRight: 0,
             opacity: .6,
         }
 
@@ -195,13 +195,13 @@ export class StudentDocInput extends React.Component {
                 </div>
 
                 <Button
-                    className="submit-btn"
+                    className="print-btn"
                     variant="contained"
                     color="primary"
                     onClick={this.handleSubmit.bind(this)}
                     disabled={this.props.loading}
                 >
-                    Підтвердити
+                    Надрукувати бюлетень
                 </Button>
 
                 {byTicket &&
@@ -221,7 +221,7 @@ function docNameByValue(value) {
     let name
     switch (value) {
         case '0':
-            name = 'квитка'
+            name = 'студентського'
             break
         case '1':
             name = 'залікової книжки'

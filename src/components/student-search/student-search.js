@@ -171,7 +171,7 @@ export default class StudentSearch extends React.Component {
               variant="contained"
             >
               <i className="fas fa-address-book" style={iconRight}></i>
-              Знайти
+              Знайти студента
             </Button>
 
 
