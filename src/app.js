@@ -150,7 +150,7 @@ export default class App extends React.Component {
         token: authToken
       }
     })
-    backend.headers = { 'X-Auth-Token': authToken }
+    backend.headers.common = { 'X-Auth-Token': authToken }
   }
 
   closeSessions() {
