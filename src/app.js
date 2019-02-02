@@ -96,6 +96,7 @@ export default class App extends React.Component {
                   onScanStart={this.initScan.bind(this)}
                   onScanCancel={this.cancelScan.bind(this)}
                   onCancelSession={this.cancelSession.bind(this)}
+                  onCompleteSession={this.completeSession.bind(this)}
                   onSearchByName={this.searchStudentByName.bind(this)}
                   onStudentUnselect={this.unselectStudent.bind(this)}
                   voteOptions={this.state.voteOptions}
@@ -281,7 +282,7 @@ export default class App extends React.Component {
 
         let ballotNumber = res.data.data.ballot_number
         this.printBallot(ballotNumber)
-        this.onSessionEnd()
+        // this.onSessionEnd()
         message.success(<span><strong>{student.name}</strong> – успішно зареєстровано.</span>, 5)
 
 
@@ -293,7 +294,6 @@ export default class App extends React.Component {
   }
 
   printBallot(number) {
-    printer
     printer.post('/print_ballot', { number })
       .then(res => {
         if (res.data.error) return this.registerError(res.data.error.code)
@@ -301,6 +301,7 @@ export default class App extends React.Component {
       })
       .catch(err => {
         console.warn('PrintApp error', err)
+        this.handleApiError(err)
       })
   }
 
@@ -321,6 +322,22 @@ export default class App extends React.Component {
     this.setState({
       activeStudent: null,
     })
+  }
+
+  completeSession = (config) => {
+    config.check_in_session_token = this.state.checkInSessionToken
+    backend.post('/complete_session', config)
+      .then(res => {
+        if (!res.data.error) {
+          this.onSessionEnd()
+        } else {
+          this.registerError(res.data.error.code)
+        }
+      })
+      .catch(err => {
+        console.warn(err)
+        this.handleApiError(err)
+      })
   }
 
   componentDidCatch(err, errInfo) {
