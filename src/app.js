@@ -144,12 +144,13 @@ export default class App extends React.Component {
   }
 
   onSuccessfulLogin(authToken) {
-    this.setState({authToken: authToken})
     this.setState({
       auth: {
         loggedIn: true,
+        token: authToken
       }
     })
+    backend.headers = { 'X-Auth-Token': authToken }
   }
 
   closeSessions() {
@@ -162,7 +163,7 @@ export default class App extends React.Component {
   startSession() {
     console.log('Starting new session...')
     this.setState({ loading: true })
-    backend.post('/start_new_session', {auth_token: this.state.authToken})
+    backend.post('/start_new_session', {})
       .then(res => {
         if (!res.data.error) {
           const checkInSessionToken = res.data.data.check_in_session.token
@@ -284,7 +285,8 @@ export default class App extends React.Component {
       })
   }
 
-  printBallot(number) {printer
+  printBallot(number) {
+    printer
     printer.post('/print_ballot', { number })
       .then(res => {
         if (res.data.error) return this.registerError(res.data.error.code)
