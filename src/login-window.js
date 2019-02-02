@@ -64,18 +64,16 @@ export default class LoginWindow extends React.Component {
 
                 const authToken = response.data.auth_token
                 if (authToken){
-                    if (!response.data.error) {
-                        console.log("Login successfull")
-                        this.props.onSuccess(authToken)
-                    }
-                    else if (response.data.error.code === 515) {
-                        console.log("Username password do not match")
-                        alert("username password do not match")
-                    }
-                    else {
-                        console.log("Unexpected response")
-                        alert("Unexpected response")
-                    }
+                    console.log("Login successfull")
+                    this.props.onSuccess(authToken)
+                }
+                else if (response.data.error.code === 515) {
+                    console.log("Username password do not match")
+                    alert("username password do not match")
+                }
+                else {
+                    console.log("Unexpected response")
+                    alert("Unexpected response")
                 }
             })
             .catch(function (error) {
