@@ -24,7 +24,7 @@ const spinnerStyles = css`
 `
 
 // retrieving environment variables
-const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL || 'http://localhost:8015'
+const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL || 'http://localhost:8011'
 const PRINTAPP_BASE_URL = process.env.REACT_APP_PRINTAPP_HOST_URL || 'http://localhost:8012'
 
 // axios.defaults.baseURL = BACKEND_BASE_URL
