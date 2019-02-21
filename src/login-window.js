@@ -63,7 +63,8 @@ export default class LoginWindow extends React.Component {
                 console.log(response)
 
                 const authToken = response.data.auth_token
-                if (authToken){
+                this.setState({ loading: false })                
+                if (authToken) {
                     console.log("Login successfull")
                     this.props.onSuccess(authToken)
                 }
@@ -76,8 +77,9 @@ export default class LoginWindow extends React.Component {
                     alert("Unexpected response")
                 }
             })
-            .catch(function (error) {
-                console.log(error)
+            .catch(err => {
+                this.setState({ loading: false })
+                console.log(err)
             })
     }
 }

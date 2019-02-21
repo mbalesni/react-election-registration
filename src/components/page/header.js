@@ -33,7 +33,6 @@ export default class Header extends React.Component {
     const auth = this.props.auth
     const { anchorEl } = this.state
     const open = Boolean(anchorEl);
-    const { baseUrl } = this.props
 
     return (
       <header>
@@ -43,37 +42,8 @@ export default class Header extends React.Component {
         </div>
         {auth.loggedIn && (
           <div className="app-menu">
-
-            <Button
-              variant="flat"
-              aria-owns={open ? 'menu-appbar' : null}
-              aria-haspopup="true"
-              aria-label={auth.user}
-              onClick={this.handleMenu}
-              color="inherit"
-              className="app-menu-btn"
-            >
               <AccountCircle style={{ marginRight: 8 }} />
               <span style={{ position: 'relative', top: 1 }}>{auth.user}</span>
-            </Button>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorEl}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={open}
-              onClose={this.handleClose}
-            >
-              <MenuItem disabled>{auth.user}</MenuItem>
-              <Divider />
-              <MenuItem onClick={this.handleLogout.bind(this)}>Вийти</MenuItem>
-            </Menu>
           </div>
         )}
       </header>

@@ -6,7 +6,6 @@ import PhotoCamera from '@material-ui/icons/PhotoCamera'
 import { ICONS } from '../../utils/icons.js'
 import iziToast from 'izitoast'
 import Video from '../video/video.js'
-import PrintCompleteWindow from '../print-complete-window/print-complete-window'
 import './student-doc-input.css'
 
 const Fragment = React.Fragment
@@ -77,11 +76,6 @@ export class StudentDocInput extends React.Component {
             student.docType = docType
             student.docNumber = docNumber
             this.props.onSubmit(student)
-            this.setState({
-                submitted: true
-            })
-
-
         }
     }
 
@@ -118,7 +112,7 @@ export class StudentDocInput extends React.Component {
     }
 
     render() {
-        const { value, submitted } = this.state
+        const { value, submitted, networkError } = this.state
         const docNumber = this.props.activeStudent.docNumber || this.state.docNumber || ''
 
         const error = this.validate(docNumber)
@@ -218,9 +212,6 @@ export class StudentDocInput extends React.Component {
                         loading={this.props.loading}
                     />
                 }
-
-                {submitted && <PrintCompleteWindow onCompleteSession={this.props.onCompleteSession} />}
-
             </Fragment>
         )
     }

@@ -6,6 +6,7 @@ import { MuiThemeProvider } from '@material-ui/core/styles';
 import { QUAGGA_OPTIONS } from './plugins/quagga-options.js'
 import SessionWindow from './components/session-window/session-window.js'
 import NewSessionWindow from './components/new-session-window/new-session-window.js'
+import PrintingWindow from './components/print-complete-window/printing-window'
 import Header from './components/page/header.js'
 import Footer from './components/page/footer.js'
 import { THEME } from './theme.js'
@@ -37,17 +38,20 @@ const PRINTAPP_BASE_URL = process.env.REACT_APP_PRINTAPP_HOST_URL || 'http://loc
 
 const backend = axios.create({
   baseURL: BACKEND_BASE_URL,
+  withCredentials: true,
 })
 
 const printer = axios.create({
   baseURL: PRINTAPP_BASE_URL,
   withCredentials: true,
+  timeout: 2 * 60 * 1000, // 2 minutes for printer to complete printing
 })
 
 const initialState = {
   activeStudent: null,
   auth: { loggedIn: false, user: '' },
   ballotNumber: null,
+  ballotPrinted: false,
   docNumber: null,
   docType: null,
   doRevoke: false,
@@ -55,6 +59,8 @@ const initialState = {
   checkInSessionToken: null,
   students: [],
   loading: false,
+  studentSubmitted: false,
+  printerError: null,
 }
 
 export default class App extends React.Component {
@@ -62,7 +68,7 @@ export default class App extends React.Component {
 
   render() {
     const { loggedIn } = this.state.auth
-    const { loading } = this.state
+    const { loading, studentSubmitted } = this.state
 
     return (
       <div className="page-content-wrapper " >
@@ -91,7 +97,7 @@ export default class App extends React.Component {
                   status={this.state.status}
                   students={this.state.students}
                   onSearchBack={this.searchGoBack.bind(this)}
-                  onStudentSubmit={this.submitStudent.bind(this)}
+                  onStudentSubmit={this.getBallot.bind(this)}
                   onStudentSelect={this.selectStudent.bind(this)}
                   onScanStart={this.initScan.bind(this)}
                   onScanCancel={this.cancelScan.bind(this)}
@@ -103,7 +109,11 @@ export default class App extends React.Component {
                   loading={loading}
                 />}
 
-
+              {studentSubmitted && <PrintingWindow
+                onCompleteSession={this.completeSession.bind(this)}
+                ballotPrinted={this.state.ballotPrinted}
+                error={this.state.printerError}
+              />}
             </div>
           </div>
           <Footer />
@@ -139,7 +149,6 @@ export default class App extends React.Component {
           },
           loading: false
         })
-        // window.location.href = `${BASE_URL}/admin/login?next=/elists/front`
 
       })
 
@@ -263,7 +272,7 @@ export default class App extends React.Component {
     })
   }
 
-  submitStudent(student) {
+  getBallot(student) {
     let data = {}
     data.check_in_session_token = this.state.checkInSessionToken
     data.do_revoke_ballot = student.doRevoke
@@ -279,14 +288,8 @@ export default class App extends React.Component {
     backend.post('/new_ballot', data)
       .then(res => {
         if (res.data.error) return this.registerError(res.data.error.code)
-
         let ballotNumber = res.data.data.ballot_number
         this.printBallot(ballotNumber)
-        // this.onSessionEnd()
-        message.success(<span><strong>{student.name}</strong> – успішно зареєстровано.</span>, 5)
-
-
-        this.setState({ loading: false })
       })
       .catch(err => {
         this.handleApiError(err)
@@ -294,13 +297,21 @@ export default class App extends React.Component {
   }
 
   printBallot(number) {
-    printer.post('/print_ballot', { number })
+    // FIXME: replace mock Promise with request to PrintApp
+    // printer.post('/print_ballot', { number })
+    /** MOCK START  */
+    this.setState({ loading: false, studentSubmitted: true })
+    const later = (delay, value) => new Promise((resolve, reject) => setTimeout(resolve, delay, value))
+    later(10000, { data: {} })
+      /** MOCK END  */
       .then(res => {
         if (res.data.error) return this.registerError(res.data.error.code)
+        this.setState({ ballotPrinted: true })
         console.log(res)
       })
       .catch(err => {
         console.warn('PrintApp error', err)
+        this.setState({ printerError: err })
         this.handleApiError(err)
       })
   }
@@ -357,7 +368,7 @@ export default class App extends React.Component {
 
     switch (err.response.status) {
       case 400:
-        // deal with bad requests
+        // FIXME: deal with bad requests
         break
       case 403:
         this.setState({ loading: false })
