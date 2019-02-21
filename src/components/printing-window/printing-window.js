@@ -8,6 +8,7 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import Slide from '@material-ui/core/Slide'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Timer from './timer'
+import { ICONS } from '../../utils/icons'
 
 function Transition(props) {
     return <Slide direction="up" {...props} />
@@ -35,10 +36,11 @@ export default class PrintingWindow extends React.PureComponent {
     }
 
     onComplete = () => {
-        this.setState({
-
-        })
         this.props.onCompleteSession({ auto: false })
+    }
+
+    onPrintFail = () => {
+        this.props.onCompleteSession({ auto: false, printFailed: true })
     }
 
     render() {
@@ -54,8 +56,8 @@ export default class PrintingWindow extends React.PureComponent {
         if (error) {
             title = 'Помилка при друкуванні бюлетеня'
             showSpinner = false
+            instructions = error.message
         }
-
 
         return (
             <div>
@@ -66,7 +68,10 @@ export default class PrintingWindow extends React.PureComponent {
                     aria-labelledby="alert-dialog-slide-title"
                     aria-describedby="alert-dialog-slide-description"
                 >
-                    <DialogTitle id="alert-dialog-slide-title">{title}</DialogTitle>
+                    <DialogTitle id="alert-dialog-slide-title">
+                        {error && <i className={ICONS.errorIcon} style={{ color: 'rgb(225, 82, 64)', marginRight: '.5rem' }}></i>}
+                        {title}
+                    </DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-slide-description">
                             {instructions}
@@ -78,9 +83,8 @@ export default class PrintingWindow extends React.PureComponent {
                             Завершити
                             <Timer style={timerStyles} onElapsed={this.onTimerElapsed} timeout={PRINT_COMPLETE_TIMEOUT} />
                         </Button>}
-                        {/* FIXME: decide what to do when Print error */}
-                        {error && <Button color="primary" variant="contained">
-                            Спробувати ще
+                        {error && <Button onClick={this.onPrintFail} color="primary" variant="contained">
+                            Повторити реєстрацію
                         </Button>}
                     </DialogActions>
                 </Dialog>
