@@ -6,7 +6,7 @@ import { MuiThemeProvider } from '@material-ui/core/styles';
 import { QUAGGA_OPTIONS } from './plugins/quagga-options.js'
 import SessionWindow from './components/session-window/session-window.js'
 import NewSessionWindow from './components/new-session-window/new-session-window.js'
-import PrintingWindow from './components/print-complete-window/printing-window'
+import PrintingWindow from './components/printing-window/printing-window'
 import Header from './components/page/header.js'
 import Footer from './components/page/footer.js'
 import { THEME } from './theme.js'
@@ -302,10 +302,20 @@ export default class App extends React.Component {
     /** MOCK START  */
     this.setState({ loading: false, studentSubmitted: true })
     const later = (delay, value) => new Promise((resolve, reject) => setTimeout(resolve, delay, value))
-    later(10000, { data: {} })
+    later(3000, {
+      data: {
+        error: {
+          message: 'Щось пішло не так.'
+        }
+      }
+    })
       /** MOCK END  */
       .then(res => {
-        if (res.data.error) return this.registerError(res.data.error.code)
+        if (res.data.error) {
+          this.registerError(res.data.error.code)
+          this.setState({ printerError: res.data.error })
+          return
+        }
         this.setState({ ballotPrinted: true })
         console.log(res)
       })
@@ -405,10 +415,10 @@ export default class App extends React.Component {
         messageColor: '#fff',
         maxWidth: '350px',
         layout: 2,
-        timeout: false,
+        timeout: 30 * 1000,
         transitionIn: 'bounceInLeft',
         resetOnHover: true,
-        progressBar: false,
+        progressBar: true,
         drag: false,
         ...options
       })
