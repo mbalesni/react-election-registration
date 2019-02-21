@@ -14,8 +14,8 @@ const buttonStyle = {
     marginTop: '1rem'
 }
 
-const spinner = () => (
-    <CircularProgress color="secondary" />
+const Spinner = () => (
+    <CircularProgress style={{ marginLeft: '.5rem', color: '#fff' }} color="inherit" size={20} />
 )
 
 export default class LoginWindow extends React.Component {
@@ -51,7 +51,7 @@ export default class LoginWindow extends React.Component {
                     />
                     <Button variant="contained" color="primary" type="submit" style={buttonStyle} onClick={this.login.bind(this)} >
                         Увійти
-                        {loading && <CircularProgress style={{ marginLeft: '.5rem' }} color="#fff" size={20} />}
+                        {loading && <Spinner />}
                     </Button>
                 </div>
             </form>

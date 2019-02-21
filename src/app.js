@@ -296,9 +296,9 @@ export default class App extends React.Component {
     const later = (delay, value) => new Promise((resolve, reject) => setTimeout(resolve, delay, value))
     later(3000, {
       data: {
-        error: {
-          message: 'Щось пішло не так.'
-        }
+        // error: {
+        //   message: 'Щось пішло не так.'
+        // }
       }
     })
       /** MOCK END  */

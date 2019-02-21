@@ -70,6 +70,8 @@ export default class PrintingWindow extends React.PureComponent {
             >
                 <DialogTitle id="alert-dialog-slide-title">
                     {error && <i className={ICONS.errorIcon} style={{ color: 'rgb(225, 82, 64)', marginRight: '.5rem' }}></i>}
+                    {ballotPrinted && <i className={ICONS.scannedIcon} style={{ color: '#2196f3', marginRight: '.5rem' }}></i>}
+
                     {title}
                 </DialogTitle>
                 <DialogContent>
