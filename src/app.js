@@ -312,7 +312,6 @@ export default class App extends React.Component {
       /** MOCK END  */
       .then(res => {
         if (res.data.error) {
-          this.registerError(res.data.error.code)
           this.setState({ printerError: res.data.error })
           return
         }
