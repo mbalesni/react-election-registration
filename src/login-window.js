@@ -25,6 +25,13 @@ export default class LoginWindow extends React.Component {
         loading: false
     }
 
+    componentDidMount() {
+        const authToken = localStorage.getItem('authToken')
+        if (authToken) {
+            this.props.onSuccess(authToken)
+        }
+    }
+
     render() {
         const { loading } = this.state
         return (
@@ -52,7 +59,6 @@ export default class LoginWindow extends React.Component {
     }
 
     login() {
-        // FIXME: get from env
         this.setState({ loading: true })
         const apiBaseUrl = this.props.url
         const { username, password } = this.state
@@ -66,6 +72,7 @@ export default class LoginWindow extends React.Component {
                 this.setState({ loading: false })                
                 if (authToken) {
                     console.log("Login successfull")
+                    localStorage.setItem('authToken', authToken)
                     this.props.onSuccess(authToken)
                 }
                 else if (response.data.error.code === 515) {

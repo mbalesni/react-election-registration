@@ -26,7 +26,8 @@ export default class Header extends React.Component {
   handleLogout() {
     this.handleClose()
     this.props.onCloseSessions()
-    window.location = this.props.baseUrl + '/admin/logout'
+    localStorage.removeItem('authToken')
+    window.location = window.location
   }
 
   render() {
@@ -42,8 +43,36 @@ export default class Header extends React.Component {
         </div>
         {auth.loggedIn && (
           <div className="app-menu">
+            <Button
+              aria-owns={open ? 'menu-appbar' : null}
+              aria-haspopup="true"
+              aria-label={auth.user}
+              onClick={this.handleMenu}
+              color="inherit"
+              className="app-menu-btn"
+            >
               <AccountCircle style={{ marginRight: 8 }} />
               <span style={{ position: 'relative', top: 1 }}>{auth.user}</span>
+            </Button>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorEl}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={open}
+              onClose={this.handleClose}
+            >
+              <MenuItem disabled>{auth.user}</MenuItem>
+              <Divider />
+              <MenuItem onClick={this.handleLogout.bind(this)}>Вийти</MenuItem>
+            </Menu>
+
           </div>
         )}
       </header>

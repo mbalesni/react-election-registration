@@ -112,7 +112,7 @@ export class StudentDocInput extends React.Component {
     }
 
     render() {
-        const { value, submitted, networkError } = this.state
+        const { value } = this.state
         const docNumber = this.props.activeStudent.docNumber || this.state.docNumber || ''
 
         const error = this.validate(docNumber)
