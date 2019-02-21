@@ -77,11 +77,11 @@ export default class LoginWindow extends React.Component {
                 }
                 else if (response.data.error.code === 515) {
                     console.log("Username password do not match")
-                    alert("username password do not match")
+                    alert("Логін та пароль не співпадають.")
                 }
                 else {
                     console.log("Unexpected response")
-                    alert("Unexpected response")
+                    alert("Непередбачена відповідь.")
                 }
             })
             .catch(err => {
