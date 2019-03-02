@@ -289,19 +289,8 @@ export default class App extends React.Component {
   }
 
   printBallot(number) {
-    // FIXME: replace mock Promise with request to PrintApp
-    // printer.post('/print_ballot', { number })
-    /** MOCK START  */
     this.setState({ loading: false, studentSubmitted: true })
-    const later = (delay, value) => new Promise((resolve, reject) => setTimeout(resolve, delay, value))
-    later(3000, {
-      data: {
-        // error: {
-        //   message: 'Щось пішло не так.'
-        // }
-      }
-    })
-      /** MOCK END  */
+    printer.post('/print_ballot', { number })
       .then(res => {
         if (res.data.error) {
           this.setState({ printerError: res.data.error })
