@@ -19,6 +19,7 @@ import '../node_modules/izitoast/dist/css/iziToast.min.css'
 import './utils/override-izitoast.css'
 import * as errors from './utils/errors.json';
 import LoginWindow from './login-window.js'
+import { readSync } from 'fs';
 
 const spinnerStyles = css`
   position: absolute !important;
@@ -329,7 +330,8 @@ export default class App extends React.Component {
     config.check_in_session_token = this.state.checkInSessionToken
     backend.post('/complete_session', config)
       .then(res => {
-        if (!res.data.error) {
+        // 508 - already closed
+        if (!res.data.error || (res.data.error && res.data.error.code === 508)) {
           this.onSessionEnd()
         } else {
           this.registerError(res.data.error.code)
