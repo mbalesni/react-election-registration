@@ -18,11 +18,11 @@ const timerStyles = {
     marginLeft: '.5rem'
 }
 
-const PRINT_COMPLETE_TIMEOUT = 60
-// get check_in_session_token from props
+const PRINT_COMPLETE_TIMEOUT = process.env.REACT_APP_PRINT_COMPLETE_TIMEOUT
+
 export default class PrintingWindow extends React.PureComponent {
     state = {
-        timer: 60,
+        timer: PRINT_COMPLETE_TIMEOUT,
         open: true,
         error: null,
     }
@@ -60,7 +60,6 @@ export default class PrintingWindow extends React.PureComponent {
         }
 
         return (
-            // <div>
             <Dialog
                 open={this.state.open}
                 TransitionComponent={Transition}
@@ -90,7 +89,6 @@ export default class PrintingWindow extends React.PureComponent {
                         </Button>}
                 </DialogActions>
             </Dialog>
-            // </div>
         )
     }
 }

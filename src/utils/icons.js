@@ -9,5 +9,6 @@ export const ICONS = {
   userCheck: 'fas fa-user-check',
   check: 'fas fa-check',
   language: 'fas fa-language',
-  bug: 'fas fa-bug'
+  bug: 'fas fa-bug',
+  login: 'fas fa-sign-in-alt',
 }

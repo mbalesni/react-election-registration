@@ -3,7 +3,10 @@ import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import CircularProgress from '@material-ui/core/CircularProgress'
+import { ICONS } from './utils/icons.js'
+import * as ERRORS from './utils/errors.json';
 import axios from 'axios'
+import izitoast from 'izitoast'
 import './login-window.css'
 
 const fieldStyle = {
@@ -77,7 +80,24 @@ export default class LoginWindow extends React.Component {
                 }
                 else if (response.data.error.code === 515) {
                     console.log("Username password do not match")
-                    alert("Логін та пароль не співпадають.")
+                    let error = ERRORS[515]
+                    izitoast.show({
+                        title: error.title,
+                        message: error.message,
+                        icon: ICONS.login,
+                        iconColor: '#fff',
+                        backgroundColor: '#E15240',
+                        position: 'topRight',
+                        titleColor: '#fff',
+                        messageColor: '#fff',
+                        maxWidth: '350px',
+                        layout: 2,
+                        timeout: 30 * 1000,
+                        transitionIn: 'bounceInLeft',
+                        resetOnHover: true,
+                        progressBar: true,
+                        drag: false,
+                      })
                 }
                 else {
                     console.log("Unexpected response")

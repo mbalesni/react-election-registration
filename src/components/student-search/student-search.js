@@ -62,7 +62,7 @@ export default class StudentSearch extends React.Component {
     // true condition means error
     // string is error explanation
     return {
-      name: (parsedName.length < MIN_LENGTH.name) ? `Ім'я повинно бути не коротше ${MIN_LENGTH.name} або більше символів в довжину` : '',
+      name: (parsedName.length < MIN_LENGTH.name) ? `Введіть не менше ${MIN_LENGTH.name} символів` : '',
     }
   }
 
@@ -94,7 +94,7 @@ export default class StudentSearch extends React.Component {
         noErrors = false
 
         let text = ''
-        text += `${capitalize(field.label)} має бути не коротше ${MIN_LENGTH[field.name]} символів.`
+        text += `Введіть не менше ${MIN_LENGTH[field.name]} символів.`
 
         // message.warn(text)
         iziToast.show({
