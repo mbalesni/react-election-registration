@@ -21,7 +21,7 @@ export default class StudentInfo extends React.Component {
 
   componentDidMount() {
     if (this.props.activeStudent) this.setState({ disabled: true })
-    // if (this.props.data.hasVoted === true) this.setState({ disabled: true })
+    if (this.props.data.hasVoted === true) this.setState({ disabled: true })
   }
 
   render() {
@@ -40,7 +40,7 @@ export default class StudentInfo extends React.Component {
         buttonName = 'Зареєструвати'
         break
       case true:
-        buttonName = 'Проголосовано'
+        buttonName = 'Зареєстровано'
         break
       default:
         buttonName = 'Зареєструвати'

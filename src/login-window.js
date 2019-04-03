@@ -35,6 +35,28 @@ export default class LoginWindow extends React.Component {
         }
     }
 
+    handleError(code) {
+        const error = ERRORS[code]
+        console.log(error.title, error.message)
+        izitoast.show({
+            title: error.title,
+            message: error.message,
+            icon: ICONS.login,
+            iconColor: '#fff',
+            backgroundColor: '#E15240',
+            position: 'topRight',
+            titleColor: '#fff',
+            messageColor: '#fff',
+            maxWidth: '350px',
+            layout: 2,
+            timeout: 30 * 1000,
+            transitionIn: 'bounceInLeft',
+            resetOnHover: true,
+            progressBar: true,
+            drag: false,
+        })
+    }
+
     render() {
         const { loading } = this.state
         return (
@@ -62,9 +84,10 @@ export default class LoginWindow extends React.Component {
     }
 
     login() {
+        const { username, password } = this.state
+        if (!username || !password) return
         this.setState({ loading: true })
         const apiBaseUrl = this.props.url
-        const { username, password } = this.state
         const payload = { username, password: btoa(password) }
 
         axios.post(apiBaseUrl + '/login', payload)
@@ -78,26 +101,8 @@ export default class LoginWindow extends React.Component {
                     localStorage.setItem('authToken', authToken)
                     this.props.onSuccess(authToken)
                 }
-                else if (response.data.error.code === 515) {
-                    console.log("Username password do not match")
-                    let error = ERRORS[515]
-                    izitoast.show({
-                        title: error.title,
-                        message: error.message,
-                        icon: ICONS.login,
-                        iconColor: '#fff',
-                        backgroundColor: '#E15240',
-                        position: 'topRight',
-                        titleColor: '#fff',
-                        messageColor: '#fff',
-                        maxWidth: '350px',
-                        layout: 2,
-                        timeout: 30 * 1000,
-                        transitionIn: 'bounceInLeft',
-                        resetOnHover: true,
-                        progressBar: true,
-                        drag: false,
-                      })
+                else if (response.data.error && response.data.error.code) {
+                    this.handleError(response.data.error.code)
                 }
                 else {
                     console.log("Unexpected response")
