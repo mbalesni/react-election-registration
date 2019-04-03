@@ -1,0 +1,61 @@
+.ballot-wrapper {
+    align-items: center;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+
+}
+.ballot {
+    background-color: #fff;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.18);
+    border-radius: 3px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
+    padding: 2rem;
+    width: 450px;
+    padding-bottom: 1.5rem;
+    transition: .3s ease-in-out;
+    margin-top: -8rem;
+}
+.ballot-content {
+    padding-bottom: 1rem;
+}
+.ballot .instruction {
+    margin-bottom: 2rem;
+}
+.number-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0;
+}
+.number {
+    display: flex;
+}
+.number-box {
+    align-items: center;
+    background-color: #eee;
+    border-radius: 3px;
+    display: flex;
+    font-size: 36px;
+    justify-content: center;
+    height: 80px;
+    padding: .25rem;
+    margin: 0 .4rem;
+    width: 80px;
+    user-select: none;
+    
+}
+.check-in-controls {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+  }

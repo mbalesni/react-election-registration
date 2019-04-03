@@ -21,27 +21,26 @@ export default class StudentInfo extends React.Component {
 
   componentDidMount() {
     if (this.props.activeStudent) this.setState({ disabled: true })
-    if (this.props.data.status === 1) this.setState({ disabled: true })
+    // if (this.props.data.hasVoted === true) this.setState({ disabled: true })
   }
 
   render() {
-    const { name, degree, year, activeStudent, formOfStudy, specialty, structuralUnit, doRevoke } = this.props.data
+    const { name, degree, year, activeStudent, formOfStudy, specialty, structuralUnit, hasVoted } = this.props.data
     const student = this.props.data
     let { disabled } = this.state
     let classes = ['student']
     let screenWidth = window.innerWidth
 
-
     if (disabled) classes.push('disabled')
 
     let buttonName = ''
 
-    switch (doRevoke) {
+    switch (hasVoted) {
       case false:
         buttonName = 'Зареєструвати'
         break
       case true:
-        buttonName = 'Повторний бюлетень'
+        buttonName = 'Проголосовано'
         break
       default:
         buttonName = 'Зареєструвати'

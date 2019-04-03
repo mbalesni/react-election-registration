@@ -202,7 +202,7 @@ export class StudentDocInput extends React.Component {
                     onClick={this.handleSubmit.bind(this)}
                     disabled={this.props.loading}
                 >
-                    Надрукувати бюлетень
+                    Підтвердити
                 </Button>
 
                 {byTicket &&

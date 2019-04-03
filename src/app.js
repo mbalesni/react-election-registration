@@ -7,6 +7,7 @@ import { QUAGGA_OPTIONS } from './plugins/quagga-options.js'
 import SessionWindow from './components/session-window/session-window.js'
 import NewSessionWindow from './components/new-session-window/new-session-window.js'
 import PrintingWindow from './components/printing-window/printing-window'
+import Ballot from './components/ballot/ballot'
 import Header from './components/page/header.js'
 import Footer from './components/page/footer.js'
 import { THEME } from './theme.js'
@@ -19,7 +20,6 @@ import '../node_modules/izitoast/dist/css/iziToast.min.css'
 import './utils/override-izitoast.css'
 import * as errors from './utils/errors.json';
 import LoginWindow from './login-window.js'
-import { readSync } from 'fs';
 
 const spinnerStyles = css`
   position: absolute !important;
@@ -27,17 +27,10 @@ const spinnerStyles = css`
 
 // retrieving environment variables
 const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL || 'http://localhost:8011'
-const PRINTAPP_BASE_URL = process.env.REACT_APP_PRINTAPP_HOST_URL || 'http://localhost:8012'
 
 const backend = axios.create({
   baseURL: BACKEND_BASE_URL,
   withCredentials: true,
-})
-
-const printer = axios.create({
-  baseURL: PRINTAPP_BASE_URL,
-  withCredentials: true,
-  timeout: 2 * 60 * 1000, // 2 minutes for printer to complete printing
 })
 
 const initialState = {
@@ -61,7 +54,7 @@ export default class App extends React.Component {
 
   render() {
     const { loggedIn } = this.state.auth
-    const { loading, studentSubmitted } = this.state
+    const { loading, studentSubmitted, ballotNumber } = this.state
 
     return (
       <div className="page-content-wrapper " >
@@ -90,7 +83,7 @@ export default class App extends React.Component {
                   status={this.state.status}
                   students={this.state.students}
                   onSearchBack={this.searchGoBack.bind(this)}
-                  onStudentSubmit={this.getBallot.bind(this)}
+                  onStudentSubmit={this.registerStudent.bind(this)}
                   onStudentSelect={this.selectStudent.bind(this)}
                   onScanStart={this.initScan.bind(this)}
                   onScanCancel={this.cancelScan.bind(this)}
@@ -102,11 +95,18 @@ export default class App extends React.Component {
                   loading={loading}
                 />}
 
-              {studentSubmitted && <PrintingWindow
+              {/* {studentSubmitted && <PrintingWindow
                 onCompleteSession={this.completeSession.bind(this)}
                 ballotPrinted={this.state.ballotPrinted}
                 error={this.state.printerError}
-              />}
+              />} */}
+
+              {studentSubmitted && <Ballot
+                number={ballotNumber}
+                onComplete={this.completeSession.bind(this)}
+                onCancel={this.cancelSession.bind(this)}
+              />
+              }
             </div>
           </div>
           <Footer />
@@ -142,6 +142,7 @@ export default class App extends React.Component {
           },
           loading: false
         })
+        alert(err)
 
       })
 
@@ -249,7 +250,7 @@ export default class App extends React.Component {
       specialty: student.data.specialty,
       year: student.data.year,
       token: student.token,
-      doRevoke: student.has_voted
+      hasVoted: student.has_voted
     }
     return data
   }
@@ -265,7 +266,7 @@ export default class App extends React.Component {
     })
   }
 
-  getBallot(student) {
+  registerStudent(student) {
     let data = {}
     data.check_in_session_token = this.state.checkInSessionToken
     data.do_revoke_ballot = student.doRevoke
@@ -278,31 +279,14 @@ export default class App extends React.Component {
 
     console.log(`Submitting student with doc_num ${data.student.doc_num} (type ${data.student.doc_type}), token ${data.student.token}`)
 
-    backend.post('/new_ballot', data)
+    backend.post('/register_student', data)
       .then(res => {
         if (res.data.error) return this.registerError(res.data.error.code)
         let ballotNumber = res.data.data.ballot_number
-        this.printBallot(ballotNumber)
+        ballotNumber = '18-20-39-93'
+        this.setState({ studentSubmitted: true, ballotNumber })
       })
       .catch(err => {
-        this.handleApiError(err)
-      })
-  }
-
-  printBallot(number) {
-    this.setState({ loading: false, studentSubmitted: true })
-    printer.post('/print_ballot', { number })
-      .then(res => {
-        if (res.data.error) {
-          this.setState({ printerError: res.data.error })
-          return
-        }
-        this.setState({ ballotPrinted: true })
-        console.log(res)
-      })
-      .catch(err => {
-        console.warn('PrintApp error', err)
-        this.setState({ printerError: err })
         this.handleApiError(err)
       })
   }
