@@ -4,7 +4,7 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { ICONS } from './utils/icons.js'
-import * as ERRORS from './utils/errors.json';
+import ERRORS from './utils/errors.json';
 import axios from 'axios'
 import izitoast from 'izitoast'
 import './login-window.css'
@@ -49,7 +49,7 @@ export default class LoginWindow extends React.Component {
             messageColor: '#fff',
             maxWidth: '350px',
             layout: 2,
-            timeout: 30 * 1000,
+            timeout: 10 * 1000,
             transitionIn: 'bounceInLeft',
             resetOnHover: true,
             progressBar: true,
@@ -95,7 +95,7 @@ export default class LoginWindow extends React.Component {
                 console.log(response)
 
                 const authToken = response.data.auth_token
-                this.setState({ loading: false })                
+                this.setState({ loading: false })
                 if (authToken) {
                     console.log("Login successfull")
                     localStorage.setItem('authToken', authToken)
@@ -111,6 +111,7 @@ export default class LoginWindow extends React.Component {
             })
             .catch(err => {
                 this.setState({ loading: false })
+                this.handleError(513)
                 console.log(err)
             })
     }

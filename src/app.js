@@ -7,6 +7,7 @@ import { QUAGGA_OPTIONS } from './plugins/quagga-options.js'
 import SessionWindow from './components/session-window/session-window.js'
 import NewSessionWindow from './components/new-session-window/new-session-window.js'
 import PrintingWindow from './components/printing-window/printing-window'
+import ConsentDialog from './components/session-doc-input/consent-dialog.js'
 import Ballot from './components/ballot/ballot'
 import Header from './components/page/header.js'
 import Footer from './components/page/footer.js'
@@ -18,7 +19,7 @@ import iziToast from 'izitoast'
 import { ICONS } from './utils/icons.js'
 import '../node_modules/izitoast/dist/css/iziToast.min.css'
 import './utils/override-izitoast.css'
-import * as errors from './utils/errors.json';
+import errors from './utils/errors.json';
 import LoginWindow from './login-window.js'
 
 const spinnerStyles = css`
@@ -35,6 +36,7 @@ const backend = axios.create({
 
 const initialState = {
   activeStudent: null,
+  activeStudentName: '',
   auth: { loggedIn: false, user: '' },
   ballotNumber: null,
   ballotPrinted: false,
@@ -47,6 +49,8 @@ const initialState = {
   loading: false,
   studentSubmitted: false,
   printerError: null,
+  showConsentDialog: true,
+  searchQuery: '',
 }
 
 export default class App extends React.Component {
@@ -54,7 +58,7 @@ export default class App extends React.Component {
 
   render() {
     const { loggedIn } = this.state.auth
-    const { loading, studentSubmitted, ballotNumber } = this.state
+    const { loading, studentSubmitted, ballotNumber, showConsentDialog } = this.state
 
     return (
       <div className="page-content-wrapper " >
@@ -95,17 +99,20 @@ export default class App extends React.Component {
                   loading={loading}
                 />}
 
-              {/* {studentSubmitted && <PrintingWindow
-                onCompleteSession={this.completeSession.bind(this)}
-                ballotPrinted={this.state.ballotPrinted}
-                error={this.state.printerError}
-              />} */}
+              {studentSubmitted &&
+                <Ballot
+                  number={ballotNumber}
+                  onComplete={this.completeSession.bind(this)}
+                  onCancel={this.cancelSession.bind(this)}
+                />
+              }
 
-              {studentSubmitted && <Ballot
-                number={ballotNumber}
-                onComplete={this.completeSession.bind(this)}
-                onCancel={this.cancelSession.bind(this)}
-              />
+              {showConsentDialog &&
+                <ConsentDialog
+                  studentName={this.state.activeStudentName}
+                  onComplete={this.confirmConsent.bind(this)}
+                  onCancel={this.cancelConsent.bind(this)}
+                />
               }
             </div>
           </div>
@@ -217,7 +224,7 @@ export default class App extends React.Component {
 
     console.log('Searching student by name:', name)
 
-    this.setState({ loading: true })
+    this.setState({ loading: true, searchQuery: name })
 
     backend.post('/search_by_name', data)
       .then(res => {
@@ -258,12 +265,29 @@ export default class App extends React.Component {
   selectStudent(student, doRevoke) {
     this.setState({
       activeStudent: student,
+      activeStudentName: student.name,
       doRevoke,
       status: {
         type: 'info',
         message: 'Введіть номер підтверджуючого документа'
       }
     })
+    this.openConsentDialog()
+
+  }
+
+  openConsentDialog() {
+    this.setState({ showConsentDialog: true })
+  }
+
+  confirmConsent() {
+    this.setState({ showConsentDialog: false })
+    console.log('consent given', this.state.activeStudent)
+  }
+
+  cancelConsent() {
+    this.unselectStudent()
+    this.setState({ showConsentDialog: false })
   }
 
   registerStudent(student) {
@@ -307,6 +331,10 @@ export default class App extends React.Component {
     console.log('Unselecting student...')
     this.setState({
       activeStudent: null,
+      status: {
+        type: 'info',
+        message: this.buildFoundStudentsNote(this.state.students.length, this.state.searchQuery),
+      },
     })
   }
 
