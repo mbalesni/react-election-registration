@@ -10,11 +10,9 @@ import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Slide from '@material-ui/core/Slide'
 import Link from '@material-ui/core/Link';
-import AttachmentOutlined from '@material-ui/icons/AttachmentOutlined';
 import { isMobileScreen } from '../../utils/functions'
 import Checkbox from '@material-ui/core/Checkbox';
 import { ICONS } from '../../utils/icons'
-// import './ballot.css'
 
 function Transition(props) {
     return <Slide direction="up" {...props} />

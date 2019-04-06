@@ -49,7 +49,7 @@ const initialState = {
   loading: false,
   studentSubmitted: false,
   printerError: null,
-  showConsentDialog: true,
+  showConsentDialog: false,
   searchQuery: '',
 }
 
