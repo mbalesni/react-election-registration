@@ -2,7 +2,6 @@ import React from 'react';
 import Button from '@material-ui/core/Button'
 import Input from '@material-ui/core/Input';
 import './student-search.css'
-// import { message } from 'antd'
 import { ICONS } from '../../utils/icons.js'
 import { showNotification } from '../../utils/functions'
 
@@ -197,8 +196,4 @@ export default class StudentSearch extends React.Component {
   }
 
 
-}
-
-function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
 }
