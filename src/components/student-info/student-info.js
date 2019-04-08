@@ -46,12 +46,9 @@ export default class StudentInfo extends React.Component {
         buttonName = 'Зареєструвати'
     }
 
-    if (screenWidth <= 600) {
-      buttonName = <i className={ICONS.check}></i>
-    }
-
     return (
       <div className={classes.join(' ')}>
+        {/* <div className="status-line"></div> */}
 
         <div className="data">
           <div className="student--name">{name}</div>

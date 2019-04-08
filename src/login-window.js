@@ -5,8 +5,8 @@ import Typography from '@material-ui/core/Typography'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { ICONS } from './utils/icons.js'
 import ERRORS from './utils/errors.json';
+import { showNotification } from './utils/functions';
 import axios from 'axios'
-import izitoast from 'izitoast'
 import './login-window.css'
 
 const fieldStyle = {
@@ -38,47 +38,33 @@ export default class LoginWindow extends React.Component {
     handleError(code) {
         const error = ERRORS[code]
         console.log(error.title, error.message)
-        izitoast.show({
+        showNotification({
             title: error.title,
             message: error.message,
             icon: ICONS.login,
-            iconColor: '#fff',
-            backgroundColor: '#E15240',
-            position: 'topRight',
-            titleColor: '#fff',
-            messageColor: '#fff',
-            maxWidth: '350px',
-            layout: 2,
-            timeout: 10 * 1000,
-            transitionIn: 'bounceInLeft',
-            resetOnHover: true,
-            progressBar: true,
-            drag: false,
         })
     }
 
     render() {
         const { loading } = this.state
         return (
-            <form onSubmit={(e) => e.preventDefault()}>
-                <div className="login-window">
-                    <Typography style={{ marginBottom: '.5rem' }} variant="h6" >Авторизуватися</Typography>
-                    <TextField
-                        label="Ім'я користувача"
-                        onChange={(event) => this.setState({ username: event.target.value })}
-                        style={fieldStyle}
-                    />
-                    <TextField
-                        label="Пароль"
-                        type="password"
-                        style={fieldStyle}
-                        onChange={(event) => this.setState({ password: event.target.value })}
-                    />
-                    <Button variant="contained" color="primary" type="submit" style={buttonStyle} onClick={this.login.bind(this)} >
-                        Увійти
+            <form onSubmit={(e) => e.preventDefault()} className="login-window">
+                <Typography style={{ marginBottom: '.5rem' }} variant="h6" >Авторизуватися</Typography>
+                <TextField
+                    label="Ім'я користувача"
+                    onChange={(event) => this.setState({ username: event.target.value })}
+                    style={fieldStyle}
+                />
+                <TextField
+                    label="Пароль"
+                    type="password"
+                    style={fieldStyle}
+                    onChange={(event) => this.setState({ password: event.target.value })}
+                />
+                <Button variant="contained" color="primary" type="submit" style={buttonStyle} onClick={this.login.bind(this)} >
+                    Увійти
                         {loading && <Spinner />}
-                    </Button>
-                </div>
+                </Button>
             </form>
         )
     }

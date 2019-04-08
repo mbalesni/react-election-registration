@@ -53,12 +53,13 @@ export default class Ballot extends React.Component {
 
         return (
 
-            < Dialog
+            <Dialog
                 open={this.state.open}
                 TransitionComponent={Transition}
                 keepMounted
                 aria-labelledby="alert-dialog-slide-title"
                 aria-describedby="alert-dialog-slide-description"
+                className="ballot-dialog"
             >
                 <DialogTitle id="alert-dialog-slide-title">
                     {/* <i className={ICONS.scannedIcon} style={{ color: '#2196f3', marginRight: '.5rem' }}></i>} */}

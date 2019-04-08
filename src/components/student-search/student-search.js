@@ -4,7 +4,7 @@ import Input from '@material-ui/core/Input';
 import './student-search.css'
 // import { message } from 'antd'
 import { ICONS } from '../../utils/icons.js'
-import iziToast from 'izitoast'
+import { showNotification } from '../../utils/functions'
 
 
 const MIN_LENGTH = {
@@ -97,7 +97,7 @@ export default class StudentSearch extends React.Component {
         text += `Введіть не менше ${MIN_LENGTH[field.name]} символів.`
 
         // message.warn(text)
-        iziToast.show({
+        showNotification({
           message: text,
           icon: ICONS.errorIcon,
           iconColor: 'orange',
@@ -170,7 +170,7 @@ export default class StudentSearch extends React.Component {
               onClick={this.handleSubmit.bind(this)}
               variant="contained"
             >
-              <i className="fas fa-address-book" style={iconRight}></i>
+              <i className={ICONS.searchingIcon} style={iconRight}></i>
               Знайти студента
             </Button>
 

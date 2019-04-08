@@ -3,8 +3,8 @@ import { ICONS } from '../../utils/icons.js'
 import Button from '@material-ui/core/Button'
 import StudentSearch from '../student-search/student-search.js'
 import StudentInfo from '../student-info/student-info.js'
-import { Alert } from 'antd'
 import { StudentDocInput } from '../session-doc-input/student-doc-input.js';
+import FormHelperText from '@material-ui/core/FormHelperText';
 import './session-window.css'
 
 
@@ -58,7 +58,11 @@ export default class SessionWindow extends React.Component {
 
           <div className="card-block">
 
-            {(status.show === true || status.show === undefined) && <Alert type={status.type} message={status.message} showIcon style={{ marginBottom: '1rem' }} />}
+            {status &&
+              <FormHelperText className="instructions-text">
+                {status}
+              </FormHelperText>
+            }
 
             {this.props.students.length < 1 &&
               <StudentSearch
@@ -77,7 +81,9 @@ export default class SessionWindow extends React.Component {
 
             {this.props.activeStudent &&
               <Fragment>
-                <StudentInfo data={this.props.activeStudent} activeStudent={this.props.activeStudent} />
+                <div className="found-students">
+                  <StudentInfo data={this.props.activeStudent} activeStudent={this.props.activeStudent} />
+                </div>
                 <StudentDocInput
                   activeStudent={this.props.activeStudent}
                   onScanStart={this.props.onScanStart.bind(this)}

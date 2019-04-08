@@ -15,12 +15,12 @@ import { THEME } from './theme.js'
 import { BarLoader } from 'react-spinners';
 import { css } from 'react-emotion';
 import { message } from 'antd'
-import iziToast from 'izitoast'
 import { ICONS } from './utils/icons.js'
 import '../node_modules/izitoast/dist/css/iziToast.min.css'
 import './utils/override-izitoast.css'
 import errors from './utils/errors.json';
 import LoginWindow from './login-window.js'
+import { isMobileScreen, showNotification } from './utils/functions.js';
 
 const spinnerStyles = css`
   position: absolute !important;
@@ -32,6 +32,7 @@ const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL || 'http://local
 const backend = axios.create({
   baseURL: BACKEND_BASE_URL,
   withCredentials: true,
+  timeout: 5 * 1000,
 })
 
 const initialState = {
@@ -129,20 +130,23 @@ export default class App extends React.Component {
     })
   }
 
-  getAuth() {
+  getAuth(token) {
     this.setState({ loading: true })
+    console.log('getting auth')
 
     backend.post('/me', {})
       .then(res => {
         this.setState({
           auth: {
             loggedIn: true,
-            user: `${res.data.data.staff.first_name} ${res.data.data.staff.last_name}`
+            user: `${res.data.data.staff.first_name} ${res.data.data.staff.last_name}`,
+            token,
           },
           loading: false
         })
       })
       .catch(err => {
+        localStorage.setItem('authToken', '')
         this.setState({
           auth: {
             loggedIn: false
@@ -150,24 +154,16 @@ export default class App extends React.Component {
           loading: false
         })
         alert(err)
-
       })
 
   }
 
   onSuccessfulLogin(authToken) {
-    this.setState({
-      auth: {
-        loggedIn: true,
-        token: authToken
-      }
-    })
-
     backend.defaults.headers = {
       'X-Auth-Token': authToken
     }
 
-    this.getAuth()
+    this.getAuth(authToken)
     this.closeSessions()
   }
 
@@ -189,10 +185,7 @@ export default class App extends React.Component {
           this.setState({
             sessionIsOpen: true,
             checkInSessionToken,
-            status: {
-              type: 'info',
-              message: 'Знайдіть студента в базі'
-            },
+            status: 'Знайдіть студента в базі',
             loading: false
           })
         } else {
@@ -207,12 +200,10 @@ export default class App extends React.Component {
 
   buildFoundStudentsNote(numOfStudents, query) {
     return (
-      <Fragment>
+      <>
         <div>{numOfStudents > 1 ? 'Оберіть' : 'Перевірте дані та зареєструйте'} студента</div>
-        <div className="found-students-num">
-          За запитом <strong>{query}</strong> знайдено {numOfStudents} студент{numOfStudents > 1 ? 'ів' : 'а'}
-        </div>
-      </Fragment>
+        За запитом <strong>{query}</strong> знайдено {numOfStudents} студент{numOfStudents > 1 ? 'ів' : 'а'}
+      </>
     )
   }
 
@@ -236,10 +227,7 @@ export default class App extends React.Component {
         })
         this.setState({
           students,
-          status: {
-            type: 'info',
-            message: this.buildFoundStudentsNote(students.length, name),
-          },
+          status: this.buildFoundStudentsNote(students.length, name),
           loading: false
         })
       })
@@ -267,10 +255,7 @@ export default class App extends React.Component {
       activeStudent: student,
       activeStudentName: student.name,
       doRevoke,
-      status: {
-        type: 'info',
-        message: 'Введіть номер підтверджуючого документа'
-      }
+      status: 'Введіть номер підтверджуючого документа',
     })
     this.openConsentDialog()
 
@@ -319,10 +304,7 @@ export default class App extends React.Component {
     console.log('Going back to Search...')
     this.setState({
       students: [],
-      status: {
-        type: 'info',
-        message: "Знайдіть студента в базі"
-      }
+      status: 'Знайдіть студента в базі',
     })
     this.searchStudentByTicketNumberStarted = false
   }
@@ -331,10 +313,7 @@ export default class App extends React.Component {
     console.log('Unselecting student...')
     this.setState({
       activeStudent: null,
-      status: {
-        type: 'info',
-        message: this.buildFoundStudentsNote(this.state.students.length, this.state.searchQuery),
-      },
+      status: this.buildFoundStudentsNote(this.state.students.length, this.state.searchQuery),
     })
   }
 
@@ -343,7 +322,9 @@ export default class App extends React.Component {
     backend.post('/complete_session', config)
       .then(res => {
         // 508 - already closed
-        if (!res.data.error || (res.data.error && res.data.error.code === 508)) {
+        if (!res.data.error || (res.data.error || {}).code === 508) {
+          const studentName = this.state.activeStudentName
+          message.success(studentName + ' – зареєстровано!')
           this.onSessionEnd()
         } else {
           this.registerError(res.data.error.code)
@@ -375,12 +356,13 @@ export default class App extends React.Component {
         // FIXME: deal with bad requests
         break
       case 403:
-        this.setState({ loading: false })
         message.warn('Відмовлено в доступі.')
         break
       default:
         this.registerError(300)
     }
+    this.setState({ loading: false })
+
   }
 
   registerError(code, silent = false, options) {
@@ -398,23 +380,10 @@ export default class App extends React.Component {
     let title = `${error.title || 'Помилка'} [${code}]`
 
     if (!silent) {
-      iziToast.show({
+      showNotification({
         title,
         message: error.message || '',
         icon: error.icon || ICONS.errorIcon,
-        iconColor: '#fff',
-        backgroundColor: '#E15240',
-        position: 'topRight',
-        titleColor: '#fff',
-        messageColor: '#fff',
-        maxWidth: '350px',
-        layout: 2,
-        timeout: 30 * 1000,
-        transitionIn: 'bounceInLeft',
-        resetOnHover: true,
-        progressBar: true,
-        drag: false,
-        ...options
       })
     }
 
@@ -440,8 +409,7 @@ export default class App extends React.Component {
   onSessionEnd() {
     message.destroy()
     this.barcodeScanned = false
-    this.setState(initialState)
-    this.getAuth()
+    this.setState({ ...initialState, auth: this.state.auth })
     try {
       Quagga.stop()
     } catch (err) {
@@ -471,10 +439,7 @@ export default class App extends React.Component {
   cancelScan() {
     Quagga.stop();
     this.setState({
-      status: {
-        type: 'info',
-        message: 'Введіть номер підтверджуючого документа'
-      }
+      status: 'Введіть номер підтверджуючого документа',
     })
     message.destroy()
   }
@@ -496,16 +461,6 @@ export default class App extends React.Component {
         activeStudent.docType = '0'
         this.setState({ activeStudent })
         message.success('Студентський квиток відскановано.')
-        // iziToast.show({
-        //   message: 'Студентський квиток відскановано.',
-        //   icon: ICONS.check,
-        //   iconColor: '#56A844',
-        //   backgroundColor: '#fff',
-        //   position: 'topCenter',
-        //   transitionIn: 'bounceInDown',
-        //   progressBar: false,
-
-        // })
 
       } else {
         this.registerError(507)

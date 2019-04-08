@@ -7,6 +7,10 @@ import { createMuiTheme } from '@material-ui/core/styles';
 export const THEME = createMuiTheme({
   typography: {
     useNextVariants: true,
+    fontFamily: [
+      '"Proxima Nova"',
+      'sans-serif',
+    ].join(',')
   },
   palette: {
     primary: {
@@ -28,7 +32,7 @@ export const THEME = createMuiTheme({
         textTransform: 'none', // Some CSS
       },
       root: {
-        fontSize: '.95rem'
+        fontSize: '.95rem',
       }
     },
   },

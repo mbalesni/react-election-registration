@@ -121,6 +121,7 @@ export class StudentDocInput extends React.Component {
 
         const isSmScreen = screenWidth < 600
 
+        const disabled = this.props.loading || this.validate(docNumber)
 
         const shouldMarkError = (field) => {
             const hasError = error.length > 0
@@ -200,7 +201,8 @@ export class StudentDocInput extends React.Component {
                     variant="contained"
                     color="primary"
                     onClick={this.handleSubmit.bind(this)}
-                    disabled={this.props.loading}
+                    disabled={disabled}
+                    style={{ marginTop: '1rem' }}
                 >
                     Підтвердити
                 </Button>

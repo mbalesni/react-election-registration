@@ -39,7 +39,7 @@ export default class Header extends React.Component {
       <header>
         <div className="logo">
           <img src={logo} alt="logo" height="45" />
-          <div className="title">ЦВК студентів КНУ</div>
+          <div className="title">Реєстрація виборців</div>
         </div>
         {auth.loggedIn && (
           <div className="app-menu">

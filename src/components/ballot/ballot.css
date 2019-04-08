@@ -1,4 +1,4 @@
-.ballot-wrapper {
+/* .ballot-wrapper {
     align-items: center;
     position: absolute;
     display: flex;
@@ -29,6 +29,9 @@
 }
 .ballot .instruction {
     margin-bottom: 2rem;
+} */
+.ballot-dialog {
+    margin: 0;
 }
 .number-wrapper {
     display: flex;
