@@ -7,7 +7,7 @@ html, body {
 body {
   background-color: #f7f7f7 !important;
   color: #626262;
-  font-family: 'Proxima Nova', 'Roboto', sans-serif;
+  font-family: Roboto, sans-serif;
   font-weight: 400;
   max-height: 100%;
 }

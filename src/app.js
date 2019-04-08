@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import axios from 'axios'
 import Raven from 'raven-js'
 import Quagga from 'quagga'
@@ -6,7 +6,6 @@ import { MuiThemeProvider } from '@material-ui/core/styles';
 import { QUAGGA_OPTIONS } from './plugins/quagga-options.js'
 import SessionWindow from './components/session-window/session-window.js'
 import NewSessionWindow from './components/new-session-window/new-session-window.js'
-import PrintingWindow from './components/printing-window/printing-window'
 import ConsentDialog from './components/session-doc-input/consent-dialog.js'
 import Ballot from './components/ballot/ballot'
 import Header from './components/page/header.js'
@@ -20,7 +19,7 @@ import '../node_modules/izitoast/dist/css/iziToast.min.css'
 import './utils/override-izitoast.css'
 import errors from './utils/errors.json';
 import LoginWindow from './login-window.js'
-import { isMobileScreen, showNotification } from './utils/functions.js';
+import { showNotification } from './utils/functions.js';
 
 const spinnerStyles = css`
   position: absolute !important;

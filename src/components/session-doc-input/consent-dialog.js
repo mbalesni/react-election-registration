@@ -12,7 +12,6 @@ import Slide from '@material-ui/core/Slide'
 import Link from '@material-ui/core/Link';
 import { isMobileScreen } from '../../utils/functions'
 import Checkbox from '@material-ui/core/Checkbox';
-import { ICONS } from '../../utils/icons'
 
 function Transition(props) {
     return <Slide direction="up" {...props} />
@@ -34,8 +33,7 @@ function ConsentItem({ checked, onChange, name, label, link, linkLabel }) {
                     <Link
                         href={link}
                         target="_blank"
-                        rel="noopener"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                         color="secondary"
                         style={{ color: '#f44336', fontSize: '.875rem' }}
                     >
@@ -48,12 +46,10 @@ function ConsentItem({ checked, onChange, name, label, link, linkLabel }) {
 }
 
 export default function ConsentDialog(props) {
-    const [open, setOpen] = useState(true)
     const [privacyConsent, setPrivacyConsent] = useState(false)
     const [publicOfferConsent, setPublicOfferConsent] = useState(false)
 
     const handleClose = () => {
-        // setOpen(false)
         props.onCancel()
     }
 
@@ -69,7 +65,7 @@ export default function ConsentDialog(props) {
 
     return (
         <Dialog
-            open={open}
+            open={true}
             TransitionComponent={Transition}
             aria-labelledby="alert-dialog-slide-title"
             aria-describedby="alert-dialog-slide-description"

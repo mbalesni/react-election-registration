@@ -27,7 +27,7 @@ export default class Header extends React.Component {
     this.handleClose()
     this.props.onCloseSessions()
     localStorage.removeItem('authToken')
-    window.location = window.location
+    window.location = window.location + ''
   }
 
   render() {

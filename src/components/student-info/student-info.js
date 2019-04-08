@@ -1,6 +1,5 @@
 import React from 'react';
 import Button from '@material-ui/core/Button';
-import { ICONS } from '../../utils/icons.js'
 import './student-info.css'
 
 export default class StudentInfo extends React.Component {
@@ -29,7 +28,6 @@ export default class StudentInfo extends React.Component {
     const student = this.props.data
     let { disabled } = this.state
     let classes = ['student']
-    let screenWidth = window.innerWidth
 
     if (disabled) classes.push('disabled')
 
@@ -48,8 +46,6 @@ export default class StudentInfo extends React.Component {
 
     return (
       <div className={classes.join(' ')}>
-        {/* <div className="status-line"></div> */}
-
         <div className="data">
           <div className="student--name">{name}</div>
           <div className="student--info">
