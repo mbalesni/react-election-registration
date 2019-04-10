@@ -2,9 +2,9 @@ import React from 'react';
 import { Button } from '@material-ui/core'
 import { ICONS } from '../../utils/icons.js'
 
-import './video.css'
+import './index.css'
 
-export default function Video(props) {
+export default function Scanner(props) {
 
   const iconStyle = {
     marginRight: '8px',

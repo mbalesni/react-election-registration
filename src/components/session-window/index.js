@@ -1,11 +1,11 @@
 import React, { Fragment } from 'react';
 import { ICONS } from '../../utils/icons.js'
 import Button from '@material-ui/core/Button'
-import StudentSearch from '../student-search/student-search.js'
-import StudentInfo from '../student-info/student-info.js'
-import { StudentDocInput } from '../session-doc-input/student-doc-input.js';
+import StudentSearch from '../student-search'
+import StudentInfo from '../student-option'
+import DocInput from '../doc-input';
 import FormHelperText from '@material-ui/core/FormHelperText';
-import './session-window.css'
+import './index.css'
 
 
 export default class SessionWindow extends React.Component {
@@ -84,7 +84,7 @@ export default class SessionWindow extends React.Component {
                 <div className="found-students">
                   <StudentInfo data={this.props.activeStudent} activeStudent={this.props.activeStudent} />
                 </div>
-                <StudentDocInput
+                <DocInput
                   activeStudent={this.props.activeStudent}
                   onScanStart={this.props.onScanStart.bind(this)}
                   onCancelSession={this.props.onCancelSession}

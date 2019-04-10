@@ -4,7 +4,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Slide from '@material-ui/core/Slide'
-import './ballot.css'
+import './index.css'
 
 function Transition(props) {
     return <Slide direction="up" {...props} />
@@ -12,7 +12,7 @@ function Transition(props) {
 
 const CLOSE_TIMEOUT = 3 * 1000
 
-export default function SessionComplete(props) {
+export default function SessionCompleteWindow(props) {
     const handleClose = () => {
         props.onSessionEnd()
         console.log('closing window')

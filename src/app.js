@@ -1,16 +1,15 @@
 import React from 'react'
 import axios from 'axios'
-import Raven from 'raven-js'
 import Quagga from 'quagga'
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import { QUAGGA_OPTIONS } from './plugins/quagga-options.js'
-import SessionWindow from './components/session-window/session-window.js'
-import NewSessionWindow from './components/new-session-window/new-session-window.js'
-import ConsentDialog from './components/session-doc-input/consent-dialog.js'
-import Ballot from './components/ballot/ballot'
-import Header from './components/page/header.js'
-import Footer from './components/page/footer.js'
-import { THEME } from './theme.js'
+import SessionWindow from './components/session-window'
+import NewSessionWindow from './components/new-session-window'
+import ConsentDialog from './components/doc-input/consent-dialog'
+import RegistrationCompleteWindow from './components/registration-complete-window'
+import Header from './components/header'
+import Footer from './components/footer'
+import { THEME } from './utils/theme.js'
 import { BarLoader } from 'react-spinners';
 import { css } from 'react-emotion';
 import { message } from 'antd'
@@ -18,16 +17,16 @@ import { ICONS } from './utils/icons.js'
 import '../node_modules/izitoast/dist/css/iziToast.min.css'
 import './utils/override-izitoast.css'
 import errors from './utils/errors.json';
-import LoginWindow from './login-window.js'
+import LoginWindow from './components/login-window';
 import { showNotification } from './utils/functions.js';
-import SessionComplete from './components/ballot/session-complete.js';
+import SessionComplete from './components/session-complete-window';
+import CONFIG from './config.js'
+
+const { BACKEND_BASE_URL } = CONFIG
 
 const spinnerStyles = css`
   position: absolute !important;
 `
-
-// retrieving environment variables
-const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL || 'http://localhost/api'
 
 const backend = axios.create({
   baseURL: BACKEND_BASE_URL,
@@ -48,7 +47,7 @@ const initialState = {
   checkInSessionToken: null,
   students: [],
   loading: false,
-  showBallot: '',
+  showRegistrationComplete: '',
   printerError: null,
   showConsentDialog: false,
   searchQuery: '',
@@ -61,7 +60,7 @@ export default class App extends React.Component {
 
   render() {
     const { loggedIn } = this.state.auth
-    const { loading, showBallot, ballotNumber, showConsentDialog, showCompleteSession } = this.state
+    const { loading, showRegistrationComplete, ballotNumber, showConsentDialog, showCompleteSession } = this.state
 
     return (
       <div className="page-content-wrapper " >
@@ -102,8 +101,8 @@ export default class App extends React.Component {
                   loading={loading}
                 />}
 
-              {showBallot &&
-                <Ballot
+              {showRegistrationComplete &&
+                <RegistrationCompleteWindow
                   number={ballotNumber}
                   onComplete={this.completeSession.bind(this)}
                   onCancel={this.cancelSession.bind(this)}
@@ -303,7 +302,7 @@ export default class App extends React.Component {
         if (res.data.error) return this.registerError(res.data.error.code)
         let ballotNumber = res.data.data.ballot_number
         ballotNumber = '18-20-39-93'
-        this.setState({ showBallot: true, ballotNumber })
+        this.setState({ showRegistrationComplete: true, ballotNumber })
       })
       .catch(err => {
         this.handleApiError(err)
@@ -335,7 +334,7 @@ export default class App extends React.Component {
         if (!res.data.error || (res.data.error || {}).code === 508) {
           const studentName = this.state.activeStudentName
           this.setState({
-            showBallot: false,
+            showRegistrationComplete: false,
             studentSubmitted: studentName,
             showCompleteSession: true,
             loading: false
@@ -348,10 +347,6 @@ export default class App extends React.Component {
         console.warn(err)
         this.handleApiError(err)
       })
-  }
-
-  componentDidCatch(err, errInfo) {
-    Raven.captureException(err, { extra: errInfo });
   }
 
   handleApiError(err) {
@@ -402,7 +397,6 @@ export default class App extends React.Component {
     }
 
     console.log(title)
-    Raven.captureException(new Error(title))
   }
 
   cancelSession() {

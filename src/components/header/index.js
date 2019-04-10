@@ -4,7 +4,7 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import Divider from '@material-ui/core/Divider';
-import './header.css'
+import './index.css'
 import logo from './cvk-logo.png'
 
 

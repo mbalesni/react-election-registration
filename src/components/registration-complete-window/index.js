@@ -8,7 +8,8 @@ import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Slide from '@material-ui/core/Slide'
 import Timer from './timer'
-import './ballot.css'
+import CONFIG from '../../config'
+import './index.css'
 
 function Transition(props) {
     return <Slide direction="up" {...props} />
@@ -18,9 +19,9 @@ const timerStyles = {
     marginLeft: '.5rem'
 }
 
-const COMPLETE_TIMEOUT = process.env.REACT_APP_COMPLETE_TIMEOUT
+const { COMPLETE_TIMEOUT } = CONFIG
 
-export default class Ballot extends React.Component {
+export default class RegistrationCompleteWindow extends React.Component {
     state = {
         timer: COMPLETE_TIMEOUT,
         open: true,

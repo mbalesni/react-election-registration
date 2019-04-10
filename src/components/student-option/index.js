@@ -1,8 +1,8 @@
 import React from 'react';
 import Button from '@material-ui/core/Button';
-import './student-info.css'
+import './index.css'
 
-export default class StudentInfo extends React.Component {
+export default class StudentOption extends React.Component {
   state = {
     disabled: false
   }

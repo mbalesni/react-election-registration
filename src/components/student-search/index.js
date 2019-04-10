@@ -1,7 +1,7 @@
 import React from 'react';
 import Button from '@material-ui/core/Button'
 import Input from '@material-ui/core/Input';
-import './student-search.css'
+import './index.css'
 import { ICONS } from '../../utils/icons.js'
 import { showNotification } from '../../utils/functions'
 

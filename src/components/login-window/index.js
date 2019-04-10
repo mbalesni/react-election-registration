@@ -3,11 +3,11 @@ import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { ICONS } from './utils/icons.js'
-import ERRORS from './utils/errors.json';
-import { showNotification } from './utils/functions';
+import { ICONS } from '../../utils/icons.js'
+import ERRORS from '../../utils/errors.json';
+import { showNotification } from '../../utils/functions';
 import axios from 'axios'
-import './login-window.css'
+import './index.css'
 
 const fieldStyle = {
     marginBottom: '1rem',

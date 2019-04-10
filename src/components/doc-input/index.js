@@ -2,11 +2,10 @@ import React from 'react'
 import { Button, Radio, RadioGroup, FormLabel, FormControl, FormControlLabel, Input } from '@material-ui/core'
 import IconButton from '@material-ui/core/IconButton'
 import PhotoCamera from '@material-ui/icons/PhotoCamera'
-// import { message } from 'antd'
 import { ICONS } from '../../utils/icons.js'
 import iziToast from 'izitoast'
-import Video from '../video/video.js'
-import './student-doc-input.css'
+import Video from '../scanner'
+import './index.css'
 
 const Fragment = React.Fragment
 
@@ -23,7 +22,7 @@ const MAX_LENGTH = {
 }
 
 
-export class StudentDocInput extends React.Component {
+export default class DocInput extends React.Component {
     state = {
         value: '0',
         docNumber: '',
