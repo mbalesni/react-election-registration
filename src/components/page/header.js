@@ -36,46 +36,52 @@ export default class Header extends React.Component {
     const open = Boolean(anchorEl);
 
     return (
-      <header>
-        <div className="logo">
-          <img src={logo} alt="logo" height="45" />
-          <div className="title">Реєстрація виборців</div>
-        </div>
-        {auth.loggedIn && (
-          <div className="app-menu">
-            <Button
-              aria-owns={open ? 'menu-appbar' : null}
-              aria-haspopup="true"
-              aria-label={auth.user}
-              onClick={this.handleMenu}
-              color="inherit"
-              className="app-menu-btn"
-            >
-              <AccountCircle style={{ marginRight: 8 }} />
-              <span style={{ position: 'relative', top: 1 }}>{auth.user}</span>
-            </Button>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorEl}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={open}
-              onClose={this.handleClose}
-            >
-              <MenuItem disabled>{auth.user}</MenuItem>
-              <Divider />
-              <MenuItem onClick={this.handleLogout.bind(this)}>Вийти</MenuItem>
-            </Menu>
-
+      <>
+        <header>
+          <div className="logo">
+            <img src={logo} alt="logo" height="45" />
+            <div className="title">Реєстрація виборців</div>
           </div>
-        )}
-      </header>
+          {auth.loggedIn && (
+            <div className="app-menu">
+              <Button
+                aria-owns={open ? 'menu-appbar' : null}
+                aria-haspopup="true"
+                aria-label={auth.user}
+                onClick={this.handleMenu}
+                color="inherit"
+                className="app-menu-btn"
+              >
+                <AccountCircle style={{ marginRight: 8 }} />
+                <span>{auth.user}</span>
+              </Button>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={open}
+                onClose={this.handleClose}
+              >
+                <MenuItem disabled>{auth.user}</MenuItem>
+                <Divider />
+                <MenuItem onClick={this.handleLogout.bind(this)}>Вийти</MenuItem>
+              </Menu>
+
+            </div>
+          )}
+        </header>
+        {auth.loggedIn &&
+          <div className="structural-unit">
+            <span>{auth.structuralUnit}</span>
+          </div>}
+      </>
     )
   }
 }

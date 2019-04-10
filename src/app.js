@@ -139,6 +139,7 @@ export default class App extends React.Component {
           auth: {
             loggedIn: true,
             user: `${res.data.data.staff.first_name} ${res.data.data.staff.last_name}`,
+            structuralUnit: res.data.data.staff.structural_unit_name,
             token,
           },
           loading: false
