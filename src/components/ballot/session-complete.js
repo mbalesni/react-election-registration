@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
@@ -12,6 +12,7 @@ function Transition(props) {
     return <Slide direction="up" {...props} />
 }
 
+const CLOSE_TIMEOUT = 3 * 1000
 
 export default function SessionComplete(props) {
     const handleClose = () => {
@@ -19,31 +20,30 @@ export default function SessionComplete(props) {
         console.log('closing window')
     }
 
+    useEffect(() => {
+        var a = setTimeout(handleClose, CLOSE_TIMEOUT)
+        return () => window.clearTimeout(a)
+    }, [])
+
     return (
         <Dialog
             open={true}
             TransitionComponent={Transition}
-            keepMounted
             aria-labelledby="alert-dialog-slide-title"
             aria-describedby="alert-dialog-slide-description"
             className="ballot-dialog"
         >
-            <DialogTitle id="alert-dialog-slide-title">
-                Сесія завершена
-                </DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-slide-description" style={{ textAlign: 'center' }}>
                     <i style={{ fontSize: '5rem', color: '#4CAF50' }} className="fas fa-check-circle" />
                 </DialogContentText>
+                <DialogTitle>
+                {props.studentName}
+                </DialogTitle>
                 <DialogContentText style={{ marginTop: '1rem', textAlign: 'center' }}>
-                    {props.studentName}
+                Зареєстровано
                 </DialogContentText>
             </DialogContent>
-            <DialogActions style={{ padding: '.5rem' }}>
-                <Button onClick={handleClose} style={{ width: '100%' }} color="primary" variant="contained">
-                    Закрити
-                    </Button>
-            </DialogActions>
         </Dialog >
     )
 
