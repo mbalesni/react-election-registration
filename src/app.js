@@ -20,6 +20,7 @@ import './utils/override-izitoast.css'
 import errors from './utils/errors.json';
 import LoginWindow from './login-window.js'
 import { showNotification } from './utils/functions.js';
+import SessionComplete from './components/ballot/session-complete.js';
 
 const spinnerStyles = css`
   position: absolute !important;
@@ -47,10 +48,12 @@ const initialState = {
   checkInSessionToken: null,
   students: [],
   loading: false,
-  studentSubmitted: false,
+  showBallot: '',
   printerError: null,
   showConsentDialog: false,
   searchQuery: '',
+  showCompleteSession: false,
+  studentSubmitted: '',
 }
 
 export default class App extends React.Component {
@@ -58,7 +61,7 @@ export default class App extends React.Component {
 
   render() {
     const { loggedIn } = this.state.auth
-    const { loading, studentSubmitted, ballotNumber, showConsentDialog } = this.state
+    const { loading, showBallot, ballotNumber, showConsentDialog, showCompleteSession } = this.state
 
     return (
       <div className="page-content-wrapper " >
@@ -99,7 +102,7 @@ export default class App extends React.Component {
                   loading={loading}
                 />}
 
-              {studentSubmitted &&
+              {showBallot &&
                 <Ballot
                   number={ballotNumber}
                   onComplete={this.completeSession.bind(this)}
@@ -112,6 +115,13 @@ export default class App extends React.Component {
                   studentName={this.state.activeStudentName}
                   onComplete={this.confirmConsent.bind(this)}
                   onCancel={this.cancelConsent.bind(this)}
+                />
+              }
+
+              {showCompleteSession &&
+                <SessionComplete
+                  studentName={this.state.studentSubmitted}
+                  onSessionEnd={this.onSessionEnd.bind(this)}
                 />
               }
             </div>
@@ -293,7 +303,7 @@ export default class App extends React.Component {
         if (res.data.error) return this.registerError(res.data.error.code)
         let ballotNumber = res.data.data.ballot_number
         ballotNumber = '18-20-39-93'
-        this.setState({ studentSubmitted: true, ballotNumber })
+        this.setState({ showBallot: true, ballotNumber })
       })
       .catch(err => {
         this.handleApiError(err)
@@ -324,8 +334,12 @@ export default class App extends React.Component {
         // 508 - already closed
         if (!res.data.error || (res.data.error || {}).code === 508) {
           const studentName = this.state.activeStudentName
-          message.success(studentName + ' – зареєстровано!')
-          this.onSessionEnd()
+          this.setState({
+            showBallot: false,
+            studentSubmitted: studentName,
+            showCompleteSession: true,
+            loading: false
+          })
         } else {
           this.registerError(res.data.error.code)
         }
@@ -407,7 +421,6 @@ export default class App extends React.Component {
   }
 
   onSessionEnd() {
-    message.destroy()
     this.barcodeScanned = false
     this.setState({ ...initialState, auth: this.state.auth })
     try {

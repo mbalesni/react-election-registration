@@ -85,6 +85,9 @@ footer>* {
 .card .card-header .session-controls {
   display: flex;
 }
+.card .card-header .session-controls button {
+  font-weight: 400;
+}
 
 .card .card-header .card-title svg, .card .card-header .card-title i {
   color: #2196f3;

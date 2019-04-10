@@ -61,7 +61,7 @@ export default class Ballot extends React.Component {
                 className="ballot-dialog"
             >
                 <DialogTitle id="alert-dialog-slide-title">
-                    {/* <i className={ICONS.scannedIcon} style={{ color: '#2196f3', marginRight: '.5rem' }}></i>} */}
+                    <i className='fas fa-check-circle' style={{ color: '#4CAF50', marginRight: '.5rem' }}></i>
                     {title}
                 </DialogTitle>
                 <DialogContent>

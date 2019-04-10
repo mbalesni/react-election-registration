@@ -30,17 +30,21 @@
 .ballot .instruction {
     margin-bottom: 2rem;
 } */
+
 .ballot-dialog {
     margin: 0;
 }
+
 .number-wrapper {
     display: flex;
     justify-content: center;
     margin: 1rem 0;
 }
+
 .number {
     display: flex;
 }
+
 .number-box {
     align-items: center;
     background-color: #eee;
@@ -53,12 +57,19 @@
     margin: 0 .4rem;
     width: 80px;
     user-select: none;
-    
 }
+
 .check-in-controls {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     padding-top: 1rem;
     border-top: 1px solid #eee;
-  }
+}
+
+@media (max-width: 600px) {
+    .ballot-dialog [class*="MuiDialog-paper"] {
+        margin: 0;
+        border-radius: 0;
+    }
+}

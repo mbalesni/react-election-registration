@@ -49,7 +49,7 @@ export default class SessionWindow extends React.Component {
 
             <div className="session-controls">
               {this.props.students.length > 0 &&
-                <Button onClick={this.handleGoBack.bind(this)} color="primary">Назад</Button>
+                <Button onClick={this.handleGoBack.bind(this)}>Назад</Button>
               }
               <Button disabled={this.props.loading} onClick={this.props.onCancelSession} color="secondary">Скасувати</Button>
             </div>
