@@ -35,11 +35,11 @@ header .app-menu-btn {
   background-color: #2196f3;
   color: #fff;
   display: flex;
-  font-size: .875rem;
   justify-content: center;
   height: 100%;
   padding: .5rem 1rem;
   text-align: center;
+  font-weight: 500;
 }
 
 a,

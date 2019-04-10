@@ -31,6 +31,11 @@ export const THEME = createMuiTheme({
         fontSize: '.95rem',
       }
     },
+    MuiDialog: {
+      paper: {
+        margin: 0,
+      }
+    }
   },
 
 })

@@ -1,7 +1,5 @@
 import React, { useEffect } from 'react'
-import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -33,15 +31,15 @@ export default function SessionComplete(props) {
             aria-describedby="alert-dialog-slide-description"
             className="ballot-dialog"
         >
-            <DialogContent>
-                <DialogContentText id="alert-dialog-slide-description" style={{ textAlign: 'center' }}>
+            <DialogContent style={{ textAlign: 'center' }}>
+                <DialogContentText id="alert-dialog-slide-description">
                     <i style={{ fontSize: '5rem', color: '#4CAF50' }} className="fas fa-check-circle" />
                 </DialogContentText>
                 <DialogTitle>
-                {props.studentName}
+                    {props.studentName}
                 </DialogTitle>
-                <DialogContentText style={{ marginTop: '1rem', textAlign: 'center' }}>
-                Зареєстровано
+                <DialogContentText style={{ marginTop: '1rem' }}>
+                    Зареєстровано
                 </DialogContentText>
             </DialogContent>
         </Dialog >
