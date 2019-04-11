@@ -27,11 +27,9 @@ const spinnerStyles = css`
   position: absolute !important;
 `
 
-const backend = axios.create({
-  baseURL: BACKEND_BASE_URL,
-  withCredentials: true,
-  timeout: 5 * 1000,
-})
+axios.defaults.baseURL = BACKEND_BASE_URL + '/api'
+axios.defaults.withCredentials = true
+axios.defaults.timeout = 5 * 1000
 
 const initialState = {
   activeStudent: null,
@@ -70,7 +68,7 @@ export default class App extends React.Component {
             <Header auth={this.state.auth} onCloseSessions={this.closeSessions.bind(this)} />
             <BarLoader
               color="rgba(33, 150, 243, 0.8)"
-              className={spinnerStyles}
+              // className={spinnerStyles}
               loading={this.state.loading}
               width={100}
               widthUnit={"%"}
@@ -78,7 +76,7 @@ export default class App extends React.Component {
             />
 
             <div className="content">
-              {!loggedIn && <LoginWindow url={BACKEND_BASE_URL} onSuccess={this.onSuccessfulLogin.bind(this)} />}
+              {!loggedIn && <LoginWindow url={axios.defaults.baseURL} onSuccess={this.onSuccessfulLogin.bind(this)} />}
               {loggedIn && !this.state.sessionIsOpen &&
                 <NewSessionWindow onSessionStart={this.startSession.bind(this)} loading={loading} />
               }
@@ -135,7 +133,7 @@ export default class App extends React.Component {
     this.setState({ loading: true })
     console.log('getting auth')
 
-    backend.post('/me', {})
+    axios.post('/me', {})
       .then(res => {
         this.setState({
           auth: {
@@ -161,7 +159,7 @@ export default class App extends React.Component {
   }
 
   onSuccessfulLogin(authToken) {
-    backend.defaults.headers = {
+    axios.defaults.headers = {
       'X-Auth-Token': authToken
     }
 
@@ -170,7 +168,7 @@ export default class App extends React.Component {
   }
 
   closeSessions() {
-    backend.post('/close_sessions', {})
+    axios.post('/close_sessions', {})
       .catch(err => {
         console.warn(err)
       })
@@ -183,7 +181,7 @@ export default class App extends React.Component {
   _startSession() {
     console.log('Starting new session...')
     this.setState({ loading: true })
-    backend.post('/start_new_session', {})
+    axios.post('/start_new_session', {})
       .then(res => {
         if (!res.data.error) {
           const checkInSessionToken = res.data.data.check_in_session.token
@@ -223,7 +221,7 @@ export default class App extends React.Component {
 
     this.setState({ loading: true, searchQuery: name })
 
-    backend.post('/search_by_name', data)
+    axios.post('/search_by_name', data)
       .then(res => {
         if (res.data.error) return this.registerError(res.data.error.code, false)
 
@@ -287,7 +285,7 @@ export default class App extends React.Component {
 
     console.log(`Submitting student with doc_num ${data.student.doc_num} (type ${data.student.doc_type}), token ${data.student.token}`)
 
-    backend.post('/register_student', data)
+    axios.post('/register_student', data)
       .then(res => {
         if (res.data.error) return this.registerError(res.data.error.code)
         let ballotNumber = res.data.data.ballot_number
@@ -318,7 +316,7 @@ export default class App extends React.Component {
 
   completeSession = (config) => {
     config.check_in_session_token = this.state.checkInSessionToken
-    backend.post('/complete_session', config)
+    axios.post('/complete_session', config)
       .then(res => {
         // 508 - already closed
         if (!res.data.error || (res.data.error || {}).code === 508) {
@@ -394,7 +392,7 @@ export default class App extends React.Component {
 
     console.log('Canceling session...')
     this.setState({ loading: true })
-    backend.post('/cancel_session', token)
+    axios.post('/cancel_session', token)
       .then(res => {
         if (res.data.error) this.registerError(res.data.error.code, true)
         this.onSessionEnd()
