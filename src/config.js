@@ -1,7 +1,7 @@
 const PRODUCTION = process.env.NODE_ENV === 'production'
 
 const CONFIG = {
-    BACKEND_BASE_URL: PRODUCTION ? process.env.REACT_APP_BACKEND_BASE_URL : 'http://localhost',
+    BACKEND_BASE_URL: '/api',
     COMPLETE_TIMEOUT: PRODUCTION ? process.env.REACT_APP_COMPLETE_TIMEOUT : 5,
 }
 

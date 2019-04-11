@@ -73,10 +73,9 @@ export default class LoginWindow extends React.Component {
         const { username, password } = this.state
         if (!username || !password) return
         this.setState({ loading: true })
-        const apiBaseUrl = this.props.url
         const payload = { username, password: btoa(password) }
 
-        axios.post(apiBaseUrl + '/login', payload)
+        axios.post('/login', payload)
             .then(response => {
                 console.log(response)
 

@@ -23,11 +23,7 @@ import CONFIG from './config.js'
 
 const { BACKEND_BASE_URL } = CONFIG
 
-const spinnerStyles = css`
-  position: absolute !important;
-`
-
-axios.defaults.baseURL = BACKEND_BASE_URL + '/api'
+axios.defaults.baseURL = BACKEND_BASE_URL
 axios.defaults.withCredentials = true
 axios.defaults.timeout = 5 * 1000
 
@@ -60,6 +56,11 @@ export default class App extends React.Component {
     const { loggedIn } = this.state.auth
     const { loading, showRegistrationComplete, ballotNumber, showConsentDialog, showCompleteSession } = this.state
 
+    const spinnerStyles = css`
+      position: absolute !important;
+      top: 0;
+    `
+
     return (
       <div className="page-content-wrapper " >
 
@@ -68,7 +69,7 @@ export default class App extends React.Component {
             <Header auth={this.state.auth} onCloseSessions={this.closeSessions.bind(this)} />
             <BarLoader
               color="rgba(33, 150, 243, 0.8)"
-              // className={spinnerStyles}
+              className={spinnerStyles}
               loading={this.state.loading}
               width={100}
               widthUnit={"%"}
@@ -76,7 +77,7 @@ export default class App extends React.Component {
             />
 
             <div className="content">
-              {!loggedIn && <LoginWindow url={axios.defaults.baseURL} onSuccess={this.onSuccessfulLogin.bind(this)} />}
+              {!loggedIn && <LoginWindow onSuccess={this.onSuccessfulLogin.bind(this)} />}
               {loggedIn && !this.state.sessionIsOpen &&
                 <NewSessionWindow onSessionStart={this.startSession.bind(this)} loading={loading} />
               }
@@ -351,6 +352,7 @@ export default class App extends React.Component {
     switch (err.response.status) {
       case 400:
         // FIXME: deal with bad requests
+        alert('Невідома помилка. 400')
         break
       case 403:
         alert('Відмовлено в доступі. 403')
