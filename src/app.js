@@ -5,14 +5,13 @@ import { MuiThemeProvider } from '@material-ui/core/styles';
 import { QUAGGA_OPTIONS } from './plugins/quagga-options.js'
 import SessionWindow from './components/session-window'
 import NewSessionWindow from './components/new-session-window'
-import ConsentDialog from './components/doc-input/consent-dialog'
+import ConsentDialog from './components/consent-window'
 import RegistrationCompleteWindow from './components/registration-complete-window'
 import Header from './components/header'
 import Footer from './components/footer'
 import { THEME } from './utils/theme.js'
 import { BarLoader } from 'react-spinners';
 import { css } from 'react-emotion';
-import { message } from 'antd'
 import { ICONS } from './utils/icons.js'
 import '../node_modules/izitoast/dist/css/iziToast.min.css'
 import './utils/override-izitoast.css'
@@ -50,6 +49,7 @@ const initialState = {
   showRegistrationComplete: '',
   printerError: null,
   showConsentDialog: false,
+  consentGiven: false,
   searchQuery: '',
   showCompleteSession: false,
   studentSubmitted: '',
@@ -111,7 +111,7 @@ export default class App extends React.Component {
 
               {showConsentDialog &&
                 <ConsentDialog
-                  studentName={this.state.activeStudentName}
+                  staffName={this.state.auth.user}
                   onComplete={this.confirmConsent.bind(this)}
                   onCancel={this.cancelConsent.bind(this)}
                 />
@@ -129,13 +129,6 @@ export default class App extends React.Component {
         </MuiThemeProvider>
       </div>
     )
-  }
-
-  componentDidMount() {
-    message.config({
-      maxCount: 1,
-      duration: 5
-    })
   }
 
   getAuth(token) {
@@ -184,19 +177,23 @@ export default class App extends React.Component {
   }
 
   startSession() {
+    this.setState({ showConsentDialog: true })
+  }
+
+  _startSession() {
     console.log('Starting new session...')
     this.setState({ loading: true })
     backend.post('/start_new_session', {})
       .then(res => {
         if (!res.data.error) {
           const checkInSessionToken = res.data.data.check_in_session.token
-
           this.setState({
             sessionIsOpen: true,
             checkInSessionToken,
             status: 'Знайдіть студента в базі',
             loading: false
           })
+
         } else {
           return this.registerError(res.data.error.code)
         }
@@ -266,21 +263,14 @@ export default class App extends React.Component {
       doRevoke,
       status: 'Введіть номер підтверджуючого документа',
     })
-    this.openConsentDialog()
-
-  }
-
-  openConsentDialog() {
-    this.setState({ showConsentDialog: true })
   }
 
   confirmConsent() {
     this.setState({ showConsentDialog: false })
-    console.log('consent given', this.state.activeStudent)
+    this._startSession()
   }
 
   cancelConsent() {
-    this.unselectStudent()
     this.setState({ showConsentDialog: false })
   }
 
@@ -365,7 +355,7 @@ export default class App extends React.Component {
         // FIXME: deal with bad requests
         break
       case 403:
-        message.warn('Відмовлено в доступі.')
+        alert('Відмовлено в доступі. 403')
         break
       default:
         this.registerError(300)
@@ -438,7 +428,6 @@ export default class App extends React.Component {
         this.setState({
           loading: false
         })
-        message.info('Піднесіть студентський квиток до камери')
         this.initOnDetected()
       })
   }
@@ -448,7 +437,6 @@ export default class App extends React.Component {
     this.setState({
       status: 'Введіть номер підтверджуючого документа',
     })
-    message.destroy()
   }
 
   initOnDetected() {
@@ -460,15 +448,12 @@ export default class App extends React.Component {
       if (number.length === 8) {
         console.log('Successfuly scanned ticket:', number)
         this.barcodeScanned = true
-        message.destroy()
         Quagga.stop()
 
         let activeStudent = this.state.activeStudent
         activeStudent.docNumber = number
         activeStudent.docType = '0'
         this.setState({ activeStudent })
-        message.success('Студентський квиток відскановано.')
-
       } else {
         this.registerError(507)
       }

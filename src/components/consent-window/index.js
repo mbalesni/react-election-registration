@@ -9,7 +9,7 @@ import FormControl from '@material-ui/core/FormControl';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Slide from '@material-ui/core/Slide'
-import Link from '@material-ui/core/Link';
+import signature from './signature.png'
 import { isMobileScreen } from '../../utils/functions'
 import Checkbox from '@material-ui/core/Checkbox';
 
@@ -17,7 +17,7 @@ function Transition(props) {
     return <Slide direction="up" {...props} />
 }
 
-function ConsentItem({ checked, onChange, name, label, link, linkLabel }) {
+function ConsentItem({ checked, onChange, name, label, }) {
     return (
         <FormControlLabel
             control={(
@@ -27,27 +27,13 @@ function ConsentItem({ checked, onChange, name, label, link, linkLabel }) {
                     value={name}
                 />
             )}
-            label={(
-                <>
-                    <span>{label} </span>
-                    <Link
-                        href={link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        color="secondary"
-                        style={{ color: '#f44336', fontSize: '.875rem' }}
-                    >
-                        {linkLabel}
-                    </Link>
-                </>
-            )}
+            label={label}
         />
     )
 }
 
 export default function ConsentDialog(props) {
     const [privacyConsent, setPrivacyConsent] = useState(false)
-    const [publicOfferConsent, setPublicOfferConsent] = useState(false)
 
     const handleClose = () => {
         props.onCancel()
@@ -57,11 +43,9 @@ export default function ConsentDialog(props) {
         props.onComplete()
     }
 
-    const confirmedConsent = privacyConsent && publicOfferConsent
-    const { studentName } = props
+    const confirmedConsent = privacyConsent
+    const { staffName } = props
     const fullScreen = isMobileScreen()
-
-    let instructions = 'Підтвердіть згоду на обробку персональних даних.'
 
     return (
         <Dialog
@@ -71,34 +55,23 @@ export default function ConsentDialog(props) {
             aria-describedby="alert-dialog-slide-description"
             fullScreen={fullScreen}
         >
-            <DialogTitle id="alert-dialog-slide-title">
-                {/* <i className={ICONS.scannedIcon} style={{ color: '#2196f3', marginRight: '.5rem' }}></i>} */}
-                Згода та договір
+            <DialogTitle id="alert-dialog-slide-title" style={{ textAlign: 'center' }}>
+                Обробка персональних даних
             </DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-slide-description">
-                    {instructions}
-                    <br />
-                    <br />
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', margin: '1rem 0 2rem' }}>
+                        <img style={{ maxHeight: '200px' }} src={signature} alt="Ілюстрація згоди" />
+                    </div>
                     <FormControl component="fieldset">
                         <FormGroup>
-                            <ConsentItem 
+                            <ConsentItem
                                 checked={privacyConsent}
                                 onChange={setPrivacyConsent}
                                 name="privacyConsent"
-                                label={`Я, ${studentName}, прочитав(-ла) та погоджуюсь зі`}
-                                link="https://mon.gov.ua/storage/app/media/nauka/horizont/na-obrobku-personalnikh-danikh.pdf"
-                                linkLabel="Згодою на обробку персональних даних"
+                                label={`Я, ${staffName}, підтверджую, що студент дав згоду на обробку персональних даних.`}
                             />
                             <br />
-                            <ConsentItem 
-                                checked={publicOfferConsent}
-                                onChange={setPublicOfferConsent}
-                                name="publicOfferConsent"
-                                label={`Я, ${studentName}, прочитав(-ла) та погоджуюсь із`}
-                                link="https://mon.gov.ua/storage/app/media/nauka/horizont/na-obrobku-personalnikh-danikh.pdf"
-                                linkLabel="Договором публічної оферти"
-                            />
                         </FormGroup>
                     </FormControl>
                 </DialogContentText>
@@ -108,7 +81,7 @@ export default function ConsentDialog(props) {
                     Скасувати
                 </Button>
                 <Button disabled={!confirmedConsent} onClick={handleComplete} color="primary" variant="contained">
-                    Продовжити
+                    Підтвердити
                 </Button>
             </DialogActions>
         </Dialog >

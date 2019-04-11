@@ -35,6 +35,11 @@ export const THEME = createMuiTheme({
       paper: {
         margin: 0,
       }
+    },
+    MuiDialogContent: {
+      root: {
+        paddingBottom: 0
+      }
     }
   },
 

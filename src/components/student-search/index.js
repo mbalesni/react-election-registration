@@ -95,7 +95,6 @@ export default class StudentSearch extends React.Component {
         let text = ''
         text += `Введіть не менше ${MIN_LENGTH[field.name]} символів.`
 
-        // message.warn(text)
         showNotification({
           message: text,
           icon: ICONS.errorIcon,

@@ -60,7 +60,6 @@ export default class DocInput extends React.Component {
             text += `Перевірте правильність номеру ${docNameByValue(docType)}.`
 
             console.warn(text)
-            // message.warn(text)
             iziToast.show({
                 message: `Перевірте правильність номеру ${docNameByValue(docType)}.`,
                 icon: ICONS.errorIcon,
