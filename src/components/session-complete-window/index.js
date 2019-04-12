@@ -38,7 +38,7 @@ export default function SessionCompleteWindow(props) {
                 <DialogTitle>
                     {props.studentName}
                 </DialogTitle>
-                <DialogContentText style={{ marginTop: '1rem' }}>
+                <DialogContentText style={{ margin: '1rem 0' }}>
                     Зареєстровано
                 </DialogContentText>
             </DialogContent>
