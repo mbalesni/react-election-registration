@@ -120,6 +120,12 @@ bower_components
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
 
+# cra build output
+build/
+
+# local deploy script
+deploy.sh
+
 # Dependency directories
 node_modules/
 jspm_packages/
