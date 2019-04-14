@@ -130,7 +130,7 @@ export default class App extends React.Component {
     )
   }
 
-  getAuth(token) {
+  getAuth() {
     this.setState({ loading: true })
     console.log('getting auth')
 
@@ -141,13 +141,11 @@ export default class App extends React.Component {
             loggedIn: true,
             user: `${res.data.data.staff.first_name} ${res.data.data.staff.last_name}`,
             structuralUnit: res.data.data.staff.structural_unit_name,
-            token,
           },
           loading: false
         })
       })
       .catch(err => {
-        localStorage.setItem('authToken', '')
         this.setState({
           auth: {
             loggedIn: false
@@ -164,7 +162,7 @@ export default class App extends React.Component {
       'X-Auth-Token': authToken
     }
 
-    this.getAuth(authToken)
+    this.getAuth()
     this.closeSessions()
   }
 

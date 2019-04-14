@@ -28,13 +28,6 @@ export default class LoginWindow extends React.Component {
         loading: false
     }
 
-    componentDidMount() {
-        const authToken = localStorage.getItem('authToken')
-        if (authToken) {
-            this.props.onSuccess(authToken)
-        }
-    }
-
     handleError(code) {
         const error = ERRORS[code]
         console.log(error.title, error.message)
@@ -78,12 +71,11 @@ export default class LoginWindow extends React.Component {
         axios.post('/login', payload)
             .then(response => {
                 console.log(response)
+                this.setState({ loading: false })
 
                 const authToken = response.data.auth_token
-                this.setState({ loading: false })
                 if (authToken) {
                     console.log("Login successfull")
-                    localStorage.setItem('authToken', authToken)
                     this.props.onSuccess(authToken)
                 }
                 else if (response.data.error && response.data.error.code) {
