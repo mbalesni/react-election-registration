@@ -1,5 +1,6 @@
 import React from 'react'
 import axios from 'axios'
+import Raven from 'raven-js'
 import Quagga from 'quagga'
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import { QUAGGA_OPTIONS } from './plugins/quagga-options.js'
@@ -51,6 +52,10 @@ const initialState = {
 
 export default class App extends React.Component {
   state = { ...initialState }
+
+  componentDidCatch(err, errInfo) {
+    Raven.captureException(err, { extra: errInfo });
+  }
 
   render() {
     const { loggedIn } = this.state.auth
@@ -365,26 +370,34 @@ export default class App extends React.Component {
   registerError(code, silent = false, options) {
     this.setState({ loading: false })
 
-    let error = errors[code]
-    if (300 <= code && code < 400) {
+    let error = errors[code] || {
+      title: `Помилка [${code}]`,
+      message: '',
+      icon: ICONS.errorIcon,
+    }
+
+    if (300 <= code && code < 400) { // error range can't be fixed by user
       error = {
-        title: 'Невідома помилка',
+        title: 'Програмна помилка',
         message: 'Зверніться в службу підтримки',
         icon: ICONS.bug,
       }
     }
-    if (!error) error = {}
-    let title = `${error.title || 'Помилка'} [${code}]`
+
+    if (code === 518 || code === 519) {
+      this.onExpiredAuth()
+    }
+
 
     if (!silent) {
       showNotification({
-        title,
-        message: error.message || '',
-        icon: error.icon || ICONS.errorIcon,
+        title: error.title,
+        message: error.message,
+        icon: error.icon,
       })
     }
 
-    console.log(title)
+    console.log(error.title)
   }
 
   cancelSession() {
@@ -400,6 +413,10 @@ export default class App extends React.Component {
       .catch(err => {
         this.handleApiError(err)
       })
+  }
+
+  onExpiredAuth() {
+    this.setState({ auth: initialState.auth }, () => { this.onSessionEnd() })
   }
 
   onSessionEnd() {
