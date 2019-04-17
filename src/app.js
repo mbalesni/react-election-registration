@@ -27,6 +27,16 @@ const { BACKEND_BASE_URL } = CONFIG
 axios.defaults.baseURL = BACKEND_BASE_URL
 axios.defaults.withCredentials = true
 axios.defaults.timeout = 5 * 1000
+axios.interceptors.response.use(function (response) {
+  if (response.data.auth_token) {
+    axios.defaults.headers = {
+      'X-Auth-Token': response.data.auth_token
+    }
+  }
+  return response
+}, function (error) {
+  return Promise.reject(error)
+});
 
 const initialState = {
   activeStudent: null,
