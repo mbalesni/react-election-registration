@@ -151,14 +151,18 @@ export default class App extends React.Component {
 
     axios.post('/me', {})
       .then(res => {
-        this.setState({
-          auth: {
-            loggedIn: true,
-            user: `${res.data.data.staff.first_name} ${res.data.data.staff.last_name}`,
-            structuralUnit: res.data.data.staff.structural_unit_name,
-          },
-          loading: false
-        })
+        if (!res.data.error) {
+          this.setState({
+            auth: {
+              loggedIn: true,
+              user: `${res.data.data.staff.first_name} ${res.data.data.staff.last_name}`,
+              structuralUnit: res.data.data.staff.structural_unit_name,
+            },
+            loading: false
+          })
+        } else {
+          this.registerError(res.data.error.code)
+        }
       })
       .catch(err => {
         this.setState({

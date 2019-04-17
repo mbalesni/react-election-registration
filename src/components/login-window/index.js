@@ -30,7 +30,7 @@ export default class LoginWindow extends React.Component {
     }
 
     handleError(code) {
-        const error = ERRORS[code]
+        const error = ERRORS[code] || {}
         console.log(error.title, error.message)
         showNotification({
             title: error.title,
