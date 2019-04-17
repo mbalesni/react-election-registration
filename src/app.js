@@ -293,7 +293,6 @@ export default class App extends React.Component {
       .then(res => {
         if (res.data.error) return this.registerError(res.data.error.code)
         let ballotNumber = res.data.data.ballot_number
-        ballotNumber = '18-20-39-93'
         this.setState({ showRegistrationComplete: true, ballotNumber })
       })
       .catch(err => {
