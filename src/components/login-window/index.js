@@ -2,6 +2,7 @@ import React from 'react'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
+import FormHelperText from '@material-ui/core/FormHelperText';
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { ICONS } from '../../utils/icons.js'
 import ERRORS from '../../utils/errors.json';
@@ -10,11 +11,11 @@ import axios from 'axios'
 import './index.css'
 
 const fieldStyle = {
-    marginBottom: '1rem',
+    marginBottom: '.5rem',
 }
 
 const buttonStyle = {
-    marginTop: '1rem'
+    marginTop: '.5rem'
 }
 
 const Spinner = () => (
@@ -58,6 +59,9 @@ export default class LoginWindow extends React.Component {
                     Увійти
                         {loading && <Spinner />}
                 </Button>
+                <FormHelperText style={{ marginTop: '1rem', lineHeight: '1.3', textAlign: 'center' }}>
+                    Або перейти до <a style={{ fontSize: 'inherit', color: '#f44336' }} href="/admin/" rel="noopener noreferrer" target="_blank">адмін панелі</a>.
+                </FormHelperText>
             </form>
         )
     }
