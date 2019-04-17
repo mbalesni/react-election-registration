@@ -9,10 +9,7 @@ export default class StudentOption extends React.Component {
 
   handleSelect(student) {
     console.log(`Selecting student ${student.name} (Year: ${student.year}, Specialty: ${student.specialty})`)
-
-    const doRevoke = this.props.data.status === 2
-
-    this.props.onSelect(student, doRevoke)
+    this.props.onSelect(student)
     this.setState({
       disabled: true,
     })

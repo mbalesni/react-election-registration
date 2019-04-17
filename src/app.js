@@ -179,10 +179,6 @@ export default class App extends React.Component {
   }
 
   startSession() {
-    this.setState({ showConsentDialog: true })
-  }
-
-  _startSession() {
     console.log('Starting new session...')
     this.setState({ loading: true })
     axios.post('/start_new_session', {})
@@ -258,22 +254,22 @@ export default class App extends React.Component {
     return data
   }
 
-  selectStudent(student, doRevoke) {
+  selectStudent(student) {
     this.setState({
       activeStudent: student,
       activeStudentName: student.name,
-      doRevoke,
       status: 'Введіть номер підтверджуючого документа',
+      showConsentDialog: true,
     })
   }
 
   confirmConsent() {
     this.setState({ showConsentDialog: false })
-    this._startSession()
   }
 
   cancelConsent() {
     this.setState({ showConsentDialog: false })
+    this.unselectStudent()
   }
 
   registerStudent(student) {
