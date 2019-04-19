@@ -26,7 +26,6 @@ export default class Header extends React.Component {
   handleLogout() {
     this.handleClose()
     this.props.onCloseSessions()
-    localStorage.removeItem('authToken')
     window.location = window.location + ''
   }
 
@@ -52,7 +51,7 @@ export default class Header extends React.Component {
                 color="inherit"
                 className="app-menu-btn"
               >
-                <AccountCircle style={{ marginRight: 8 }} />
+                <AccountCircle style={{ marginRight: '8px' }} />
                 <span>{auth.user}</span>
               </Button>
               <Menu
