@@ -7,6 +7,7 @@ dependencies:
   axios: 0.18.0
   create-react-app: 2.0.3
   emotion: 9.2.12
+  enzyme-adapter-react-16: 1.12.1
   izitoast: 1.4.0
   npm: 6.9.0
   quagga: 0.12.1
@@ -18,6 +19,7 @@ dependencies:
   react-router-dom: 4.3.1
   react-scripts: 2.1.8
   react-spinners: 0.4.8
+  react-test-renderer: 16.8.6
   source-map-explorer: 1.8.0
 devDependencies:
   '@fortawesome/fontawesome-free': 5.8.1
@@ -2061,6 +2063,23 @@ packages:
       node: '>= 0.12.0'
     resolution:
       integrity: sha512-z55ocwKBRLryBs394Sm3ushTtBeg6VAeuku7utSoSnsJKvKcnXFIyC6vh27n3rXyxSgkJBBCAvyOn7gSUcTYjg==
+  /airbnb-prop-types/2.13.2:
+    dependencies:
+      array.prototype.find: 2.0.4
+      function.prototype.name: 1.1.0
+      has: 1.0.3
+      is-regex: 1.0.4
+      object-is: 1.0.1
+      object.assign: 4.1.0
+      object.entries: 1.1.0
+      prop-types: 15.7.2
+      prop-types-exact: 1.2.0
+      react-is: 16.8.6
+    dev: false
+    peerDependencies:
+      react: ^0.14 || ^15.0.0 || ^16.0.0-alpha
+    resolution:
+      integrity: sha512-2FN6DlHr6JCSxPPi25EnqGaXC4OC3/B3k1lCd6MMYrZ51/Gf/1qDfaR+JElzWa+Tl7cY2aYOlsYJGFeQyVHIeQ==
   /ajv-errors/1.0.1_ajv@6.10.0:
     dependencies:
       ajv: 6.10.0
@@ -2328,6 +2347,13 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-qJS3XUvE9s1nnvMkSp/Y9Gri1Cg=
+  /array.prototype.find/2.0.4:
+    dependencies:
+      define-properties: 1.1.3
+      es-abstract: 1.13.0
+    dev: false
+    resolution:
+      integrity: sha1-VWpcU2LAhkgyPdrrnenRS8GGTJA=
   /arrify/1.0.1:
     dev: false
     engines:
@@ -4438,6 +4464,35 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-rXbzXWvnQxy+TcqZlARbWVQwgGVVouVJgFZhLVN5htjLxl1thstrP2ZGi0pXC309AbK7gVOPU+ulz/tmpCI7iw==
+  /enzyme-adapter-react-16/1.12.1:
+    dependencies:
+      enzyme-adapter-utils: 1.11.0
+      object.assign: 4.1.0
+      object.values: 1.1.0
+      prop-types: 15.7.2
+      react-is: 16.8.6
+      react-test-renderer: 16.8.6
+      semver: 5.7.0
+    dev: false
+    peerDependencies:
+      enzyme: ^3.0.0
+      react: ^16.0.0-0
+      react-dom: ^16.0.0-0
+    resolution:
+      integrity: sha512-GB61gvY97XvrA6qljExGY+lgI6BBwz+ASLaRKct9VQ3ozu0EraqcNn3CcrUckSGIqFGa1+CxO5gj5is5t3lwrw==
+  /enzyme-adapter-utils/1.11.0:
+    dependencies:
+      airbnb-prop-types: 2.13.2
+      function.prototype.name: 1.1.0
+      object.assign: 4.1.0
+      object.fromentries: 2.0.0
+      prop-types: 15.7.2
+      semver: 5.7.0
+    dev: false
+    peerDependencies:
+      react: 0.13.x || 0.14.x || ^15.0.0-0 || ^16.0.0-0
+    resolution:
+      integrity: sha512-0VZeoE9MNx+QjTfsjmO1Mo+lMfunucYB4wt5ficU85WB/LoetTJrbuujmHP3PJx6pSoaAuLA+Mq877x4LoxdNg==
   /errno/0.1.7:
     dependencies:
       prr: 1.0.1
@@ -5374,6 +5429,16 @@ packages:
     dev: false
     resolution:
       integrity: sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A==
+  /function.prototype.name/1.1.0:
+    dependencies:
+      define-properties: 1.1.3
+      function-bind: 1.1.1
+      is-callable: 1.1.4
+    dev: false
+    engines:
+      node: '>= 0.4'
+    resolution:
+      integrity: sha512-Bs0VRrTz4ghD8pTmbJQD1mZ8A/mN0ur/jGz+A6FBxPDUPkm1tNfF6bhTYPA7i7aF4lZJVr+OXTNNrnnIl58Wfg==
   /functional-red-black-tree/1.0.1:
     dev: false
     resolution:
@@ -8163,6 +8228,12 @@ packages:
       node: '>= 0.10.0'
     resolution:
       integrity: sha512-OSuu/pU4ENM9kmREg0BdNrUDIl1heYa4mBZacJc+vVWz4GtAwu7jO8s4AIt2aGRUTqxykpWzI3Oqnsm13tTMDA==
+  /object-is/1.0.1:
+    dev: false
+    engines:
+      node: '>= 0.4'
+    resolution:
+      integrity: sha1-CqYOyZiaCz7Xlc9NBvYs8a1lObY=
   /object-keys/1.1.1:
     dev: false
     engines:
@@ -8188,6 +8259,17 @@ packages:
       node: '>= 0.4'
     resolution:
       integrity: sha512-exHJeq6kBKj58mqGyTQ9DFvrZC/eR6OwxzoM9YRoGBqrXYonaFyGiFMuc9VZrXf7DarreEwMpurG3dd+CNyW5w==
+  /object.entries/1.1.0:
+    dependencies:
+      define-properties: 1.1.3
+      es-abstract: 1.13.0
+      function-bind: 1.1.1
+      has: 1.0.3
+    dev: false
+    engines:
+      node: '>= 0.4'
+    resolution:
+      integrity: sha512-l+H6EQ8qzGRxbkHOd5I/aHRhHDKoQXQ8g0BYt4uSweQU1/J6dZUOyWh9a2Vky35YCKjzmgxOzta2hH6kf9HuXA==
   /object.fromentries/2.0.0:
     dependencies:
       define-properties: 1.1.3
@@ -9484,6 +9566,14 @@ packages:
       node: '>= 6'
     resolution:
       integrity: sha512-rxkyiE9YH6zAz/rZpywySLKkpaj0NMVyNw1qhsubdbjjSgcayjTShDreZGlFMcGSu5sab3bAKPfFk78PB90+8w==
+  /prop-types-exact/1.2.0:
+    dependencies:
+      has: 1.0.3
+      object.assign: 4.1.0
+      reflect.ownkeys: 0.2.0
+    dev: false
+    resolution:
+      integrity: sha512-K+Tk3Kd9V0odiXFP9fwDHUYRyvK3Nun3GVyPapSIs5OBkITAm15W0CPFD/YKTkMUAbc0b9CUwRQp2ybiBIq+eA==
   /prop-types/15.7.2:
     dependencies:
       loose-envify: 1.4.0
@@ -10281,6 +10371,17 @@ packages:
       react-dom: ^0.14.0 || ^15.0.0 || ^16.0.0
     resolution:
       integrity: sha512-4zBH3o4UYV9lnJV8c4u/8yuYMxDF/vk/g7s80ce8Wj3CoMGfapbtPyK+Tq6WyRoNKFwyH0n4NB09bbtaz9Oa6g==
+  /react-test-renderer/16.8.6:
+    dependencies:
+      object-assign: 4.1.1
+      prop-types: 15.7.2
+      react-is: 16.8.6
+      scheduler: 0.13.6
+    dev: false
+    peerDependencies:
+      react: ^16.0.0
+    resolution:
+      integrity: sha512-H2srzU5IWYT6cZXof6AhUcx/wEyJddQ8l7cLM/F7gDXYyPr4oq+vCIxJYXVGhId1J706sqziAjuOEjyNkfgoEw==
   /react-transition-group/2.9.0:
     dependencies:
       dom-helpers: 3.4.0
@@ -10434,6 +10535,10 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha512-nRCcW9Sj7NuZwa2XvH9co8NPeXUBhZP7CRKJtU+cS6PW9FpCIFoI5ib0NT1ZrbNuPoRy0ylyCaUL8Gih4LSyFg==
+  /reflect.ownkeys/0.2.0:
+    dev: false
+    resolution:
+      integrity: sha1-dJrO7H8/34tj+SegSAnpDFwLNGA=
   /regenerate-unicode-properties/8.0.2:
     dependencies:
       regenerate: 1.4.0
@@ -12653,6 +12758,7 @@ specifiers:
   axios: ^0.18.0
   create-react-app: 2.0.3
   emotion: ^9.2.12
+  enzyme-adapter-react-16: ^1.12.1
   izitoast: ^1.4.0
   npm: ^6.5.0
   quagga: ^0.12.1
@@ -12664,4 +12770,5 @@ specifiers:
   react-router-dom: ^4.3.1
   react-scripts: 2.1.8
   react-spinners: ^0.4.8
+  react-test-renderer: ^16.8.6
   source-map-explorer: ^1.8.0
