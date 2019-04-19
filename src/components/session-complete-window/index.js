@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
@@ -13,10 +13,13 @@ function Transition(props) {
 const CLOSE_TIMEOUT = 3 * 1000
 
 export default function SessionCompleteWindow(props) {
+    const [open, setOpen] = useState(true)
+
     const handleClose = () => {
+        setOpen(false)
         props.onSessionEnd()
-        console.log('closing window')
     }
+
 
     useEffect(() => {
         var a = setTimeout(handleClose, CLOSE_TIMEOUT)
@@ -25,7 +28,7 @@ export default function SessionCompleteWindow(props) {
 
     return (
         <Dialog
-            open={true}
+            open={open}
             TransitionComponent={Transition}
             aria-labelledby="alert-dialog-slide-title"
             aria-describedby="alert-dialog-slide-description"
@@ -44,6 +47,4 @@ export default function SessionCompleteWindow(props) {
             </DialogContent>
         </Dialog >
     )
-
-
 }
