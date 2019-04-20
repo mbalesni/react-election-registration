@@ -385,14 +385,6 @@ export default class App extends React.Component {
       icon: ICONS.errorIcon,
     }
 
-    if (300 <= code && code < 400) { // error range can't be fixed by user
-      error = {
-        title: 'Програмна помилка',
-        message: 'Зверніться в службу підтримки',
-        icon: ICONS.bug,
-      }
-    }
-
     if (code === 518 || code === 519) {
       this.onExpiredAuth()
     }
