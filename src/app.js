@@ -131,12 +131,11 @@ export default class App extends React.Component {
                 />
               }
 
-              {showCompleteSession &&
-                <SessionComplete
-                  studentName={this.state.studentSubmitted}
-                  onSessionEnd={this.onSessionEnd.bind(this)}
-                />
-              }
+              <SessionComplete
+                open={showCompleteSession}
+                studentName={this.state.studentSubmitted}
+                onSessionEnd={this.onSessionEnd.bind(this)}
+              />
             </div>
           </div>
           <Footer />

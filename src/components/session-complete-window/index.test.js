@@ -12,16 +12,16 @@ describe('<SessionCompleteWindow />', () => {
     let wrapper
 
     beforeEach(() => {
-        jest.useFakeTimers()
-        wrapper = mount(<SessionCompleteWindow onSessionEnd={() => { }} studentName="" />)
+        wrapper = mount(<SessionCompleteWindow open={false} onSessionEnd={() => { }} studentName="" />)
     })
 
-    it('should disappear after 3s', () => {
+    it('should open when `open` prop changes to true', () => {
+        wrapper.setProps({ open: true })
         expect(wrapper.find(Dialog).prop('open')).toBeTruthy()
-        act(() => {
-            jest.advanceTimersByTime(3 * 1000)
-        })
-        wrapper.update()
+    })
+
+    it('should be closed when `open` prop is false', () => {
+        wrapper.setProps({ open: false })
         expect(wrapper.find(Dialog).prop('open')).toBeFalsy()
     })
 })

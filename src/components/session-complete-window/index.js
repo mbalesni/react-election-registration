@@ -12,19 +12,16 @@ function Transition(props) {
 
 const CLOSE_TIMEOUT = 3 * 1000
 
-export default function SessionCompleteWindow(props) {
-    const [open, setOpen] = useState(true)
-
+export default function SessionCompleteWindow({ open, onSessionEnd, studentName }) {
     const handleClose = () => {
-        setOpen(false)
-        props.onSessionEnd()
+        onSessionEnd()
     }
 
 
     useEffect(() => {
-        var a = setTimeout(handleClose, CLOSE_TIMEOUT)
+        if (open === true) var a = setTimeout(handleClose, CLOSE_TIMEOUT)
         return () => window.clearTimeout(a)
-    }, [])
+    }, [open])
 
     return (
         <Dialog
@@ -39,7 +36,7 @@ export default function SessionCompleteWindow(props) {
                     <i style={{ fontSize: '5rem', color: '#4CAF50' }} className="fas fa-check-circle" />
                 </DialogContentText>
                 <DialogTitle>
-                    {props.studentName}
+                    {studentName}
                 </DialogTitle>
                 <DialogContentText style={{ margin: '1rem 0' }}>
                     Зареєстровано
