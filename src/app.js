@@ -100,6 +100,7 @@ export default class App extends React.Component {
               {loggedIn && this.state.sessionIsOpen &&
                 <SessionWindow
                   activeStudent={this.state.activeStudent}
+                  scannerSeed={this.state.scannerSeed}
                   status={this.state.status}
                   students={this.state.students}
                   onSearchBack={this.searchGoBack.bind(this)}
@@ -476,7 +477,9 @@ export default class App extends React.Component {
         let activeStudent = this.state.activeStudent
         activeStudent.docNumber = number
         activeStudent.docType = '0'
-        this.setState({ activeStudent })
+        
+        let scannerSeed = Math.random()
+        this.setState({ activeStudent, scannerSeed })
       } else {
         this.registerError(507)
       }

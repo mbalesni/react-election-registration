@@ -91,6 +91,7 @@ export default class SessionWindow extends React.Component {
                   onScanCancel={this.props.onScanCancel.bind(this)}
                   onSubmit={this.props.onStudentSubmit}
                   onCompleteSession={this.props.onCompleteSession.bind(this)}
+                  scannerSeed={this.props.scannerSeed}
                   loading={this.props.loading}
                 />
               </Fragment>

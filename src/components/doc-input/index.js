@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button, Radio, RadioGroup, FormLabel, FormControl, FormControlLabel, Input } from '@material-ui/core'
 import IconButton from '@material-ui/core/IconButton'
 import PhotoCamera from '@material-ui/icons/PhotoCamera'
@@ -21,39 +21,47 @@ const MAX_LENGTH = {
     '2': 8,     // certificate
 }
 
+const initialState = {
+    value: '0',
+    docNumber: '',
+    touched: false,
+    isScanning: false,
+    submitted: false,
+}
 
-export default class DocInput extends React.Component {
-    state = {
-        value: '0',
-        docNumber: '',
-        touched: false,
-        isScanning: false,
-        submitted: false,
+
+export default function DocInput(props) {
+    const [state, setState] = useState(initialState)
+
+
+    const handleChange = event => {
+        setState({
+            ...state,
+            value: event.target.value
+        })
     }
 
-    handleChange = event => {
-        this.setState({ value: event.target.value })
-    }
-
-    validate(docNumber) {
-        const docType = this.state.value
+    const validate = (docNumber) => {
+        const docType = state.value
         // true condition means error
         // string is error explanation
-        let result = (docNumber.length < MIN_LENGTH[docType] || docNumber.length > MAX_LENGTH[docType]) ? `Перевірте правильність номеру ${docNameByValue}.` : ''
+        let result = (docNumber.length < MIN_LENGTH[docType] || docNumber.length > MAX_LENGTH[docType]) ? `Перевірте правильність номеру ${docNameByValue(docType)}.` : ''
+        console.log(docNumber, docType, result)
         return result
     }
 
-    handleBlur = (field) => (evt) => {
-        this.setState({
+    const handleBlur = (field) => (evt) => {
+        setState({
+            ...state,
             touched: true,
         })
     }
 
-    handleSubmit() {
-        const { docNumber } = this.state
-        const docType = this.state.value
+    const handleSubmit = () => {
+        const docNumber = state.docNumber
+        const docType = state.value
 
-        const error = this.validate(docNumber)
+        const error = validate(docNumber)
 
         if (error) {
             let text = ''
@@ -70,151 +78,157 @@ export default class DocInput extends React.Component {
                 transitionIn: 'bounceInLeft',
             })
         } else {
-            let student = { ...this.props.activeStudent }
+            let student = { ...props.activeStudent }
             student.docType = docType
             student.docNumber = docNumber
-            this.props.onSubmit(student)
+            props.onSubmit(student)
         }
     }
 
-    handleStartScan() {
-        this.props.onScanStart()
-        this.setState({ isScanning: true })
+    const handleStartScan = () => {
+        props.onScanStart()
+        setState({
+            ...state,
+            isScanning: true
+        })
     }
 
-    handleCancelScan() {
-        this.props.onScanCancel()
-        this.setState({ isScanning: false })
+    const handleCancelScan = () => {
+        props.onScanCancel()
+        setState({
+            ...state,
+            isScanning: false
+        })
     }
 
-    handleSubmitOnEnter(e) {
+    const handleSubmitOnEnter = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault()
             this.handleSubmit()
         } else return
     }
 
-    handleDocNumberChange = (e) => {
+    const handleDocNumberChange = (e) => {
         let docNumber = e.target.value
-        this.setState({ docNumber })
+        console.log('handling doc number change', state, docNumber, { ...state, docNumber })
+        setState({
+            ...state,
+            docNumber
+        })
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
-        if (nextProps.activeStudent.docNumber && nextProps.activeStudent.docNumber !== prevState.docNumber) {
-            // this is setState equivalent
-            return ({
-                docNumber: nextProps.activeStudent.docNumber,
-                isScanning: false
-            })
-        } else return null
+    useEffect(() => {
+        console.log('using effect')
+        setState({
+            ...state,
+            docNumber: props.activeStudent.docNumber,
+            isScanning: false,
+        })
+    }, [props.activeStudent.docNumber, props.scannerSeed])
+
+    const { value } = state
+    const docNumber = state.docNumber || ''
+
+    const error = validate(docNumber)
+
+    const screenWidth = window.innerWidth
+
+    const isSmScreen = screenWidth < 600
+
+    const disabled = props.loading || validate(docNumber)
+
+    const shouldMarkError = (field) => {
+        const hasError = error.length > 0
+        const shouldShow = state.touched
+
+        const result = hasError ? shouldShow : false
+        return result
     }
 
-    render() {
-        const { value } = this.state
-        const docNumber = this.props.activeStudent.docNumber || this.state.docNumber || ''
+    // const iconRight = {
+    //     marginRight: '8px',
+    //     marginBottom: '2px',
+    //     fontSize: '18px'
+    // }
 
-        const error = this.validate(docNumber)
+    const startAdornment = {
+        marginTop: 0,
+        marginRight: 0,
+        opacity: .6,
+    }
 
-        const screenWidth = window.innerWidth
+    let byTicket = (value === '0')
 
-        const isSmScreen = screenWidth < 600
+    return (
+        <>
+            <div className="doc-picker">
+                <FormControl component="fieldset">
+                    <FormLabel component="legend">Тип документа</FormLabel>
+                    <RadioGroup
+                        aria-label="Тип документа"
+                        name="docType"
+                        value={value}
+                        onChange={handleChange}
+                    >
+                        <FormControlLabel value="0" control={<Radio />} label="Студентський квиток" />
+                        <FormControlLabel value="1" control={<Radio />} label="Залікова книжка" />
+                        <FormControlLabel value="2" control={<Radio />} label="Довідка" />
+                    </RadioGroup>
 
-        const disabled = this.props.loading || this.validate(docNumber)
+                </FormControl>
 
-        const shouldMarkError = (field) => {
-            const hasError = error.length > 0
-            const shouldShow = this.state.touched
+                <div>
+                    <div className="doc-number-field" style={!isSmScreen ? { marginTop: 24 + (48 * value) } : { marginTop: 24 }}>
 
-            const result = hasError ? shouldShow : false
+                        <Input
+                            className="input doc-number"
+                            disabled={props.loading}
+                            error={shouldMarkError('docNumber')}
+                            placeholder={"Номер " + docNameByValue(value)}
+                            value={state.docNumber}
+                            fullWidth={true}
+                            onChange={handleDocNumberChange}
+                            onBlur={handleBlur('docNumber')}
+                            tabIndex="0"
+                            onKeyPress={handleSubmitOnEnter}
+                            startAdornment={byTicket && <span style={startAdornment}>KB</span>}
+                        />
 
-            return result
-        }
-
-        // const iconRight = {
-        //     marginRight: '8px',
-        //     marginBottom: '2px',
-        //     fontSize: '18px'
-        // }
-
-        const startAdornment = {
-            marginTop: 0,
-            marginRight: 0,
-            opacity: .6,
-        }
-
-        let byTicket = (value === '0')
-
-        return (
-            <Fragment>
-                <div className="doc-picker">
-                    <FormControl component="fieldset">
-                        <FormLabel component="legend">Тип документа</FormLabel>
-                        <RadioGroup
-                            aria-label="Тип документа"
-                            name="docType"
-                            value={value}
-                            onChange={this.handleChange}
-                        >
-                            <FormControlLabel value="0" control={<Radio />} label="Студентський квиток" />
-                            <FormControlLabel value="1" control={<Radio />} label="Залікова книжка" />
-                            <FormControlLabel value="2" control={<Radio />} label="Довідка" />
-                        </RadioGroup>
-
-                    </FormControl>
-
-                    <div>
-                        <div className="doc-number-field" style={!isSmScreen ? { marginTop: 24 + (48 * value) } : { marginTop: 24 }}>
-
-                            <Input
-                                className="input doc-number"
-                                disabled={this.props.loading}
-                                error={shouldMarkError('docNumber')}
-                                placeholder={"Номер " + docNameByValue(value)}
-                                value={this.state.docNumber}
-                                fullWidth={true}
-                                onChange={this.handleDocNumberChange}
-                                onBlur={this.handleBlur('docNumber')}
-                                tabIndex="0"
-                                onKeyPress={this.handleSubmitOnEnter.bind(this)}
-                                startAdornment={byTicket && <span style={startAdornment}>KB</span>}
-                            />
-
-                            {byTicket &&
-                                <IconButton
-                                    color="primary"
-                                    component="span"
-                                    style={{ marginTop: -6 }}
-                                    onClick={this.handleStartScan.bind(this)}
-                                >
-                                    <PhotoCamera />
-                                </IconButton>
-                            }
-                        </div>
+                        {byTicket &&
+                            <IconButton
+                                color="primary"
+                                component="span"
+                                style={{ marginTop: -6 }}
+                                onClick={handleStartScan}
+                            >
+                                <PhotoCamera />
+                            </IconButton>
+                        }
                     </div>
-
                 </div>
 
-                <Button
-                    className="print-btn"
-                    variant="contained"
-                    color="primary"
-                    onClick={this.handleSubmit.bind(this)}
-                    disabled={disabled}
-                    style={{ marginTop: '1rem' }}
-                >
-                    Підтвердити
-                </Button>
+            </div>
 
-                {byTicket &&
-                    <Video
-                        onCancel={this.handleCancelScan.bind(this)}
-                        show={this.state.isScanning}
-                        loading={this.props.loading}
-                    />
-                }
-            </Fragment>
-        )
-    }
+            <Button
+                className="print-btn"
+                variant="contained"
+                color="primary"
+                onClick={handleSubmit}
+                disabled={disabled}
+                style={{ marginTop: '1rem' }}
+            >
+                Підтвердити
+            </Button>
+
+            {byTicket &&
+                <Video
+                    onCancel={handleCancelScan}
+                    show={state.isScanning}
+                    loading={props.loading}
+                />
+            }
+        </>
+    )
 }
 
 function docNameByValue(value) {
