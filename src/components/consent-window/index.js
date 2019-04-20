@@ -56,9 +56,14 @@ export default function ConsentDialog(props) {
             fullScreen={fullScreen}
         >
             <DialogTitle id="alert-dialog-slide-title" style={{ textAlign: 'center' }}>
-                Обробка персональних даних
+                Запитай виборця
             </DialogTitle>
             <DialogContent>
+
+
+                <DialogContentText id="alert-dialog-slide-description" style={{ color: '#f44336', textAlign: 'center', fontSize: '1.2em' }}>
+                    "Ви погоджуєтеся на обробку персональних даних?"
+                </DialogContentText>
                 <DialogContentText id="alert-dialog-slide-description">
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', margin: '1rem 0 2rem' }}>
                         <img style={{ maxHeight: '200px' }} src={signature} alt="Ілюстрація згоди" />

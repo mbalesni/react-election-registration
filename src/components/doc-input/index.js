@@ -7,8 +7,6 @@ import iziToast from 'izitoast'
 import Video from '../scanner'
 import './index.css'
 
-const Fragment = React.Fragment
-
 const MIN_LENGTH = {
     '0': 8,     // ticket
     '1': 3,     // gradebook
@@ -37,7 +35,9 @@ export default function DocInput(props) {
     const handleChange = event => {
         setState({
             ...state,
-            value: event.target.value
+            value: event.target.value,
+            docNumber: '',
+            touched: false,
         })
     }
 
