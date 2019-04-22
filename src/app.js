@@ -219,7 +219,8 @@ export default class App extends React.Component {
   buildFoundStudentsNote(numOfStudents, query) {
     return (
       <>
-        <div>{numOfStudents > 1 ? 'Оберіть' : 'Перевірте дані та зареєструйте'} студента</div>
+        {numOfStudents > 1 ? 'Оберіть' : 'Перевірте дані та зареєструйте'} студента
+        <br />
         За запитом <strong>{query}</strong> знайдено {numOfStudents} студент{numOfStudents > 1 ? 'ів' : 'а'}
       </>
     )
@@ -231,7 +232,7 @@ export default class App extends React.Component {
     data.student = {}
     data.student.full_name = name
 
-    console.log('Searching student by name:', name)
+    console.log('Searching student by name...')
 
     this.setState({ loading: true, searchQuery: name })
 
@@ -299,13 +300,14 @@ export default class App extends React.Component {
 
     this.setState({ loading: true })
 
-    console.log(`Submitting student with doc_num ${data.student.doc_num} (type ${data.student.doc_type}), token ${data.student.token}`)
+    console.log(`Submitting student with doctype ${data.student.doc_type}`)
 
     axios.post('/register_student', data)
       .then(res => {
         if (res.data.error) return this.handleErrorCode(res.data.error.code)
         let ballotNumber = res.data.data.ballot_number
         this.setState({ showRegistrationComplete: true, ballotNumber })
+        this.handleErrorCode(505)
       })
       .catch(err => {
         this.handleApiError(err)
@@ -370,7 +372,7 @@ export default class App extends React.Component {
       icon: ICONS.bug,
     }
 
-    Raven.captureException(options.err || error)
+    Raven.captureException(options.err || `${error.title} – ${error.message}`)
 
     if (!options.silent) {
       showNotification({
@@ -408,9 +410,7 @@ export default class App extends React.Component {
     this.setState({ ...initialState, auth: this.state.auth })
     try {
       Quagga.stop()
-    } catch (err) {
-      console.log('Quagga stop error: ', err)
-    }
+    } catch (err) { }
   }
 
   initScan() {
@@ -445,7 +445,7 @@ export default class App extends React.Component {
 
       const number = data.codeResult.code
       if (number.length === 8) {
-        console.log('Successfuly scanned ticket:', number)
+        console.log('Successfuly scanned ticket...')
         this.barcodeScanned = true
         Quagga.stop()
 

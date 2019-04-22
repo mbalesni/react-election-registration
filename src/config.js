@@ -13,18 +13,4 @@ for (let item in CONFIG) {
     }
 }
 
-const _console = {...window.console}
-
-console.log = (...args) => {
-    if (CONFIG.DEBUG) _console.log(...args)
-}
-
-console.warn = (...args) => {
-    if (CONFIG.DEBUG) _console.warn(...args)
-}
-
-console.error = (...args) => {
-    if (CONFIG.DEBUG) _console.error(...args)
-}
-
 export default CONFIG

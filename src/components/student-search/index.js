@@ -28,7 +28,6 @@ export default class StudentSearch extends React.Component {
   }
 
   handleChange = event => {
-    console.log(event)
     this.setState({ value: event.target.value })
   }
 

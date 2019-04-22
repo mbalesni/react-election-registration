@@ -8,7 +8,7 @@ export default class StudentOption extends React.Component {
   }
 
   handleSelect(student) {
-    console.log(`Selecting student ${student.name} (Year: ${student.year}, Specialty: ${student.specialty})`)
+    console.log(`Selecting student...`)
     this.props.onSelect(student)
     this.setState({
       disabled: true,

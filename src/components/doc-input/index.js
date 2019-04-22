@@ -46,7 +46,6 @@ export default function DocInput(props) {
         // true condition means error
         // string is error explanation
         let result = (docNumber.length < MIN_LENGTH[docType] || docNumber.length > MAX_LENGTH[docType]) ? `Перевірте правильність номеру ${docNameByValue(docType)}.` : ''
-        console.log(docNumber, docType, result)
         return result
     }
 
@@ -110,7 +109,6 @@ export default function DocInput(props) {
 
     const handleDocNumberChange = (e) => {
         let docNumber = e.target.value
-        console.log('handling doc number change', state, docNumber, { ...state, docNumber })
         setState({
             ...state,
             docNumber
@@ -118,7 +116,6 @@ export default function DocInput(props) {
     }
 
     useEffect(() => {
-        console.log('using effect')
         setState({
             ...state,
             docNumber: props.activeStudent.docNumber,
@@ -135,7 +132,7 @@ export default function DocInput(props) {
 
     const isSmScreen = screenWidth < 600
 
-    const disabled = props.loading || validate(docNumber)
+    const disabled = props.loading || Boolean(validate(docNumber))
 
     const shouldMarkError = (field) => {
         const hasError = error.length > 0
@@ -185,7 +182,7 @@ export default function DocInput(props) {
                             disabled={props.loading}
                             error={shouldMarkError('docNumber')}
                             placeholder={"Номер " + docNameByValue(value)}
-                            value={state.docNumber}
+                            value={docNumber}
                             fullWidth={true}
                             onChange={handleDocNumberChange}
                             onBlur={handleBlur('docNumber')}

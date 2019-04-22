@@ -65,21 +65,21 @@ export default function ConsentDialog(props) {
                     "Ви погоджуєтеся на обробку персональних даних?"
                 </DialogContentText>
                 <DialogContentText id="alert-dialog-slide-description">
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', margin: '1rem 0 2rem' }}>
+                    <span style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', margin: '1rem 0 2rem' }}>
                         <img style={{ maxHeight: '200px' }} src={signature} alt="Ілюстрація згоди" />
-                    </div>
-                    <FormControl component="fieldset">
-                        <FormGroup>
-                            <ConsentItem
-                                checked={privacyConsent}
-                                onChange={setPrivacyConsent}
-                                name="privacyConsent"
-                                label={`Я, ${staffName}, підтверджую, що студент дав згоду на обробку персональних даних.`}
-                            />
-                            <br />
-                        </FormGroup>
-                    </FormControl>
+                    </span>
                 </DialogContentText>
+                <FormControl component="fieldset">
+                    <FormGroup>
+                        <ConsentItem
+                            checked={privacyConsent}
+                            onChange={setPrivacyConsent}
+                            name="privacyConsent"
+                            label={`Я, ${staffName}, підтверджую, що студент дав згоду на обробку персональних даних.`}
+                        />
+                        <br />
+                    </FormGroup>
+                </FormControl>
             </DialogContent>
             <DialogActions style={{ padding: '.5rem' }}>
                 <Button onClick={handleClose} color="primary" variant="text">

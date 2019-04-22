@@ -62,7 +62,6 @@ export default class LoginWindow extends React.Component {
         axios.post('/login', payload)
             .then(res => {
                 if (res.data.error) return this.props.handleErrorCode(res.data.error.code)
-                console.log('response', res)
 
                 const authToken = res.data.auth_token
                 console.log("Login successfull")
