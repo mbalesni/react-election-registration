@@ -4,9 +4,6 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import FormHelperText from '@material-ui/core/FormHelperText';
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { ICONS } from '../../utils/icons.js'
-import ERRORS from '../../utils/errors.json';
-import { showNotification } from '../../utils/functions';
 import axios from 'axios'
 import './index.css'
 
@@ -27,16 +24,6 @@ export default class LoginWindow extends React.Component {
         username: '',
         password: '',
         loading: false
-    }
-
-    handleError(code) {
-        const error = ERRORS[code] || {}
-        console.log(error.title, error.message)
-        showNotification({
-            title: error.title,
-            message: error.message,
-            icon: ICONS.login,
-        })
     }
 
     render() {
@@ -73,27 +60,19 @@ export default class LoginWindow extends React.Component {
         const payload = { username, password: btoa(password) }
 
         axios.post('/login', payload)
-            .then(response => {
-                console.log(response)
-                this.setState({ loading: false })
+            .then(res => {
+                if (res.data.error) this.props.handleErrorCode(res.data.error.code)
+                console.log('response', res)
 
-                const authToken = response.data.auth_token
-                if (authToken) {
-                    console.log("Login successfull")
-                    this.props.onSuccess(authToken)
-                }
-                else if (response.data.error && response.data.error.code) {
-                    this.handleError(response.data.error.code)
-                }
-                else {
-                    console.log("Unexpected response")
-                    alert("Непередбачена відповідь.")
-                }
+                const authToken = res.data.auth_token
+                console.log("Login successfull")
+                this.props.onSuccess(authToken)
             })
             .catch(err => {
+                this.props.handleApiError(err)
+            })
+            .finally(() => {
                 this.setState({ loading: false })
-                this.handleError(513)
-                console.log(err)
             })
     }
 }

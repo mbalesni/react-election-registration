@@ -16,7 +16,7 @@ import { css } from 'react-emotion';
 import { ICONS } from './utils/icons.js'
 import '../node_modules/izitoast/dist/css/iziToast.min.css'
 import './utils/override-izitoast.css'
-import errors from './utils/errors.json';
+import ERRORS from './utils/errors.json';
 import LoginWindow from './components/login-window';
 import { showNotification } from './utils/functions.js';
 import SessionComplete from './components/session-complete-window';
@@ -46,7 +46,6 @@ const initialState = {
   ballotPrinted: false,
   docNumber: null,
   docType: null,
-  doRevoke: false,
   sessionIsOpen: false,
   checkInSessionToken: null,
   students: [],
@@ -92,7 +91,13 @@ export default class App extends React.Component {
             />
 
             <div className="content">
-              {!loggedIn && <LoginWindow onSuccess={this.onSuccessfulLogin.bind(this)} />}
+              {!loggedIn &&
+                <LoginWindow
+                  onSuccess={this.onSuccessfulLogin.bind(this)}
+                  handleApiError={this.handleApiError.bind(this)}
+                  handleErrorCode={this.handleErrorCode.bind(this)}
+                />
+              }
               {loggedIn && !this.state.sessionIsOpen &&
                 <NewSessionWindow onSessionStart={this.startSession.bind(this)} loading={loading} />
               }
@@ -151,27 +156,25 @@ export default class App extends React.Component {
 
     axios.post('/me', {})
       .then(res => {
-        if (!res.data.error) {
-          this.setState({
-            auth: {
-              loggedIn: true,
-              user: `${res.data.data.staff.first_name} ${res.data.data.staff.last_name}`,
-              structuralUnit: res.data.data.staff.structural_unit_name,
-            },
-            loading: false
-          })
-        } else {
-          this.registerError(res.data.error.code)
-        }
+        if (res.data.error) return this.handleErrorCode(res.data.error.code)
+        this.setState({
+          auth: {
+            loggedIn: true,
+            user: `${res.data.data.staff.first_name} ${res.data.data.staff.last_name}`,
+            structuralUnit: res.data.data.staff.structural_unit_name,
+          }
+        })
       })
       .catch(err => {
+        this.handleApiError(err)
         this.setState({
           auth: {
             loggedIn: false
-          },
-          loading: false
+          }
         })
-        alert(err)
+      })
+      .finally(() => {
+        this.setState({ loading: false })
       })
 
   }
@@ -197,22 +200,19 @@ export default class App extends React.Component {
     this.setState({ loading: true })
     axios.post('/start_new_session', {})
       .then(res => {
-        if (!res.data.error) {
-          const checkInSessionToken = res.data.data.check_in_session.token
-          this.setState({
-            sessionIsOpen: true,
-            checkInSessionToken,
-            status: 'Знайдіть студента в базі',
-            loading: false
-          })
-
-        } else {
-          return this.registerError(res.data.error.code)
-        }
-
+        if (res.data.error) return this.handleErrorCode(res.data.error.code)
+        const checkInSessionToken = res.data.data.check_in_session.token
+        this.setState({
+          sessionIsOpen: true,
+          checkInSessionToken,
+          status: 'Знайдіть студента в базі',
+        })
       })
       .catch(err => {
         this.handleApiError(err)
+      })
+      .finally(() => {
+        this.setState({ loading: false })
       })
   }
 
@@ -237,20 +237,23 @@ export default class App extends React.Component {
 
     axios.post('/search_by_name', data)
       .then(res => {
-        if (res.data.error) return this.registerError(res.data.error.code, false)
+        if (res.data.error) return this.handleErrorCode(res.data.error.code)
 
         const foundStudents = res.data.data.students
         let students = foundStudents.map(student => {
           return this.buildStudentData(student)
         })
+
         this.setState({
           students,
           status: this.buildFoundStudentsNote(students.length, name),
-          loading: false
         })
       })
       .catch(err => {
         this.handleApiError(err)
+      })
+      .finally(() => {
+        this.setState({ loading: false })
       })
   }
 
@@ -289,7 +292,6 @@ export default class App extends React.Component {
   registerStudent(student) {
     let data = {}
     data.check_in_session_token = this.state.checkInSessionToken
-    data.do_revoke_ballot = student.doRevoke
     data.student = {}
     data.student.token = student.token
     data.student.doc_type = student.docType
@@ -301,12 +303,15 @@ export default class App extends React.Component {
 
     axios.post('/register_student', data)
       .then(res => {
-        if (res.data.error) return this.registerError(res.data.error.code)
+        if (res.data.error) return this.handleErrorCode(res.data.error.code)
         let ballotNumber = res.data.data.ballot_number
         this.setState({ showRegistrationComplete: true, ballotNumber })
       })
       .catch(err => {
         this.handleApiError(err)
+      })
+      .finally(() => {
+        this.setState({ loading: false })
       })
   }
 
@@ -332,73 +337,48 @@ export default class App extends React.Component {
     axios.post('/complete_session', config)
       .then(res => {
         // 508 - already closed
-        if (!res.data.error || (res.data.error || {}).code === 508) {
-          const studentName = this.state.activeStudentName
-          this.setState({
-            showRegistrationComplete: false,
-            studentSubmitted: studentName,
-            showCompleteSession: true,
-            loading: false
-          })
-        } else {
-          this.registerError(res.data.error.code)
-        }
+        if (res.data.error && res.data.error.code !== 508) return this.handleErrorCode(res.data.error.code)
+        const studentName = this.state.activeStudentName
+        this.setState({
+          showRegistrationComplete: false,
+          studentSubmitted: studentName,
+          showCompleteSession: true,
+        })
       })
       .catch(err => {
-        console.warn(err)
         this.handleApiError(err)
+      })
+      .finally(() => {
+        this.setState({ loading: false })
       })
   }
 
   handleApiError(err) {
     console.warn('Handling API error:', err)
-    console.log(err.status)
-
-    // check Network Error
-    if (!err.status && !err.response) {
-      console.warn('[API ERROR HANDLER] Network error detected')
-      this.registerError(513)
-      return
-    }
-
-    switch (err.response.status) {
-      case 400:
-        // FIXME: deal with bad requests
-        alert('Невідома помилка. 400')
-        break
-      case 403:
-        alert('Відмовлено в доступі. 403')
-        break
-      default:
-        this.registerError(300)
-    }
-    this.setState({ loading: false })
-
+    if (!err.status && !err.response) return this.handleErrorCode(513) // network error
+    this.handleErrorCode(300, { err })
   }
 
-  registerError(code, silent = false, options) {
-    this.setState({ loading: false })
-
-    let error = errors[code] || {
-      title: `Помилка [${code}]`,
-      message: '',
-      icon: ICONS.errorIcon,
-    }
-
+  handleErrorCode(code, options = {}) {
     if (code === 518 || code === 519) {
       this.onExpiredAuth()
     }
 
+    let error = ERRORS[code] || {
+      title: `Упс, такої помилки не очікували`,
+      message: 'Команда підтримки вже поінформована про проблему 😌',
+      icon: ICONS.bug,
+    }
 
-    if (!silent) {
+    Raven.captureException(options.err || error)
+
+    if (!options.silent) {
       showNotification({
         title: error.title,
         message: error.message,
         icon: error.icon,
       })
     }
-
-    console.log(error.title)
   }
 
   cancelSession() {
@@ -408,11 +388,14 @@ export default class App extends React.Component {
     this.setState({ loading: true })
     axios.post('/cancel_session', token)
       .then(res => {
-        if (res.data.error) this.registerError(res.data.error.code, true)
+        if (res.data.error) this.handleErrorCode(res.data.error.code, { silent: true })
         this.onSessionEnd()
       })
       .catch(err => {
         this.handleApiError(err)
+      })
+      .finally(() => {
+        this.setState({ loading: false })
       })
   }
 
@@ -437,7 +420,7 @@ export default class App extends React.Component {
       { ...QUAGGA_OPTIONS, inputStream: { ...QUAGGA_OPTIONS.inputStream, target: document.querySelector('.scanner-container') } },
       (err) => {
         if (err) {
-          this.registerError(506)
+          this.handleErrorCode(506)
           return
         }
         Quagga.start()
@@ -469,11 +452,11 @@ export default class App extends React.Component {
         let activeStudent = this.state.activeStudent
         activeStudent.docNumber = number
         activeStudent.docType = '0'
-        
+
         let scannerSeed = Math.random()
         this.setState({ activeStudent, scannerSeed })
       } else {
-        this.registerError(507)
+        this.handleErrorCode(507)
       }
     })
   }
