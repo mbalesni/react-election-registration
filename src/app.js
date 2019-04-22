@@ -63,7 +63,15 @@ export default class App extends React.Component {
   state = { ...initialState }
 
   componentDidCatch(err, errInfo) {
-    Raven.captureException(err, { extra: errInfo });
+    Raven.captureException(
+      err,
+      {
+        extra: errInfo,
+        user: {
+          name: this.state.auth.user
+        }
+      }
+    )
   }
 
   render() {
@@ -307,7 +315,6 @@ export default class App extends React.Component {
         if (res.data.error) return this.handleErrorCode(res.data.error.code)
         let ballotNumber = res.data.data.ballot_number
         this.setState({ showRegistrationComplete: true, ballotNumber })
-        this.handleErrorCode(505)
       })
       .catch(err => {
         this.handleApiError(err)
@@ -372,7 +379,14 @@ export default class App extends React.Component {
       icon: ICONS.bug,
     }
 
-    Raven.captureException(options.err || `${error.title} – ${error.message}`)
+    Raven.captureException(
+      options.err || `${error.title} – ${error.message}`,
+      {
+        user: {
+          name: this.state.auth.user
+        }
+      }
+    )
 
     if (!options.silent) {
       showNotification({
