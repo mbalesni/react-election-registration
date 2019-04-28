@@ -9,8 +9,8 @@ import './index.css'
 
 const MIN_LENGTH = {
     '0': 8,     // ticket
-    '1': 3,     // gradebook
-    '2': 3,     // certificate
+    '1': 1,     // gradebook
+    '2': 1,     // certificate
 }
 
 const MAX_LENGTH = {
@@ -43,10 +43,14 @@ export default function DocInput(props) {
 
     const validate = (docNumber) => {
         const docType = state.value
-        // true condition means error
-        // string is error explanation
-        let result = (docNumber.length < MIN_LENGTH[docType] || docNumber.length > MAX_LENGTH[docType]) ? `Перевірте правильність номеру ${docNameByValue(docType)}.` : ''
-        return result
+        const len = docNumber.length
+        const minLen = MIN_LENGTH[docType]
+        const maxLen = MAX_LENGTH[docType]
+
+        const lengthInvalid = len < minLen || len > maxLen
+        const typeInvalid = docType === '0' && (isNaN(parseInt(docNumber)) || parseInt(docNumber).toString().length !== docNumber.length)
+
+        return lengthInvalid || typeInvalid
     }
 
     const handleBlur = (field) => (evt) => {

@@ -5,6 +5,7 @@ import Typography from '@material-ui/core/Typography'
 import FormHelperText from '@material-ui/core/FormHelperText';
 import CircularProgress from '@material-ui/core/CircularProgress'
 import axios from 'axios'
+import Raven from 'raven-js'
 import './index.css'
 
 const fieldStyle = {
@@ -57,6 +58,8 @@ export default class LoginWindow extends React.Component {
         const { username, password } = this.state
         if (!username || !password) return
         this.setState({ loading: true })
+
+        console.log('Log-in attempt into user: ' + username)
         const payload = { username, password: btoa(password) }
 
         axios.post('/login', payload)
@@ -64,8 +67,8 @@ export default class LoginWindow extends React.Component {
                 if (res.data.error) return this.props.handleErrorCode(res.data.error.code)
 
                 const authToken = res.data.auth_token
-                console.log("Login successfull")
                 this.props.onSuccess(authToken)
+                Raven.captureMessage(`Successful log-in – ${username}`)
             })
             .catch(err => {
                 this.props.handleApiError(err)
