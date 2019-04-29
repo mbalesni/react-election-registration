@@ -41,7 +41,7 @@ export default function NewSessionWindow(props) {
 
   const electionName = "Вибори голів Студентських рад гуртожитків і Голови Студентської ради Студмістечка КНУ"
 
-  // const startDatetime = localDateTimeFromUTC(props.startTimestamp)
+  const startDatetime = localDateTimeFromUTC(props.startTimestamp)
 
   // const startString = startDatetime.
   // const endTime = props.endTimestamp
