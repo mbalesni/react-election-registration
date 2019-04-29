@@ -25,8 +25,7 @@ export default class Header extends React.Component {
 
   handleLogout() {
     this.handleClose()
-    this.props.onCloseSessions()
-    window.location = window.location + ''
+    this.props.onLogout()
   }
 
   render() {

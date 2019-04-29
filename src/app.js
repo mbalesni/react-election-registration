@@ -32,6 +32,7 @@ axios.interceptors.response.use(function (response) {
     axios.defaults.headers = {
       'X-Auth-Token': response.data.auth_token
     }
+    localStorage.setItem('authToken', response.data.auth_token)
   }
   return response
 }, function (error) {
@@ -62,6 +63,19 @@ const initialState = {
 export default class App extends React.Component {
   state = { ...initialState }
 
+  componentWillMount() {
+    let storedAuthToken = localStorage.getItem('authToken')
+    if (storedAuthToken) {
+      this.setState({
+        auth: {
+          loggedIn: true
+        }
+      })
+
+      this.onSuccessfulLogin(storedAuthToken)
+    }
+  }
+
   componentDidCatch(err, errInfo) {
     Raven.captureException(
       err,
@@ -88,7 +102,11 @@ export default class App extends React.Component {
 
         <MuiThemeProvider theme={THEME}>
           <div className="header-and-content">
-            <Header auth={this.state.auth} onCloseSessions={this.closeSessions.bind(this)} />
+            <Header
+              auth={this.state.auth}
+              onCloseSessions={this.closeSessions.bind(this)}
+              onLogout={this.logout}
+            />
             <BarLoader
               color="rgba(33, 150, 243, 0.8)"
               className={spinnerStyles}
@@ -101,13 +119,18 @@ export default class App extends React.Component {
             <div className="content">
               {!loggedIn &&
                 <LoginWindow
-                  onSuccess={this.onSuccessfulLogin.bind(this)}
+                  onSuccess={this.onSuccessfulLogin}
                   handleApiError={this.handleApiError.bind(this)}
                   handleErrorCode={this.handleErrorCode.bind(this)}
                 />
               }
               {loggedIn && !this.state.sessionIsOpen &&
-                <NewSessionWindow onSessionStart={this.startSession.bind(this)} loading={loading} />
+                <NewSessionWindow
+                  onSessionStart={this.startSession.bind(this)}
+                  loading={loading}
+                  startTimestamp={this.state.auth.voteStartTimestamp}
+                  endTimestamp={this.state.auth.voteStartTimestamp}
+                />
               }
 
               {loggedIn && this.state.sessionIsOpen &&
@@ -162,7 +185,7 @@ export default class App extends React.Component {
     this.setState({ loading: true })
     console.log('getting auth')
 
-    axios.post('/me', {})
+    return axios.post('/me', {})
       .then(res => {
         if (res.data.error) return this.handleErrorCode(res.data.error.code)
         this.setState({
@@ -170,6 +193,8 @@ export default class App extends React.Component {
             loggedIn: true,
             user: `${res.data.data.staff.first_name} ${res.data.data.staff.last_name}`,
             structuralUnit: res.data.data.staff.structural_unit_name,
+            voteStartTimestamp: res.data.data.staff.vote_start_timestamp,
+            voteEndTimestamp: res.data.data.staff.vote_end_timestamp,
           }
         })
       })
@@ -187,13 +212,28 @@ export default class App extends React.Component {
 
   }
 
-  onSuccessfulLogin(authToken) {
+  pulse = () => {
+    console.log('pulse')
+
+    axios.post('/me', {})
+      .then(res => {
+        if (res.data.error) this.handleErrorCode(res.data.error.code)
+      })
+      .catch(err => {
+        this.handleApiError(err)
+      })
+  }
+
+  onSuccessfulLogin = (authToken) => {
     axios.defaults.headers = {
       'X-Auth-Token': authToken
     }
+    localStorage.setItem('authToken', authToken)
 
     this.getAuth()
-    this.closeSessions()
+      .then(this.closeSessions)
+
+    this.pulse = setInterval(this.pulse, CONFIG.PULSE_INTERVAL * 1000)
   }
 
   closeSessions() {
@@ -416,6 +456,8 @@ export default class App extends React.Component {
   }
 
   onExpiredAuth() {
+    clearInterval(this.pulse)
+    localStorage.setItem('authToken', '')
     this.setState({ auth: initialState.auth }, () => { this.onSessionEnd() })
   }
 
@@ -425,6 +467,18 @@ export default class App extends React.Component {
     try {
       Quagga.stop()
     } catch (err) { }
+  }
+
+  logout = () => {
+    axios
+      .post('/logout')
+      .then(res => {
+        if (res.data.error) return this.handleErrorCode(res.data.error.code)
+        this.onExpiredAuth()
+      })
+      .catch(err => {
+        this.handleApiError(err)
+      })
   }
 
   initScan() {

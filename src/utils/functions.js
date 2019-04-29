@@ -26,3 +26,22 @@ export function showNotification({ title, message, icon, options }) {
         ...options
     })
 }
+
+export function localDateTimeFromUTC(UTCTimeString) {
+    try {
+        // parse date time string
+        let year = parseInt(UTCTimeString.slice(0, 4))
+        let month = parseInt(UTCTimeString.slice(5, 7)) - 1
+        let date = parseInt(UTCTimeString.slice(8, 10))
+        let hours = parseInt(UTCTimeString.slice(11, 13))
+        let minutes = parseInt(UTCTimeString.slice(14, 16))
+        let seconds = parseInt(UTCTimeString.slice(17, 19))
+
+        // convert input UTC datetime to local
+        let localDateTime = new Date(Date.UTC(year, month, date, hours, minutes, seconds))
+
+        return localDateTime
+    } catch (err) {
+        return err
+    }
+}
