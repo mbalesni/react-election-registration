@@ -233,7 +233,7 @@ export default class App extends React.Component {
     this.getAuth()
       .then(this.closeSessions)
 
-    this.pulse = setInterval(this.pulse, CONFIG.PULSE_INTERVAL * 1000)
+    this.pulseInterval = setInterval(this.pulse, CONFIG.PULSE_INTERVAL * 1000)
   }
 
   closeSessions() {
@@ -467,7 +467,7 @@ export default class App extends React.Component {
   }
 
   onExpiredAuth() {
-    clearInterval(this.pulse)
+    clearInterval(this.pulseInterval)
     localStorage.setItem('authToken', '')
     this.setState({ auth: initialState.auth }, () => { this.onSessionEnd() })
   }
