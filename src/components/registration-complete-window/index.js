@@ -68,14 +68,14 @@ export default class RegistrationCompleteWindow extends React.Component {
                 <DialogContent>
                     <DialogContentText id="alert-dialog-slide-description">
                         {instructions}
-                        <div className="number-wrapper">
-                            <div className="number">{this.numberBoxes(numberArr)}</div>
-                        </div>
+                        <span className="number-wrapper">
+                            <span className="number">{this.numberBoxes(numberArr)}</span>
+                        </span>
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions style={{ padding: '.5rem' }}>
                     <Button onClick={onComplete} color="primary" variant="contained">
-                        Завершити
+                        Видано
                             <Timer style={timerStyles} onElapsed={onTimerElapsed} timeout={COMPLETE_TIMEOUT} />
                     </Button>
                 </DialogActions>

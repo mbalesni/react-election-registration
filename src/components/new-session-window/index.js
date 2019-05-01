@@ -14,9 +14,9 @@ export default function NewSessionWindow(props) {
     marginBottom: '2px'
   }
 
-  const dateStyle = {
-    marginTop: '2rem'
-  }
+  // const dateStyle = {
+  //   marginTop: '2rem'
+  // }
 
   const electionName = CONFIG.ELECTION_NAME
 

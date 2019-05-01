@@ -424,13 +424,11 @@ export default class App extends React.Component {
       this.onExpiredAuth()
     }
 
-    if (code === 304 && )
-
-      let error = ERRORS[code] || {
-        title: `Упс, такої помилки не очікували`,
-        message: 'Команда підтримки вже поінформована про проблему 😌',
-        icon: ICONS.bug,
-      }
+    let error = ERRORS[code] || {
+      title: `Упс, такої помилки не очікували`,
+      message: 'Команда підтримки вже поінформована про проблему 😌',
+      icon: ICONS.bug,
+    }
 
     Raven.captureException(
       options.err || `${error.title} – ${error.message}`,
