@@ -352,7 +352,18 @@ export default class App extends React.Component {
 
     axios.post('/register_student', data)
       .then(res => {
-        if (res.data.error) return this.handleErrorCode(res.data.error.code)
+        if (res.data.error) {
+          // if error code is NOT 304  
+          // OR there's NO ballot number in response object context
+          // handle error code
+          if (res.data.error.code !== 304 || !res.data.error.context.ballot_number) return this.handleErrorCode(res.data.error.code)
+
+          // otherwise
+          // show registration complete as if nothing happened
+          let ballotNumber = res.data.error.context.ballot_number
+          this.setState({ showRegistrationComplete: true, ballotNumber })
+          return
+        }
         let ballotNumber = res.data.data.ballot_number
         this.setState({ showRegistrationComplete: true, ballotNumber })
       })
@@ -413,11 +424,13 @@ export default class App extends React.Component {
       this.onExpiredAuth()
     }
 
-    let error = ERRORS[code] || {
-      title: `Упс, такої помилки не очікували`,
-      message: 'Команда підтримки вже поінформована про проблему 😌',
-      icon: ICONS.bug,
-    }
+    if (code === 304 && )
+
+      let error = ERRORS[code] || {
+        title: `Упс, такої помилки не очікували`,
+        message: 'Команда підтримки вже поінформована про проблему 😌',
+        icon: ICONS.bug,
+      }
 
     Raven.captureException(
       options.err || `${error.title} – ${error.message}`,
