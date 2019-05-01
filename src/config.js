@@ -6,6 +6,7 @@ const CONFIG = {
     PULSE_INTERVAL: PRODUCTION ? process.env.REACT_APP_PULSE_INTERVAL : 30,
     SENTRY_DSN: PRODUCTION ? process.env.REACT_APP_SENTRY_DSN : null,
     DEBUG: PRODUCTION ? false : true,
+    ELECTION_NAME: PRODUCTION ? process.env.REACT_APP_ELECTION_NAME : 'Тестові вибори'
 }
 
 for (let item in CONFIG) {

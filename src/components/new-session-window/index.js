@@ -1,8 +1,10 @@
 import React from 'react';
 import Button from '@material-ui/core/Button';
 import { ICONS } from '../../utils/icons.js'
-import { localDateTimeFromUTC } from '../../utils/functions.js'
+// import { localDateTimeFromUTC } from '../../utils/functions.js'
+import CONFIG from '../../config.js'
 import votingImg from './plain-hero.jpg'
+import './index.css'
 
 
 export default function NewSessionWindow(props) {
@@ -12,36 +14,31 @@ export default function NewSessionWindow(props) {
     marginBottom: '2px'
   }
 
-  const headingStyle = {
-    fontSize: '1.8em',
-    marginBottom: '1.5rem'
-  }
-
-  const textStyle = {
-    position: 'absolute',
-    top: 0,
-    color: '#fff',
-    fontFamily: '"Montserrat", sans-serif',
-    textAlign: 'center',
-    margin: '0 auto',
-    left: 0,
-    right: 0,
-    padding: '2rem 2rem',
-    fontSize: '1.5em',
-    textTransform: 'uppercase',
-    bottom: 0,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-  }
-
   const dateStyle = {
     marginTop: '2rem'
   }
 
-  const electionName = "Вибори голів Студентських рад гуртожитків і Голови Студентської ради Студмістечка КНУ"
+  const electionName = CONFIG.ELECTION_NAME
 
-  const startDatetime = localDateTimeFromUTC(props.startTimestamp)
+  // const startDatetime = localDateTimeFromUTC(props.startTimestamp)
+  // console.log(startDatetime)
+  // const endDateTime = localDateTimeFromUTC(props.endTimestamp)
+
+  // const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' }
+  // const timeOptions = { hour: 'numeric', minute: 'numeric' }
+
+  // let date
+  // let startTime
+  // let endTime
+
+  // try {
+  //   date = startDatetime && startDatetime.toLocaleDateString("UK", dateOptions)
+  //   startTime = startDatetime && startDatetime.toLocaleDateString("UK", timeOptions)
+  //   endTime = endDateTime && endDateTime.toLocaleDateString("UK", timeOptions)
+  // } catch (err) {
+  //   console.warn(err)
+  // }
+
 
   // const startString = startDatetime.
   // const endTime = props.endTimestamp
@@ -51,11 +48,12 @@ export default function NewSessionWindow(props) {
       <div style={{ position: 'relative' }}>
         <img src={votingImg} alt="" />
 
-        <div style={textStyle}>
-          <div style={headingStyle}>Е-Реєстрація</div>
-          
+        <div className="election-text">
+          <div className="election-heading">Е-Реєстрація</div>
+
           {electionName}
 
+          {/* <div style={dateStyle}>{date}</div> */}
           {/* <div style={dateStyle}>{startTime}</div> */}
           {/* <div style={dateStyle}>{endTime}</div> */}
         </div>
