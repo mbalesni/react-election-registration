@@ -28,16 +28,16 @@ axios.defaults.baseURL = BACKEND_BASE_URL
 axios.defaults.withCredentials = true
 axios.defaults.timeout = 5 * 1000
 axios.interceptors.response.use(function (response) {
-  if (response.data.auth_token) {
-    axios.defaults.headers = {
-      'X-Auth-Token': response.data.auth_token
+    if (response.data && response.data.auth_token) {
+      axios.defaults.headers = {
+        'X-Auth-Token': response.data.auth_token
+      }
+      localStorage.setItem('authToken', response.data.auth_token)
     }
-    localStorage.setItem('authToken', response.data.auth_token)
-  }
   return response
 }, function (error) {
   return Promise.reject(error)
-});
+})
 
 const initialState = {
   activeStudent: null,
@@ -308,14 +308,10 @@ export default class App extends React.Component {
 
   buildStudentData(student) {
     let data = {
-      name: student.data.full_name,
-      degree: student.data.educational_degree === 1 ? 'Бакалавр' : 'Магістр',
-      formOfStudy: student.data.form_of_study === 1 ? 'Денна' : 'Заочна',
-      structuralUnit: student.data.structural_unit,
-      specialty: student.data.specialty,
-      year: student.data.year,
+      name: student.full_name,
       token: student.token,
-      hasVoted: student.has_voted
+      hasVoted: student.has_voted,
+      data: student.data,
     }
     return data
   }
@@ -420,7 +416,7 @@ export default class App extends React.Component {
   }
 
   handleErrorCode(code, options = {}) {
-    if (code === 518 || code === 519) {
+    if ([517, 518, 519].includes(code)) {
       this.onExpiredAuth()
     }
 
@@ -468,7 +464,7 @@ export default class App extends React.Component {
 
   onExpiredAuth() {
     clearInterval(this.pulseInterval)
-    localStorage.setItem('authToken', '')
+    localStorage.removeItem('authToken')
     this.setState({ auth: initialState.auth }, () => { this.onSessionEnd() })
   }
 

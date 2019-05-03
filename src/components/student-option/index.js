@@ -21,11 +21,14 @@ export default class StudentOption extends React.Component {
   }
 
   render() {
-    const { name, degree, year, activeStudent, formOfStudy, specialty, structuralUnit, hasVoted } = this.props.data
+    const { activeStudent } = this.props
+    const { name, hasVoted } = this.props.data
+    const additionalInfo = this.props.data.data
     const student = this.props.data
-    let { disabled } = this.state
+
     let classes = ['student']
 
+    let { disabled } = this.state
     if (disabled) classes.push('disabled')
 
     let buttonName = ''
@@ -41,14 +44,22 @@ export default class StudentOption extends React.Component {
         buttonName = 'Зареєструвати'
     }
 
+    let fieldNames = Object.keys(additionalInfo)
+    let studentInfo = []
+    fieldNames.map((field, i) => {
+      const value = additionalInfo[field]
+      if (value) {
+        const optionalBar = (i === 0) ? '' : ' | '
+        studentInfo.push(<span key={field}>{optionalBar + value}</span>)
+      }
+    })
+
     return (
       <div className={classes.join(' ')}>
         <div className="data">
           <div className="student--name">{name}</div>
           <div className="student--info">
-            <div>{structuralUnit}</div>
-            <div>{specialty}</div>
-            <div>{year ? `${year} курс | ` : ''}{degree} | {formOfStudy}</div>
+            {studentInfo}
           </div>
         </div>
 
