@@ -46,7 +46,7 @@ export default class StudentOption extends React.Component {
 
     let fieldNames = Object.keys(additionalInfo)
     let studentInfo = []
-    fieldNames.map((field, i) => {
+    fieldNames.forEach((field, i) => {
       const value = additionalInfo[field]
       if (value) {
         const optionalBar = (i === 0) ? '' : ' | '
