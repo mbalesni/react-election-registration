@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 
-const timer = (props) => {
+function Timer(props) {
     let [elapsed, setElapsed] = useState(false)
     let [timeLeft, setTimeLeft] = useState(props.timeout)
 
@@ -14,7 +14,6 @@ const timer = (props) => {
     }, 1000)
 
     return <span style={props.style}>({timeLeft})</span>
-
 }
 
 function useInterval(callback, delay) {
@@ -37,5 +36,5 @@ function useInterval(callback, delay) {
     }, [delay]);
 }
 
-export default timer
+export default Timer
 
