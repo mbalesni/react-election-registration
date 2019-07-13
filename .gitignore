@@ -124,7 +124,7 @@ build/Release
 build/
 
 # local deploy script
-deploy.sh
+# deploy.sh
 
 # Dependency directories
 node_modules/
