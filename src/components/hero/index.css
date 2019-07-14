@@ -15,7 +15,9 @@
 @media (max-width: 600px) {
     #hero {
         margin-top: 0;
-        width: 320px;
+        width: 250px;
+        height: 100%;
+
     }
     .hero-container {
         width: 100%;

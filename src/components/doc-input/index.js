@@ -3,9 +3,6 @@ import { Button, Radio, RadioGroup, FormLabel, FormControl, FormControlLabel, In
 import IconButton from '@material-ui/core/IconButton'
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import PhoneIcon from '@material-ui/icons/Phone';
-import FavoriteIcon from '@material-ui/icons/Favorite';
-import PersonPinIcon from '@material-ui/icons/PersonPin';
 import PhotoCamera from '@material-ui/icons/PhotoCamera'
 import { ICONS } from '../../utils/icons.js'
 import iziToast from 'izitoast'
@@ -42,17 +39,7 @@ export default function DocInput(props) {
     const [state, setState] = useState(initialState)
 
     const handleDocTypeChange = (e, newValue) => {
-        console.log('setting value ' + newValue)
         setDocType(newValue)
-    }
-
-    const handleChange = (event) => {
-        setState({
-            ...state,
-            // value: newValue,
-            docNumber: '',
-            touched: false,
-        })
     }
 
     const validate = (docNumber) => {

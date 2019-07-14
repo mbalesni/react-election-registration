@@ -119,7 +119,7 @@ export default class App extends React.Component {
 
 
 
-              <div className={"card-perspective " + (loggedIn ? 'with-perspective' : '') }>
+              <div className={"card-perspective " + (loggedIn ? 'with-perspective' : '')}>
                 <div className="card">
 
                   {!loggedIn &&
@@ -217,8 +217,8 @@ export default class App extends React.Component {
     return API.back.post('/me', {})
       .then(res => {
         if (res.data.error) return this.handleErrorCode(res.data.error.code)
-        const {first_name, last_name, structural_unit_name, vote_start_timestamp, vote_end_timestamp } = res.data.data.staff
-        const currentTime = Date.now() 
+        const { first_name, last_name, structural_unit_name, vote_start_timestamp, vote_end_timestamp } = res.data.data.staff
+        const currentTime = Date.now()
         let isElectionTime = false
         if (currentTime > vote_start_timestamp && currentTime < vote_end_timestamp) isElectionTime = true
         this.setState({
@@ -349,7 +349,7 @@ export default class App extends React.Component {
     this.setState({
       activeStudent: student,
       activeStudentName: student.name,
-      status: 'Введіть підтверджуючий документ',
+      status: '',
       showConsentDialog: ASK_CONSENT,
     })
   }
@@ -544,6 +544,7 @@ export default class App extends React.Component {
       { ...QUAGGA_OPTIONS, inputStream: { ...QUAGGA_OPTIONS.inputStream, target: document.querySelector('.scanner-container') } },
       (err) => {
         if (err) {
+          this.setState({ loading: false })
           this.handleErrorCode(506)
           return
         }
@@ -558,7 +559,7 @@ export default class App extends React.Component {
   cancelScan() {
     Quagga.stop();
     this.setState({
-      status: 'Введіть підтверджуючий документ',
+      status: '',
     })
   }
 

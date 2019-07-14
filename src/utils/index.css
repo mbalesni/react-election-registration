@@ -43,3 +43,9 @@ p {
 footer {
   display: flex !important;
 }
+
+@media (max-width: 600px) {
+  footer {
+    display: none !important;
+  }
+}
