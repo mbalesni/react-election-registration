@@ -8,7 +8,7 @@ import './index.css'
 
 
 export default function NewSessionWindow(props) {
-  const { structuralUnit } = props.data
+  const { isElectionTime, loading } = props
 
   const iconRight = {
     marginRight: '8px',
@@ -22,6 +22,11 @@ export default function NewSessionWindow(props) {
 
   const electionType = CONFIG.ELECTION_TYPE
   const electionTitle = CONFIG.OFFICIAL_TITLE
+
+  let disableNewSession = false
+  if (loading || !isElectionTime) disableNewSession = true
+
+
 
   // const startDatetime = localDateTimeFromUTC(props.startTimestamp)
   // console.log(startDatetime)
@@ -55,18 +60,20 @@ export default function NewSessionWindow(props) {
         <div className="election-text">
           <div className="election-type">{electionType}</div>
 
-          <div className="blue-strip">{electionTitle}</div>          
-
+          <div className="blue-strip">
+            {!loading && isElectionTime ? electionTitle : 'Зараз не час виборів'}
+            {loading && 'Стартуємо...'}
+          </div>
           {/* <div style={dateStyle}>{date}</div> */}
           {/* <div style={dateStyle}>{startTime}</div> */}
           {/* <div style={dateStyle}>{endTime}</div> */}
         </div>
-        <div className="card-footer">
-          <Button disabled={props.loading} variant="contained" color="secondary" onClick={props.onSessionStart}>
+        {isElectionTime && <div className="card-footer">
+          <Button disabled={loading} variant="contained" color="secondary" onClick={props.onSessionStart}>
             <i className={ICONS.userCheck} style={iconRight}></i>
             Зареєструвати виборця
         </Button>
-        </div>
+        </div>}
 
       </div >
     </>

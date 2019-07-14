@@ -79,15 +79,16 @@ export default class App extends React.Component {
   render() {
     const { loggedIn } = this.state.auth
     const {
-      loading,
-      showRegistrationComplete,
       ballotNumber,
       ballotIsPrinted,
+      isElectionTime,
+      loading,
+      printerError,
+      sessionIsOpen,
       showConsentDialog,
       showCompleteSession,
       showPrintingWindow,
-      printerError,
-      sessionIsOpen,
+      showRegistrationComplete,
     } = this.state
 
     const spinnerStyles = css`
@@ -131,6 +132,7 @@ export default class App extends React.Component {
 
                   {loggedIn && !sessionIsOpen &&
                     <NewSessionWindow
+                      isElectionTime={isElectionTime}
                       data={this.state.auth}
                       onSessionStart={this.startSession.bind(this)}
                       loading={loading}
@@ -164,7 +166,7 @@ export default class App extends React.Component {
 
 
               {loggedIn &&
-                <Hero />
+                <Hero isElectionTime={isElectionTime} />
               }
 
 
@@ -215,14 +217,19 @@ export default class App extends React.Component {
     return API.back.post('/me', {})
       .then(res => {
         if (res.data.error) return this.handleErrorCode(res.data.error.code)
+        const {first_name, last_name, structural_unit_name, vote_start_timestamp, vote_end_timestamp } = res.data.data.staff
+        const currentTime = Date.now() 
+        let isElectionTime = false
+        if (currentTime > vote_start_timestamp && currentTime < vote_end_timestamp) isElectionTime = true
         this.setState({
           auth: {
             loggedIn: true,
-            user: `${res.data.data.staff.first_name} ${res.data.data.staff.last_name}`,
-            structuralUnit: res.data.data.staff.structural_unit_name,
-            voteStartTimestamp: res.data.data.staff.vote_start_timestamp,
-            voteEndTimestamp: res.data.data.staff.vote_end_timestamp,
-          }
+            user: `${first_name} ${last_name}`,
+            structuralUnit: structural_unit_name,
+            voteStartTimestamp: vote_start_timestamp,
+            voteEndTimestamp: vote_end_timestamp,
+          },
+          isElectionTime,
         })
       })
       .catch(err => {
