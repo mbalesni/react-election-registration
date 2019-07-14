@@ -1,6 +1,9 @@
 import React from 'react';
 import Button from '@material-ui/core/Button';
+import CONFIG from '../../config'
 import './index.css'
+
+const { PRINT_BALLOTS } = CONFIG
 
 export default class StudentOption extends React.Component {
   state = {
@@ -16,8 +19,10 @@ export default class StudentOption extends React.Component {
   }
 
   componentDidMount() {
-    if (this.props.activeStudent) this.setState({ disabled: true })
-    if (this.props.data.hasVoted === true) this.setState({ disabled: true })
+    let disabled = false
+    if (this.props.activeStudent) disabled = true
+    if (this.props.data.hasVoted === true && !PRINT_BALLOTS) disabled = true
+    this.setState({ disabled })
   }
 
   render() {
@@ -31,17 +36,23 @@ export default class StudentOption extends React.Component {
     let { disabled } = this.state
     if (disabled) classes.push('disabled')
 
-    let buttonName = ''
+    const button = {
+      name: '',
+      color: '',
+    }
 
     switch (hasVoted) {
       case false:
-        buttonName = 'Зареєструвати'
+        button.name = 'Зареєструвати'
+        button.color = 'primary'
         break
       case true:
-        buttonName = 'Зареєстровано'
+        button.name = PRINT_BALLOTS ? 'Повторний бюлетень' : 'Зареєстровано'
+        button.color = PRINT_BALLOTS ? 'secondary' : 'primary'
         break
       default:
-        buttonName = 'Зареєструвати'
+        button.name = 'Зареєструвати'
+        button.color = 'primary'
     }
 
     let fieldNames = Object.keys(additionalInfo)
@@ -65,8 +76,8 @@ export default class StudentOption extends React.Component {
 
         <div className="actions">
           {!activeStudent &&
-            <Button disabled={disabled} variant="contained" color="primary" onClick={() => { this.handleSelect(student) }}>
-              {buttonName}
+            <Button disabled={disabled} variant="text" color={button.color} onClick={() => { this.handleSelect(student) }}>
+              {button.name}
             </Button>
           }
         </div>

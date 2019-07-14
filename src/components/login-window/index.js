@@ -5,6 +5,7 @@ import Typography from '@material-ui/core/Typography'
 import FormHelperText from '@material-ui/core/FormHelperText';
 import CircularProgress from '@material-ui/core/CircularProgress'
 import axios from 'axios'
+import { API } from '../../config' 
 import Raven from 'raven-js'
 import './index.css'
 
@@ -62,7 +63,7 @@ export default class LoginWindow extends React.Component {
         console.log('Log-in attempt into user: ' + username)
         const payload = { username, password: btoa(password) }
 
-        axios.post('/login', payload)
+        API.back.post('/login', payload)
             .then(res => {
                 if (res.data.error) return this.props.handleErrorCode(res.data.error.code)
 

@@ -17,7 +17,6 @@ export default function SessionCompleteWindow({ open, onSessionEnd, studentName 
         onSessionEnd()
     }
 
-
     useEffect(() => {
         if (open === true) var a = setTimeout(handleClose, CLOSE_TIMEOUT)
         return () => window.clearTimeout(a)

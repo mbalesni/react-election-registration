@@ -6,6 +6,24 @@ export function isMobileScreen() {
     return window.innerWidth <= MAX_SCREEN_WIDTH
 }
 
+/**
+* Gracefully handle registration error
+* that happens due to bad connection.
+*
+* @param {object} err 
+* @returns {boolean}
+*/
+export function shouldIgnoreRegError(err) {
+    if (
+        err.code === 304
+        && err.context
+        && err.context.ballot_number
+    ) {
+        return true
+    }
+    return false
+}
+
 export function showNotification({ title, message, icon, options }) {
     iziToast.show({
         title: title || '',

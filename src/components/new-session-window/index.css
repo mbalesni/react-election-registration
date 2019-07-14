@@ -4,21 +4,44 @@
 }
 
 .election-text {
-    position: absolute;
-    top: 0;
-    color: #fff;
     font-family: "Montserrat", sans-serif;
     text-align: center;
-    margin: 0 auto;
-    left: 0;
-    right: 0;
-    padding: 2rem 2rem;
-    font-size: 1.5em;
     text-transform: uppercase;
-    bottom: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+.new-session-container {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.hero-container {
+    width: 400px;
+    transition: .42s ease-in-out;
+}
+
+/* .new-session-card {
+    padding: 1rem;
+} */
+
+.logo-container {
+    display: flex;
+    justify-content: center;
+}
+
+.logo-container .logo {
+    height: 100px;
+    width: 100px;
+}
+
+#hero {
+    width: 100%;
+}
+
+.hero-container.move-right {
+    /* transform: translate(350px) skew(5deg); */
 }
 
 @media (max-width: 600px) {
@@ -29,4 +52,7 @@
         font-size: 1em;
     }
 
+    .hero-container {
+        width: 300px;
+    }
 }

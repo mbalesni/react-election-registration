@@ -18,18 +18,19 @@ export default function Scanner(props) {
     <div className={"overlay " + (props.show ? 'show' : '')}>
       <div className="scanner-container-top">
         <div className={"video-card " + (props.show ? 'show' : '')}>
-          {loading &&
-            <p className="loading-message" >Запуск сканування...</p>
-          }
-          <div id="video" className="scanner-container" ></div>
           <div className="video-footer">
             {!loading &&
               <div className="video-footer-title">
                 <i className={ICONS.camera} style={iconStyle}></i>
                 Сканування студентського квитка
             </div>}
-            <Button disabled={props.loading} onClick={props.onCancel} color="default">назад</Button>
+            <Button disabled={props.loading} onClick={props.onCancel} color="default">Назад</Button>
           </div>
+          {loading &&
+            <p className="loading-message" >Запуск сканування...</p>
+          }
+          <div id="video" className="scanner-container" ></div>
+
         </div>
       </div>
     </div>

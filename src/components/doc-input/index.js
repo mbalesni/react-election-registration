@@ -5,7 +5,11 @@ import PhotoCamera from '@material-ui/icons/PhotoCamera'
 import { ICONS } from '../../utils/icons.js'
 import iziToast from 'izitoast'
 import Video from '../scanner'
+import CONFIG from '../../config'
 import './index.css'
+
+const { PRINT_BALLOTS } = CONFIG
+const SUBMIT_BTN_NAME = PRINT_BALLOTS ? 'Надрукувати бюлетень' : 'Підтвердити'
 
 const MIN_LENGTH = {
     '0': 8,     // ticket
@@ -30,7 +34,6 @@ const initialState = {
 
 export default function DocInput(props) {
     const [state, setState] = useState(initialState)
-
 
     const handleChange = event => {
         setState({
@@ -107,7 +110,7 @@ export default function DocInput(props) {
     const handleSubmitOnEnter = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault()
-            this.handleSubmit()
+            handleSubmit()
         } else return
     }
 
@@ -145,12 +148,6 @@ export default function DocInput(props) {
         const result = hasError ? shouldShow : false
         return result
     }
-
-    // const iconRight = {
-    //     marginRight: '8px',
-    //     marginBottom: '2px',
-    //     fontSize: '18px'
-    // }
 
     const startAdornment = {
         marginTop: 0,
@@ -218,7 +215,7 @@ export default function DocInput(props) {
                 disabled={disabled}
                 style={{ marginTop: '1rem' }}
             >
-                Підтвердити
+                {SUBMIT_BTN_NAME}
             </Button>
 
             {byTicket &&

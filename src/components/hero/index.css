@@ -1,0 +1,20 @@
+.hero-container {
+    width: 40%;
+    transition: .42s ease-in-out;
+}
+
+#hero {
+    width: 400px;    
+}
+
+.hero-container.move-right {
+    /* transform: translate(350px) skew(5deg); */
+}
+
+@media (max-width: 600px) {
+    
+    .hero-container {
+        width: 300px;
+    }
+
+}

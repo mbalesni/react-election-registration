@@ -40,6 +40,11 @@ export const THEME = createMuiTheme({
       root: {
         paddingBottom: 0
       }
+    },
+    MuiPaper: {
+      rounded: {
+        borderRadius: '12px'
+      }
     }
   },
 

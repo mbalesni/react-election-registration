@@ -165,7 +165,7 @@ export default class StudentSearch extends React.Component {
               className="search-btn"
               disabled={this.props.loading}
               onClick={this.handleSubmit.bind(this)}
-              variant="contained"
+              variant="text"
             >
               <i className={ICONS.searchingIcon} style={iconRight}></i>
               Знайти студента

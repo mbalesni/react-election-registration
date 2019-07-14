@@ -37,8 +37,7 @@ export default class SessionWindow extends React.Component {
     const students = this.getStudentsInfo()
 
     return (
-      <Fragment>
-        <div className="check-in card card-default" >
+        <div className="card-enlarger" >
 
           <div className="card-header">
 
@@ -100,8 +99,6 @@ export default class SessionWindow extends React.Component {
           </div>
 
         </div >
-
-      </Fragment>
     )
   }
 

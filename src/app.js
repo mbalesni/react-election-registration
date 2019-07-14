@@ -1,5 +1,4 @@
 import React from 'react'
-import axios from 'axios'
 import Raven from 'raven-js'
 import Quagga from 'quagga'
 import { MuiThemeProvider } from '@material-ui/core/styles';
@@ -20,31 +19,19 @@ import ERRORS from './utils/errors.json';
 import LoginWindow from './components/login-window';
 import { showNotification } from './utils/functions.js';
 import SessionComplete from './components/session-complete-window';
-import CONFIG from './config.js'
+import CONFIG, { API } from './config.js'
+import { shouldIgnoreRegError } from './utils/functions'
+import PrintingWindow from './components/printing-window/index.js';
+import Hero from './components/hero'
 
-const { BACKEND_BASE_URL } = CONFIG
-
-axios.defaults.baseURL = BACKEND_BASE_URL
-axios.defaults.withCredentials = true
-axios.defaults.timeout = 5 * 1000
-axios.interceptors.response.use(function (response) {
-    if (response.data && response.data.auth_token) {
-      axios.defaults.headers = {
-        'X-Auth-Token': response.data.auth_token
-      }
-      localStorage.setItem('authToken', response.data.auth_token)
-    }
-  return response
-}, function (error) {
-  return Promise.reject(error)
-})
+const { ASK_CONSENT, PRINT_BALLOTS } = CONFIG
 
 const initialState = {
   activeStudent: null,
   activeStudentName: '',
-  auth: { loggedIn: false, user: '' },
+  ballotIsPrinted: false,
+  auth: { loggedIn: true, user: '', structuralUnit: 'Факультет інформаційних технологій' },
   ballotNumber: null,
-  ballotPrinted: false,
   docNumber: null,
   docType: null,
   sessionIsOpen: false,
@@ -52,6 +39,7 @@ const initialState = {
   students: [],
   loading: false,
   showRegistrationComplete: '',
+  showPrintingWindow: false,
   printerError: null,
   showConsentDialog: false,
   consentGiven: false,
@@ -90,7 +78,16 @@ export default class App extends React.Component {
 
   render() {
     const { loggedIn } = this.state.auth
-    const { loading, showRegistrationComplete, ballotNumber, showConsentDialog, showCompleteSession } = this.state
+    const { 
+      loading, 
+      showRegistrationComplete, 
+      ballotNumber, 
+      ballotIsPrinted, 
+      showConsentDialog, 
+      showCompleteSession, 
+      showPrintingWindow, 
+      printerError 
+    } = this.state
 
     const spinnerStyles = css`
       position: absolute !important;
@@ -124,39 +121,66 @@ export default class App extends React.Component {
                   handleErrorCode={this.handleErrorCode.bind(this)}
                 />
               }
-              {loggedIn && !this.state.sessionIsOpen &&
-                <NewSessionWindow
-                  onSessionStart={this.startSession.bind(this)}
-                  loading={loading}
-                  startTimestamp={this.state.auth.voteStartTimestamp}
-                  endTimestamp={this.state.auth.voteStartTimestamp}
-                />
+
+
+              <div className="card-perspective">
+                <div className="card">
+                  {loggedIn && !this.state.sessionIsOpen &&
+                    <NewSessionWindow
+                      onSessionStart={this.startSession.bind(this)}
+                      loading={loading}
+                      startTimestamp={this.state.auth.voteStartTimestamp}
+                      endTimestamp={this.state.auth.voteStartTimestamp}
+                    />
+                  }
+
+
+                  {this.state.sessionIsOpen &&
+                    <SessionWindow
+                      activeStudent={this.state.activeStudent}
+                      scannerSeed={this.state.scannerSeed}
+                      status={this.state.status}
+                      students={this.state.students}
+                      onSearchBack={this.searchGoBack.bind(this)}
+                      onStudentSubmit={this.submitStudent.bind(this)}
+                      onStudentSelect={this.selectStudent.bind(this)}
+                      onScanStart={this.initScan.bind(this)}
+                      onScanCancel={this.cancelScan.bind(this)}
+                      onCancelSession={this.cancelSession.bind(this)}
+                      onCompleteSession={this.completeSession.bind(this)}
+                      onSearchByName={this.searchStudentByName.bind(this)}
+                      onStudentUnselect={this.unselectStudent.bind(this)}
+                      voteOptions={this.state.voteOptions}
+                      loading={loading}
+                    />}
+
+
+                </div>
+              </div>
+
+
+
+              {loggedIn &&
+                <Hero />
               }
 
-              {loggedIn && this.state.sessionIsOpen &&
-                <SessionWindow
-                  activeStudent={this.state.activeStudent}
-                  scannerSeed={this.state.scannerSeed}
-                  status={this.state.status}
-                  students={this.state.students}
-                  onSearchBack={this.searchGoBack.bind(this)}
-                  onStudentSubmit={this.registerStudent.bind(this)}
-                  onStudentSelect={this.selectStudent.bind(this)}
-                  onScanStart={this.initScan.bind(this)}
-                  onScanCancel={this.cancelScan.bind(this)}
-                  onCancelSession={this.cancelSession.bind(this)}
-                  onCompleteSession={this.completeSession.bind(this)}
-                  onSearchByName={this.searchStudentByName.bind(this)}
-                  onStudentUnselect={this.unselectStudent.bind(this)}
-                  voteOptions={this.state.voteOptions}
-                  loading={loading}
-                />}
+
 
               {showRegistrationComplete &&
                 <RegistrationCompleteWindow
                   number={ballotNumber}
                   onComplete={this.completeSession.bind(this)}
                   onCancel={this.cancelSession.bind(this)}
+                />
+              }
+
+              {showPrintingWindow &&
+                <PrintingWindow
+                  ballotIsPrinted={ballotIsPrinted}
+                  error={printerError}
+                  onComplete={this.completeSession.bind(this)}
+                  onCancel={this.cancelSession.bind(this)}
+                  onError={this.handlePrinterError.bind(this)}
                 />
               }
 
@@ -185,7 +209,7 @@ export default class App extends React.Component {
     this.setState({ loading: true })
     console.log('getting auth')
 
-    return axios.post('/me', {})
+    return API.back.post('/me', {})
       .then(res => {
         if (res.data.error) return this.handleErrorCode(res.data.error.code)
         this.setState({
@@ -215,7 +239,7 @@ export default class App extends React.Component {
   pulse = () => {
     console.log('pulse')
 
-    axios.post('/me', {})
+    API.back.post('/me', {})
       .then(res => {
         if (res.data.error) this.handleErrorCode(res.data.error.code)
       })
@@ -224,12 +248,7 @@ export default class App extends React.Component {
       })
   }
 
-  onSuccessfulLogin = (authToken) => {
-    axios.defaults.headers = {
-      'X-Auth-Token': authToken
-    }
-    localStorage.setItem('authToken', authToken)
-
+  onSuccessfulLogin = () => {
     this.getAuth()
       .then(this.closeSessions)
 
@@ -237,7 +256,7 @@ export default class App extends React.Component {
   }
 
   closeSessions() {
-    axios.post('/close_sessions', {})
+    API.back.post('/close_sessions', {})
       .catch(err => {
         console.warn(err)
       })
@@ -246,7 +265,7 @@ export default class App extends React.Component {
   startSession() {
     console.log('Starting new session...')
     this.setState({ loading: true })
-    axios.post('/start_new_session', {})
+    API.back.post('/start_new_session', {})
       .then(res => {
         if (res.data.error) return this.handleErrorCode(res.data.error.code)
         const checkInSessionToken = res.data.data.check_in_session.token
@@ -284,7 +303,7 @@ export default class App extends React.Component {
 
     this.setState({ loading: true, searchQuery: name })
 
-    axios.post('/search_by_name', data)
+    API.back.post('/search_by_name', data)
       .then(res => {
         if (res.data.error) return this.handleErrorCode(res.data.error.code)
 
@@ -321,7 +340,7 @@ export default class App extends React.Component {
       activeStudent: student,
       activeStudentName: student.name,
       status: 'Введіть номер підтверджуючого документа',
-      showConsentDialog: true,
+      showConsentDialog: ASK_CONSENT,
     })
   }
 
@@ -332,6 +351,27 @@ export default class App extends React.Component {
   cancelConsent() {
     this.setState({ showConsentDialog: false })
     this.unselectStudent()
+  }
+
+  async submitStudent(student) {
+    const ballotNumber = await this.registerStudent(student)
+    if (PRINT_BALLOTS) {
+      this.printBallot(ballotNumber)
+    } else {
+      this.setState({ showRegistrationComplete: true, ballotNumber })
+    }
+  }
+
+  printBallot(number) {
+    this.setState({ showPrintingWindow: true })
+    API.printer.post('/print_ballot', { number })
+      .then(res => {
+        this.setState({ ballotIsPrinted: true })
+      })
+      .catch(err => {
+        this.setState({ printerError: err.message })
+        this.handleApiError(err)
+      })
   }
 
   registerStudent(student) {
@@ -346,28 +386,23 @@ export default class App extends React.Component {
 
     console.log(`Submitting student with doctype ${data.student.doc_type}`)
 
-    axios.post('/register_student', data)
+    return API.back.post('/register_student', data)
       .then(res => {
+        let ballotNumber
         if (res.data.error) {
-          // if error code is NOT 304  
-          // OR there's NO ballot number in response object context
-          // handle error code
-          if (res.data.error.code !== 304 || !res.data.error.context.ballot_number) return this.handleErrorCode(res.data.error.code)
-
-          // otherwise
-          // show registration complete as if nothing happened
-          let ballotNumber = res.data.error.context.ballot_number
-          this.setState({ showRegistrationComplete: true, ballotNumber })
-          return
+          const ignore = shouldIgnoreRegError(res.data.error)
+          if (!ignore) return this.handleErrorCode(res.data.error.code)
+          ballotNumber = res.data.error.context.ballot_number
         }
-        let ballotNumber = res.data.data.ballot_number
-        this.setState({ showRegistrationComplete: true, ballotNumber })
+        if (!ballotNumber) ballotNumber = res.data.data.ballot_number
+        return ballotNumber
       })
       .catch(err => {
         this.handleApiError(err)
       })
-      .finally(() => {
+      .finally((ballotNumber) => {
         this.setState({ loading: false })
+        return ballotNumber
       })
   }
 
@@ -390,7 +425,7 @@ export default class App extends React.Component {
 
   completeSession = (config) => {
     config.check_in_session_token = this.state.checkInSessionToken
-    axios.post('/complete_session', config)
+    API.back.post('/complete_session', config)
       .then(res => {
         // 508 - already closed
         if (res.data.error && res.data.error.code !== 508) return this.handleErrorCode(res.data.error.code)
@@ -398,7 +433,7 @@ export default class App extends React.Component {
         this.setState({
           showRegistrationComplete: false,
           studentSubmitted: studentName,
-          showCompleteSession: true,
+          showCompleteSession: true, // show if no printererror
         })
       })
       .catch(err => {
@@ -444,12 +479,16 @@ export default class App extends React.Component {
     }
   }
 
+  handlePrinterError() {
+    this.setState({ showPrintingWindow: false, printerError: null })
+  }
+
   cancelSession() {
     const token = { check_in_session_token: this.state.checkInSessionToken }
 
     console.log('Canceling session...')
     this.setState({ loading: true })
-    axios.post('/cancel_session', token)
+    API.back.post('/cancel_session', token)
       .then(res => {
         if (res.data.error) this.handleErrorCode(res.data.error.code, { silent: true })
         this.onSessionEnd()
@@ -477,7 +516,7 @@ export default class App extends React.Component {
   }
 
   logout = () => {
-    axios
+    API.back
       .post('/logout')
       .then(res => {
         if (res.data.error) return this.handleErrorCode(res.data.error.code)

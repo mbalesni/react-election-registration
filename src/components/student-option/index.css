@@ -10,6 +10,7 @@
 
 .student .data {
   flex-grow: 2;
+  margin-right: 5rem;
 }
 
 .student .actions {

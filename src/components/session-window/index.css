@@ -14,14 +14,14 @@
 
 .page-content-wrapper .content {
   /* align-items: center; */
-  padding: 3rem 1rem 1rem;
-  /* display: flex; */
+  padding: 8rem 3rem 1rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
   /* flex-flow: column; */
   margin: 0;
   /* justify-content: space-between; */
 }
-
-
 
 footer {
   align-items: center;
@@ -38,29 +38,45 @@ footer>* {
   opacity: .65;
 }
 
-.new-session-card {
-  background-color: #fff;
-  /* width: 700px; */
-  max-width: 700px;
-  width: 100%;
-}
-
-.new-session-card img {
-  width: 100%;
+.card-perspective {
+  transform: perspective(500px) rotateY(4deg) rotateX(1deg) rotateZ(-2deg);
+  width: 60%;
+  padding-left: 8rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .card {
   background-color: #fff;
-  box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12);
-  border-radius: 3px;
+  /* box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12);
+  border-radius: 3px; */
+  box-shadow: 0px 20px 30px rgba(0, 0, 0, .2);
+  border-radius: 12px;
   overflow: hidden;
-  margin: 0 auto;
+  max-width: 550px;
+  min-width: 420px;
+  transition: .3s ease-in-out;
+  transform: translateX(0);
+  /* padding: 1rem; */
+  /* margin: 0 auto; */
+}
+
+.card:hover {
+  box-shadow: 0px 30px 30px rgba(0, 0, 0, .25);
+  transform: translateY(-3px);
+}
+
+.card .card-enlarger {
+  /* min-width: 550px; */
 }
 
 .check-in.card {
   border: none !important;
-  max-width: 600px;
-  width: 100%;
+  max-width: 450px;
+  min-width: 320px;
+  /* width: 100%; */
+  /* transform: translate(250px); */
 }
 
 .card .card-header {
@@ -85,6 +101,7 @@ footer>* {
 .card .card-header .session-controls {
   display: flex;
 }
+
 .card .card-header .session-controls button {
   font-weight: 400;
 }
@@ -271,6 +288,7 @@ p.instructions-text {
   height: 100%;
   z-index: 1000;
 }
+
 .overlay.show {
   background-color: rgba(0, 0, 0, .7);
   opacity: 1;
@@ -285,26 +303,21 @@ p.instructions-text {
     display: flex;
     flex-direction: column;
   }
-
   .header-and-content {
     display: flex;
     flex-direction: column;
     flex-grow: 2;
   }
-
   .card {
     flex-grow: 2;
     border-radius: 12px 12px 0 0;
   }
-
   .card-header {
     padding: .5rem 1rem;
   }
-
   .card .card-block {
     padding: 1rem 1rem !important;
   }
-
   .instructions-text {
     margin-bottom: 1rem;
     opacity: .8;
@@ -313,15 +326,12 @@ p.instructions-text {
     border-left: 3px solid orange;
     padding-left: .5rem;
   }
-
   .found-students {
     margin-left: -1rem;
   }
-
   button {
     height: 48px;
   }
-
   footer {
     background-color: #fff;
     /* border-top: none; */
@@ -329,13 +339,10 @@ p.instructions-text {
     margin: 0;
     text-align: center;
   }
-
   footer p {
     margin: 0 auto;
   }
-
   footer .love-message {
     display: none;
   }
-
 }

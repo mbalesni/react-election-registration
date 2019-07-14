@@ -36,10 +36,6 @@ export default class Header extends React.Component {
     return (
       <>
         <header>
-          <div className="logo">
-            <img src={logo} alt="logo" height="45" />
-            <div className="title">Реєстрація виборців</div>
-          </div>
           {auth.loggedIn && (
             <div className="app-menu">
               <Button

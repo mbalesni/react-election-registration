@@ -3,7 +3,7 @@ import Button from '@material-ui/core/Button';
 import { ICONS } from '../../utils/icons.js'
 // import { localDateTimeFromUTC } from '../../utils/functions.js'
 import CONFIG from '../../config.js'
-import votingImg from './plain-hero.jpg'
+import logo from './cvk-logo.png'
 import './index.css'
 
 
@@ -18,7 +18,8 @@ export default function NewSessionWindow(props) {
   //   marginTop: '2rem'
   // }
 
-  const electionName = CONFIG.ELECTION_NAME
+  const electionType = CONFIG.ELECTION_TYPE
+  const electionTitle = CONFIG.OFFICIAL_TITLE
 
   // const startDatetime = localDateTimeFromUTC(props.startTimestamp)
   // console.log(startDatetime)
@@ -44,26 +45,29 @@ export default function NewSessionWindow(props) {
   // const endTime = props.endTimestamp
 
   return (
-    <div className="card new-session-card">
-      <div style={{ position: 'relative' }}>
-        <img src={votingImg} alt="" />
-
+    <>
+      <div className="new-session-container">
+        <div className="logo-container">
+          <img className="logo" src={logo} logo="Логотип ЦВК студентів КНУ" />
+        </div>
         <div className="election-text">
-          <div className="election-heading">Е-Реєстрація</div>
+          <div className="election-heading">{electionType}</div>
 
-          {electionName}
+          {electionTitle}
+
 
           {/* <div style={dateStyle}>{date}</div> */}
           {/* <div style={dateStyle}>{startTime}</div> */}
           {/* <div style={dateStyle}>{endTime}</div> */}
         </div>
-      </div>
-      <div className="card-footer">
-        <Button disabled={props.loading} variant="contained" color="primary" onClick={props.onSessionStart}>
-          <i className={ICONS.userCheck} style={iconRight}></i>
-          Зареєструвати виборця
+        <div className="card-footer">
+          <Button disabled={props.loading} variant="contained" color="primary" onClick={props.onSessionStart}>
+            <i className={ICONS.userCheck} style={iconRight}></i>
+            Зареєструвати виборця
         </Button>
-      </div>
-    </div>
+        </div>
+
+      </div >
+    </>
   )
 }
