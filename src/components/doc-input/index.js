@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { Button, Radio, RadioGroup, FormLabel, FormControl, FormControlLabel, Input } from '@material-ui/core'
 import IconButton from '@material-ui/core/IconButton'
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import PhoneIcon from '@material-ui/icons/Phone';
+import FavoriteIcon from '@material-ui/icons/Favorite';
+import PersonPinIcon from '@material-ui/icons/PersonPin';
 import PhotoCamera from '@material-ui/icons/PhotoCamera'
 import { ICONS } from '../../utils/icons.js'
 import iziToast from 'izitoast'
@@ -33,19 +38,25 @@ const initialState = {
 
 
 export default function DocInput(props) {
+    const [value, setDocType] = useState(0)
     const [state, setState] = useState(initialState)
 
-    const handleChange = event => {
+    const handleDocTypeChange = (e, newValue) => {
+        console.log('setting value ' + newValue)
+        setDocType(newValue)
+    }
+
+    const handleChange = (event) => {
         setState({
             ...state,
-            value: event.target.value,
+            // value: newValue,
             docNumber: '',
             touched: false,
         })
     }
 
     const validate = (docNumber) => {
-        const docType = state.value
+        const docType = value
         const len = docNumber.length
         const minLen = MIN_LENGTH[docType]
         const maxLen = MAX_LENGTH[docType]
@@ -65,7 +76,7 @@ export default function DocInput(props) {
 
     const handleSubmit = () => {
         const docNumber = state.docNumber
-        const docType = state.value
+        const docType = value
 
         const error = validate(docNumber)
 
@@ -130,7 +141,6 @@ export default function DocInput(props) {
         })
     }, [props.activeStudent.docNumber, props.scannerSeed])
 
-    const { value } = state
     const docNumber = state.docNumber || ''
 
     const error = validate(docNumber)
@@ -155,14 +165,14 @@ export default function DocInput(props) {
         opacity: .6,
     }
 
-    let byTicket = (value === '0')
+    let byTicket = (value === 0)
 
     return (
         <>
             <div className="doc-picker">
                 <FormControl component="fieldset">
-                    <FormLabel component="legend">Тип документа</FormLabel>
-                    <RadioGroup
+                    {/* <FormLabel component="legend">Тип документа</FormLabel> */}
+                    {/* <RadioGroup
                         aria-label="Тип документа"
                         name="docType"
                         value={value}
@@ -171,12 +181,23 @@ export default function DocInput(props) {
                         <FormControlLabel value="0" control={<Radio />} label="Студентський квиток" />
                         <FormControlLabel value="1" control={<Radio />} label="Залікова книжка" />
                         <FormControlLabel value="2" control={<Radio />} label="Довідка" />
-                    </RadioGroup>
+                    </RadioGroup> */}
+                    <Tabs
+                        value={value}
+                        onChange={handleDocTypeChange}
+                        indicatorColor="primary"
+                        textColor="primary"
+                        className="doc-types-tabs"
+                    >
+                        <Tab label="Студентський" icon={<i className={ICONS.studentCard}></i>} />
+                        <Tab label="Залікова" icon={<i className={ICONS.gradeBook}></i>} />
+                        <Tab label="Довідка" icon={<i className={ICONS.certificate}></i>} />
+                    </Tabs>
 
                 </FormControl>
 
                 <div>
-                    <div className="doc-number-field" style={!isSmScreen ? { marginTop: 24 + (48 * value) } : { marginTop: 24 }}>
+                    <div className="doc-number-field">
 
                         <Input
                             className="input doc-number"
@@ -232,13 +253,13 @@ export default function DocInput(props) {
 function docNameByValue(value) {
     let name
     switch (value) {
-        case '0':
+        case 0:
             name = 'студентського'
             break
-        case '1':
+        case 1:
             name = 'залікової книжки'
             break
-        case '2':
+        case 2:
             name = 'довідки'
             break
         default:

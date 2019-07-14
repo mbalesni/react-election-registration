@@ -4,6 +4,7 @@
 }
 
 #hero {
+    margin-top: 5rem;
     width: 400px;    
 }
 
@@ -12,9 +13,15 @@
 }
 
 @media (max-width: 600px) {
-    
+    #hero {
+        margin-top: 0;
+        width: 320px;
+    }
     .hero-container {
-        width: 300px;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1rem;
     }
 
 }

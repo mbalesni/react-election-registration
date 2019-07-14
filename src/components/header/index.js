@@ -5,9 +5,18 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import Divider from '@material-ui/core/Divider';
 import './index.css'
-import logo from './cvk-logo.png'
+import { ICONS } from '../../utils/icons'
 
+const ico = {
+  marginRight: '8px',
+  marginBottom: '2px',
+}
 
+const userIco = {
+  fontSize: '1.2em',
+  marginRight: '6px',
+  marginBottom: '2px',
+}
 
 
 export default class Header extends React.Component {
@@ -37,49 +46,55 @@ export default class Header extends React.Component {
       <>
         <header>
           {auth.loggedIn && (
-            <div className="app-menu">
-              <Button
-                aria-owns={open ? 'menu-appbar' : null}
-                aria-haspopup="true"
-                aria-label={auth.user}
-                onClick={this.handleMenu}
-                color="inherit"
-                className="app-menu-btn"
-              >
-                <AccountCircle style={{ marginRight: '8px' }} />
-                <span>{auth.user}</span>
-              </Button>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                open={open}
-                onClose={this.handleClose}
-              >
-                <MenuItem disabled>{auth.user}</MenuItem>
-                <a href="/admin/" target="_blank" rel="noreferrer noopener">
-                  <MenuItem>
-                    Адмін панель
+            <>
+              <div className="structural-unit">{auth.structuralUnit}</div>
+              <div className="app-menu">
+                <Button
+                  aria-owns={open ? 'menu-appbar' : null}
+                  aria-haspopup="true"
+                  aria-label={auth.user}
+                  onClick={this.handleMenu}
+                  color="inherit"
+                  className="app-menu-btn"
+                >
+                  <i className={ICONS.user} style={userIco}></i>
+                  <span className="user-name">{auth.user}</span>
+                </Button>
+                <Menu
+                  id="menu-appbar"
+                  anchorEl={anchorEl}
+                  anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  open={open}
+                  onClose={this.handleClose}
+                >
+                  <MenuItem disabled>
+                    <i className={ICONS.user} style={userIco}></i>
+                    {auth.user}
                   </MenuItem>
-                </a>
-                <Divider />
-                <MenuItem onClick={this.handleLogout.bind(this)}>Вийти</MenuItem>
-              </Menu>
+                  <a href="/admin/" target="_blank" rel="noreferrer noopener">
+                    <MenuItem>
+                      <i className={ICONS.admin} style={ico}></i>
+                      Адмін панель
+                  </MenuItem>
+                  </a>
+                  <Divider />
+                  <MenuItem onClick={this.handleLogout.bind(this)}>
+                    <i className={ICONS.logout} style={ico}></i>
+                    Вийти
+                  </MenuItem>
+                </Menu>
 
-            </div>
+              </div>
+            </>
           )}
         </header>
-        {auth.loggedIn &&
-          <div className="structural-unit">
-            <span>{auth.structuralUnit}</span>
-          </div>}
       </>
     )
   }

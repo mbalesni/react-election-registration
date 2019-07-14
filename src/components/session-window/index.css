@@ -39,12 +39,17 @@ footer>* {
 }
 
 .card-perspective {
-  transform: perspective(500px) rotateY(4deg) rotateX(1deg) rotateZ(-2deg);
+  align-items: center;
+  transform: perspective(500px) rotateY(0) rotateX(0) rotateZ(0);
   width: 60%;
-  padding-left: 8rem;
   display: flex;
   justify-content: center;
-  align-items: center;
+  transition: .3s ease-in-out;
+}
+
+.card-perspective.with-perspective {
+  transform: perspective(500px) rotateY(4deg) rotateX(1deg) rotateZ(-2deg);
+  padding-left: 8rem;
 }
 
 .card {
@@ -55,7 +60,7 @@ footer>* {
   border-radius: 12px;
   overflow: hidden;
   max-width: 550px;
-  min-width: 420px;
+  /* min-width: 420px; */
   transition: .3s ease-in-out;
   transform: translateX(0);
   /* padding: 1rem; */
@@ -81,7 +86,6 @@ footer>* {
 
 .card .card-header {
   border-bottom: 3px solid #f0f0f0;
-  color: #333;
   display: flex;
   justify-content: space-between;
   /* text-transform: uppercase; */
@@ -91,7 +95,6 @@ footer>* {
 
 .card .card-header .card-title {
   align-items: center;
-  color: #333;
   font-weight: 400;
   display: flex;
   font-size: .95rem;
@@ -116,16 +119,14 @@ footer>* {
 
 .card .card-block {
   padding: 1rem 1.5rem !important;
-  /* min-height: 370px; */
   display: flex;
   flex-direction: column;
-  /* justify-content: space-between; */
-  /* position: relative; */
+  min-width: 350px;
 }
 
 p.instructions-text {
+  color: rgba(0,0,0,.4);
   margin-bottom: 1rem;
-  opacity: .8;
   font-size: .875rem;
   line-height: 1.3;
   border-left: 3px solid orange;
@@ -142,13 +143,7 @@ p.instructions-text {
   margin-left: -1.5rem;
 }
 
-.card-footer {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 1rem 1.5rem 1rem;
-}
+
 
 /* SCANNER & ID EXAMPLE */
 
@@ -297,11 +292,12 @@ p.instructions-text {
 
 @media (max-width: 600px) {
   .page-content-wrapper .content {
-    padding: 2rem 0 0;
+    padding: 0;
     margin: 0;
     flex-grow: 2;
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
   }
   .header-and-content {
     display: flex;
@@ -309,8 +305,10 @@ p.instructions-text {
     flex-grow: 2;
   }
   .card {
+    border: .5px solid #eee;
     flex-grow: 2;
     border-radius: 12px 12px 0 0;
+    box-shadow: none !important;
   }
   .card-header {
     padding: .5rem 1rem;
@@ -318,6 +316,25 @@ p.instructions-text {
   .card .card-block {
     padding: 1rem 1rem !important;
   }
+
+  .card-perspective {
+    align-items: center;
+    transform: perspective(500px) rotateY(0) rotateX(0) rotateZ(0) translate(0) !important;
+    box-shadow: none !important;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    order: 2;
+  }
+  
+  .card-perspective.with-perspective {
+    padding-left: 0;
+  }
+
+  .card:hover {
+    transform: translateY(0);
+  }
+
   .instructions-text {
     margin-bottom: 1rem;
     opacity: .8;
@@ -344,5 +361,8 @@ p.instructions-text {
   }
   footer .love-message {
     display: none;
+  }
+  .overlay.show {
+    background-color: #fff;
   }
 }

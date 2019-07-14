@@ -7,6 +7,9 @@ import DocInput from '../doc-input';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import './index.css'
 
+const iconStyle = {
+  fontSize: '16px',
+}
 
 export default class SessionWindow extends React.Component {
   getStudentsInfo() {
@@ -42,7 +45,7 @@ export default class SessionWindow extends React.Component {
           <div className="card-header">
 
             <div className="card-title">
-              <i className={ICONS.userCheck}></i>
+              <i className={ICONS.userCheck} style={iconStyle}></i>
               Реєстрація
             </div>
 

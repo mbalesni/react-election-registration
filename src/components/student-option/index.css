@@ -3,9 +3,13 @@
   justify-content: space-between;
   padding: .5rem;
   padding-left: 1.5rem;
-  padding-right: 0;
+  padding-right: 1.5rem;
   margin-bottom: 1rem;
   transition: .3s ease-in-out;
+}
+
+.student:last-of-type {
+  margin-bottom: 0;
 }
 
 .student .data {
@@ -17,13 +21,10 @@
   align-items: center;
   margin-right: -1.5rem;
 }
-.student .actions button {
-  border-radius: 12px 0 0 12px;
-}
 
 .student--info {
   margin-top: .5rem;
-  opacity: .8;
+  color: rgba(0,0,0,.4);
 }
 
 .student--name {
@@ -39,9 +40,17 @@
 @media (max-width: 600px) {
   .student {
     border-left: 0 !important;
-    padding: .5rem;
     margin-bottom: 1rem;
     padding-left: 1rem;
+    padding-right: .5rem;
     transition: .3s ease-in-out;
+  }
+
+  .student .data {
+    margin-right: .5rem;
+  }
+
+  .student .actions button {
+    border-radius: 20px 0 0 20px;
   }
 }

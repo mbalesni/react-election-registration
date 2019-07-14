@@ -8,6 +8,8 @@ import './index.css'
 
 
 export default function NewSessionWindow(props) {
+  const { structuralUnit } = props.data
+
   const iconRight = {
     marginRight: '8px',
     fontSize: '18px',
@@ -51,17 +53,16 @@ export default function NewSessionWindow(props) {
           <img className="logo" src={logo} logo="Логотип ЦВК студентів КНУ" />
         </div>
         <div className="election-text">
-          <div className="election-heading">{electionType}</div>
+          <div className="election-type">{electionType}</div>
 
-          {electionTitle}
-
+          <div className="blue-strip">{electionTitle}</div>          
 
           {/* <div style={dateStyle}>{date}</div> */}
           {/* <div style={dateStyle}>{startTime}</div> */}
           {/* <div style={dateStyle}>{endTime}</div> */}
         </div>
         <div className="card-footer">
-          <Button disabled={props.loading} variant="contained" color="primary" onClick={props.onSessionStart}>
+          <Button disabled={props.loading} variant="contained" color="secondary" onClick={props.onSessionStart}>
             <i className={ICONS.userCheck} style={iconRight}></i>
             Зареєструвати виборця
         </Button>

@@ -5,13 +5,13 @@ const PROD = process.env.NODE_ENV === 'production'
 const CONFIG = {
     BACKEND_BASE_URL: PROD ? '/api' : 'http://localhost/api',
     PRINTER_BASE_URL: PROD ? 'http://localhost:8012' : 'http://localhost:8012',
-    COMPLETE_TIMEOUT: PROD ? process.env.REACT_APP_COMPLETE_TIMEOUT : 120,
+    COMPLETE_TIMEOUT: PROD ? process.env.REACT_APP_COMPLETE_TIMEOUT : 30,
     PULSE_INTERVAL:   PROD ? process.env.REACT_APP_PULSE_INTERVAL : 30,
     SENTRY_DSN:       PROD ? process.env.REACT_APP_SENTRY_DSN : null,
     ELECTION_TYPE:    'Е-голосування',
     PRINT_BALLOTS:    process.env.REACT_APP_PRINT_BALLOTS === 'true' ? true : false,
     ASK_CONSENT:      process.env.REACT_APP_ASK_CONSENT === 'true' ? true : false,
-    OFFICIAL_TITLE:   PROD ? process.env.REACT_APP_ELECTION_NAME : 'Тестові вибори',
+    OFFICIAL_TITLE:   PROD ? process.env.REACT_APP_ELECTION_NAME : 'Вибори голови студентського парламенту факультету інформаційних технологій',
 }
 
 // check that all properties 

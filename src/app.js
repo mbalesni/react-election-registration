@@ -30,7 +30,7 @@ const initialState = {
   activeStudent: null,
   activeStudentName: '',
   ballotIsPrinted: false,
-  auth: { loggedIn: true, user: '', structuralUnit: 'Факультет інформаційних технологій' },
+  auth: { loggedIn: false, user: '', structuralUnit: '' },
   ballotNumber: null,
   docNumber: null,
   docType: null,
@@ -78,15 +78,16 @@ export default class App extends React.Component {
 
   render() {
     const { loggedIn } = this.state.auth
-    const { 
-      loading, 
-      showRegistrationComplete, 
-      ballotNumber, 
-      ballotIsPrinted, 
-      showConsentDialog, 
-      showCompleteSession, 
-      showPrintingWindow, 
-      printerError 
+    const {
+      loading,
+      showRegistrationComplete,
+      ballotNumber,
+      ballotIsPrinted,
+      showConsentDialog,
+      showCompleteSession,
+      showPrintingWindow,
+      printerError,
+      sessionIsOpen,
     } = this.state
 
     const spinnerStyles = css`
@@ -114,28 +115,30 @@ export default class App extends React.Component {
             />
 
             <div className="content">
-              {!loggedIn &&
-                <LoginWindow
-                  onSuccess={this.onSuccessfulLogin}
-                  handleApiError={this.handleApiError.bind(this)}
-                  handleErrorCode={this.handleErrorCode.bind(this)}
-                />
-              }
 
 
-              <div className="card-perspective">
+
+              <div className={"card-perspective " + (loggedIn ? 'with-perspective' : '') }>
                 <div className="card">
-                  {loggedIn && !this.state.sessionIsOpen &&
+
+                  {!loggedIn &&
+                    <LoginWindow
+                      onSuccess={this.onSuccessfulLogin}
+                      handleApiError={this.handleApiError.bind(this)}
+                      handleErrorCode={this.handleErrorCode.bind(this)}
+                    />
+                  }
+
+                  {loggedIn && !sessionIsOpen &&
                     <NewSessionWindow
+                      data={this.state.auth}
                       onSessionStart={this.startSession.bind(this)}
                       loading={loading}
-                      startTimestamp={this.state.auth.voteStartTimestamp}
-                      endTimestamp={this.state.auth.voteStartTimestamp}
                     />
                   }
 
 
-                  {this.state.sessionIsOpen &&
+                  {sessionIsOpen &&
                     <SessionWindow
                       activeStudent={this.state.activeStudent}
                       scannerSeed={this.state.scannerSeed}
@@ -339,7 +342,7 @@ export default class App extends React.Component {
     this.setState({
       activeStudent: student,
       activeStudentName: student.name,
-      status: 'Введіть номер підтверджуючого документа',
+      status: 'Введіть підтверджуючий документ',
       showConsentDialog: ASK_CONSENT,
     })
   }
@@ -548,7 +551,7 @@ export default class App extends React.Component {
   cancelScan() {
     Quagga.stop();
     this.setState({
-      status: 'Введіть номер підтверджуючого документа',
+      status: 'Введіть підтверджуючий документ',
     })
   }
 

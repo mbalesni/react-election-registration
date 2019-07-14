@@ -2,7 +2,7 @@ import blue from '@material-ui/core/colors/blue';
 import red from '@material-ui/core/colors/red';
 import { createMuiTheme } from '@material-ui/core/styles';
 
-
+const BASE_TEXT_COLOR = 'rgba(0,0,0,.6)'
 
 export const THEME = createMuiTheme({
   typography: {
@@ -16,9 +16,9 @@ export const THEME = createMuiTheme({
       contrastText: '#fff',
     },
     secondary: {
-      light: red[300],
-      main: red[500],
-      dark: red[700],
+      // light: red[300],
+      main: '#9E2F2E',
+      // dark: red[700],
       contrastText: '#fff'
     }
   },
@@ -28,6 +28,8 @@ export const THEME = createMuiTheme({
         textTransform: 'none', // Some CSS
       },
       root: {
+        color: BASE_TEXT_COLOR,
+        borderRadius: '20px',
         fontSize: '.95rem',
       }
     },
@@ -44,6 +46,16 @@ export const THEME = createMuiTheme({
     MuiPaper: {
       rounded: {
         borderRadius: '12px'
+      }
+    },
+    MuiMenuItem: {
+      root: {
+        color: BASE_TEXT_COLOR,
+      }
+    },
+    MuiTypography: {
+      body2: {
+        color: BASE_TEXT_COLOR
       }
     }
   },

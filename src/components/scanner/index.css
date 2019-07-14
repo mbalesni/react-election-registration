@@ -76,8 +76,9 @@
 
 @media (max-width: 600px) {
     .video-card {
+        background-color: transparent;
         border-radius: 0px;
-        margin: 3rem auto;
+        margin: 0;
         position: relative;
     }
 }
