@@ -1,74 +1,109 @@
-import React, { Fragment } from 'react'
-import axios from 'axios'
+import React from 'react'
 import Raven from 'raven-js'
 import Quagga from 'quagga'
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import { QUAGGA_OPTIONS } from './plugins/quagga-options.js'
-import SessionWindow from './components/session-window/session-window.js'
-import NewSessionWindow from './components/new-session-window/new-session-window.js'
-import PrintingWindow from './components/printing-window/printing-window'
-import Header from './components/page/header.js'
-import Footer from './components/page/footer.js'
-import { THEME } from './theme.js'
+import SessionWindow from './components/session-window'
+import NewSessionWindow from './components/new-session-window'
+import ConsentDialog from './components/consent-window'
+import RegistrationCompleteWindow from './components/registration-complete-window'
+import Header from './components/header'
+import Footer from './components/footer'
+import { THEME } from './utils/theme.js'
 import { BarLoader } from 'react-spinners';
 import { css } from 'react-emotion';
-import { message } from 'antd'
-import iziToast from 'izitoast'
 import { ICONS } from './utils/icons.js'
 import '../node_modules/izitoast/dist/css/iziToast.min.css'
 import './utils/override-izitoast.css'
-import * as errors from './utils/errors.json';
-import LoginWindow from './login-window.js'
-import { readSync } from 'fs';
+import ERRORS from './utils/errors.json';
+import LoginWindow from './components/login-window';
+import { showNotification } from './utils/functions.js';
+import SessionComplete from './components/session-complete-window';
+import CONFIG, { API } from './config.js'
+import { shouldIgnoreRegError } from './utils/functions'
+import PrintingWindow from './components/printing-window/index.js';
+import Hero from './components/hero'
 
-const spinnerStyles = css`
-  position: absolute !important;
-`
-
-// retrieving environment variables
-const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL || 'http://localhost:8011'
-const PRINTAPP_BASE_URL = process.env.REACT_APP_PRINTAPP_HOST_URL || 'http://localhost:8012'
-
-const backend = axios.create({
-  baseURL: BACKEND_BASE_URL,
-  withCredentials: true,
-})
-
-const printer = axios.create({
-  baseURL: PRINTAPP_BASE_URL,
-  withCredentials: true,
-  timeout: 2 * 60 * 1000, // 2 minutes for printer to complete printing
-})
+const { ASK_CONSENT, PRINT_BALLOTS } = CONFIG
 
 const initialState = {
   activeStudent: null,
-  auth: { loggedIn: false, user: '' },
+  activeStudentName: '',
+  ballotIsPrinted: false,
+  auth: { loggedIn: true, user: '', structuralUnit: 'Факультет інформаційних технологій' },
   ballotNumber: null,
-  ballotPrinted: false,
   docNumber: null,
   docType: null,
-  doRevoke: false,
   sessionIsOpen: false,
   checkInSessionToken: null,
   students: [],
   loading: false,
-  studentSubmitted: false,
+  showRegistrationComplete: '',
+  showPrintingWindow: false,
   printerError: null,
+  showConsentDialog: false,
+  consentGiven: false,
+  searchQuery: '',
+  showCompleteSession: false,
+  studentSubmitted: '',
 }
 
 export default class App extends React.Component {
   state = { ...initialState }
 
+  componentWillMount() {
+    let storedAuthToken = localStorage.getItem('authToken')
+    if (storedAuthToken) {
+      this.setState({
+        auth: {
+          loggedIn: true
+        }
+      })
+
+      this.onSuccessfulLogin(storedAuthToken)
+    }
+  }
+
+  componentDidCatch(err, errInfo) {
+    Raven.captureException(
+      err,
+      {
+        extra: errInfo,
+        user: {
+          name: this.state.auth.user
+        }
+      }
+    )
+  }
+
   render() {
     const { loggedIn } = this.state.auth
-    const { loading, studentSubmitted } = this.state
+    const { 
+      loading, 
+      showRegistrationComplete, 
+      ballotNumber, 
+      ballotIsPrinted, 
+      showConsentDialog, 
+      showCompleteSession, 
+      showPrintingWindow, 
+      printerError 
+    } = this.state
+
+    const spinnerStyles = css`
+      position: absolute !important;
+      top: 0;
+    `
 
     return (
       <div className="page-content-wrapper " >
 
         <MuiThemeProvider theme={THEME}>
           <div className="header-and-content">
-            <Header auth={this.state.auth} onCloseSessions={this.closeSessions.bind(this)} />
+            <Header
+              auth={this.state.auth}
+              onCloseSessions={this.closeSessions.bind(this)}
+              onLogout={this.logout}
+            />
             <BarLoader
               color="rgba(33, 150, 243, 0.8)"
               className={spinnerStyles}
@@ -79,34 +114,89 @@ export default class App extends React.Component {
             />
 
             <div className="content">
-              {!loggedIn && <LoginWindow url={BACKEND_BASE_URL} onSuccess={this.onSuccessfulLogin.bind(this)} />}
-              {loggedIn && !this.state.sessionIsOpen &&
-                <NewSessionWindow onSessionStart={this.startSession.bind(this)} loading={loading} />
+              {!loggedIn &&
+                <LoginWindow
+                  onSuccess={this.onSuccessfulLogin}
+                  handleApiError={this.handleApiError.bind(this)}
+                  handleErrorCode={this.handleErrorCode.bind(this)}
+                />
               }
 
-              {loggedIn && this.state.sessionIsOpen &&
-                <SessionWindow
-                  activeStudent={this.state.activeStudent}
-                  status={this.state.status}
-                  students={this.state.students}
-                  onSearchBack={this.searchGoBack.bind(this)}
-                  onStudentSubmit={this.getBallot.bind(this)}
-                  onStudentSelect={this.selectStudent.bind(this)}
-                  onScanStart={this.initScan.bind(this)}
-                  onScanCancel={this.cancelScan.bind(this)}
-                  onCancelSession={this.cancelSession.bind(this)}
-                  onCompleteSession={this.completeSession.bind(this)}
-                  onSearchByName={this.searchStudentByName.bind(this)}
-                  onStudentUnselect={this.unselectStudent.bind(this)}
-                  voteOptions={this.state.voteOptions}
-                  loading={loading}
-                />}
 
-              {studentSubmitted && <PrintingWindow
-                onCompleteSession={this.completeSession.bind(this)}
-                ballotPrinted={this.state.ballotPrinted}
-                error={this.state.printerError}
-              />}
+              <div className="card-perspective">
+                <div className="card">
+                  {loggedIn && !this.state.sessionIsOpen &&
+                    <NewSessionWindow
+                      onSessionStart={this.startSession.bind(this)}
+                      loading={loading}
+                      startTimestamp={this.state.auth.voteStartTimestamp}
+                      endTimestamp={this.state.auth.voteStartTimestamp}
+                    />
+                  }
+
+
+                  {this.state.sessionIsOpen &&
+                    <SessionWindow
+                      activeStudent={this.state.activeStudent}
+                      scannerSeed={this.state.scannerSeed}
+                      status={this.state.status}
+                      students={this.state.students}
+                      onSearchBack={this.searchGoBack.bind(this)}
+                      onStudentSubmit={this.submitStudent.bind(this)}
+                      onStudentSelect={this.selectStudent.bind(this)}
+                      onScanStart={this.initScan.bind(this)}
+                      onScanCancel={this.cancelScan.bind(this)}
+                      onCancelSession={this.cancelSession.bind(this)}
+                      onCompleteSession={this.completeSession.bind(this)}
+                      onSearchByName={this.searchStudentByName.bind(this)}
+                      onStudentUnselect={this.unselectStudent.bind(this)}
+                      voteOptions={this.state.voteOptions}
+                      loading={loading}
+                    />}
+
+
+                </div>
+              </div>
+
+
+
+              {loggedIn &&
+                <Hero />
+              }
+
+
+
+              {showRegistrationComplete &&
+                <RegistrationCompleteWindow
+                  number={ballotNumber}
+                  onComplete={this.completeSession.bind(this)}
+                  onCancel={this.cancelSession.bind(this)}
+                />
+              }
+
+              {showPrintingWindow &&
+                <PrintingWindow
+                  ballotIsPrinted={ballotIsPrinted}
+                  error={printerError}
+                  onComplete={this.completeSession.bind(this)}
+                  onCancel={this.cancelSession.bind(this)}
+                  onError={this.handlePrinterError.bind(this)}
+                />
+              }
+
+              {showConsentDialog &&
+                <ConsentDialog
+                  staffName={this.state.auth.user}
+                  onComplete={this.confirmConsent.bind(this)}
+                  onCancel={this.cancelConsent.bind(this)}
+                />
+              }
+
+              <SessionComplete
+                open={showCompleteSession}
+                studentName={this.state.studentSubmitted}
+                onSessionEnd={this.onSessionEnd.bind(this)}
+              />
             </div>
           </div>
           <Footer />
@@ -115,56 +205,58 @@ export default class App extends React.Component {
     )
   }
 
-  componentDidMount() {
-    message.config({
-      maxCount: 1,
-      duration: 5
-    })
-  }
-
   getAuth() {
     this.setState({ loading: true })
+    console.log('getting auth')
 
-    backend.post('/me', {})
+    return API.back.post('/me', {})
       .then(res => {
+        if (res.data.error) return this.handleErrorCode(res.data.error.code)
         this.setState({
           auth: {
             loggedIn: true,
-            user: `${res.data.data.staff.first_name} ${res.data.data.staff.last_name}`
-          },
-          loading: false
+            user: `${res.data.data.staff.first_name} ${res.data.data.staff.last_name}`,
+            structuralUnit: res.data.data.staff.structural_unit_name,
+            voteStartTimestamp: res.data.data.staff.vote_start_timestamp,
+            voteEndTimestamp: res.data.data.staff.vote_end_timestamp,
+          }
         })
       })
       .catch(err => {
+        this.handleApiError(err)
         this.setState({
           auth: {
             loggedIn: false
-          },
-          loading: false
+          }
         })
-
+      })
+      .finally(() => {
+        this.setState({ loading: false })
       })
 
   }
 
-  onSuccessfulLogin(authToken) {
-    this.setState({
-      auth: {
-        loggedIn: true,
-        token: authToken
-      }
-    })
+  pulse = () => {
+    console.log('pulse')
 
-    backend.defaults.headers = {
-      'X-Auth-Token': authToken
-    }
+    API.back.post('/me', {})
+      .then(res => {
+        if (res.data.error) this.handleErrorCode(res.data.error.code)
+      })
+      .catch(err => {
+        this.handleApiError(err)
+      })
+  }
 
+  onSuccessfulLogin = () => {
     this.getAuth()
-    this.closeSessions()
+      .then(this.closeSessions)
+
+    this.pulseInterval = setInterval(this.pulse, CONFIG.PULSE_INTERVAL * 1000)
   }
 
   closeSessions() {
-    backend.post('/close_sessions', {})
+    API.back.post('/close_sessions', {})
       .catch(err => {
         console.warn(err)
       })
@@ -173,38 +265,31 @@ export default class App extends React.Component {
   startSession() {
     console.log('Starting new session...')
     this.setState({ loading: true })
-    backend.post('/start_new_session', {})
+    API.back.post('/start_new_session', {})
       .then(res => {
-        if (!res.data.error) {
-          const checkInSessionToken = res.data.data.check_in_session.token
-
-          this.setState({
-            sessionIsOpen: true,
-            checkInSessionToken,
-            status: {
-              type: 'info',
-              message: 'Знайдіть студента в базі'
-            },
-            loading: false
-          })
-        } else {
-          return this.registerError(res.data.error.code)
-        }
-
+        if (res.data.error) return this.handleErrorCode(res.data.error.code)
+        const checkInSessionToken = res.data.data.check_in_session.token
+        this.setState({
+          sessionIsOpen: true,
+          checkInSessionToken,
+          status: 'Знайдіть студента в базі',
+        })
       })
       .catch(err => {
         this.handleApiError(err)
+      })
+      .finally(() => {
+        this.setState({ loading: false })
       })
   }
 
   buildFoundStudentsNote(numOfStudents, query) {
     return (
-      <Fragment>
-        <div>{numOfStudents > 1 ? 'Оберіть' : 'Перевірте дані та зареєструйте'} студента</div>
-        <div className="found-students-num">
-          За запитом <strong>{query}</strong> знайдено {numOfStudents} студент{numOfStudents > 1 ? 'ів' : 'а'}
-        </div>
-      </Fragment>
+      <>
+        {numOfStudents > 1 ? 'Оберіть' : 'Перевірте дані та зареєструйте'} студента
+        <br />
+        За запитом <strong>{query}</strong> знайдено {numOfStudents} студент{numOfStudents > 1 ? 'ів' : 'а'}
+      </>
     )
   }
 
@@ -214,61 +299,84 @@ export default class App extends React.Component {
     data.student = {}
     data.student.full_name = name
 
-    console.log('Searching student by name:', name)
+    console.log('Searching student by name...')
 
-    this.setState({ loading: true })
+    this.setState({ loading: true, searchQuery: name })
 
-    backend.post('/search_by_name', data)
+    API.back.post('/search_by_name', data)
       .then(res => {
-        if (res.data.error) return this.registerError(res.data.error.code, false)
+        if (res.data.error) return this.handleErrorCode(res.data.error.code)
 
         const foundStudents = res.data.data.students
         let students = foundStudents.map(student => {
           return this.buildStudentData(student)
         })
+
         this.setState({
           students,
-          status: {
-            type: 'info',
-            message: this.buildFoundStudentsNote(students.length, name),
-          },
-          loading: false
+          status: this.buildFoundStudentsNote(students.length, name),
         })
       })
       .catch(err => {
         this.handleApiError(err)
       })
+      .finally(() => {
+        this.setState({ loading: false })
+      })
   }
 
   buildStudentData(student) {
     let data = {
-      name: student.data.full_name,
-      degree: student.data.educational_degree === 1 ? 'Бакалавр' : 'Магістр',
-      formOfStudy: student.data.form_of_study === 1 ? 'Денна' : 'Заочна',
-      structuralUnit: student.data.structural_unit,
-      specialty: student.data.specialty,
-      year: student.data.year,
+      name: student.full_name,
       token: student.token,
-      doRevoke: student.has_voted
+      hasVoted: student.has_voted,
+      data: student.data,
     }
     return data
   }
 
-  selectStudent(student, doRevoke) {
+  selectStudent(student) {
     this.setState({
       activeStudent: student,
-      doRevoke,
-      status: {
-        type: 'info',
-        message: 'Введіть номер підтверджуючого документа'
-      }
+      activeStudentName: student.name,
+      status: 'Введіть номер підтверджуючого документа',
+      showConsentDialog: ASK_CONSENT,
     })
   }
 
-  getBallot(student) {
+  confirmConsent() {
+    this.setState({ showConsentDialog: false })
+  }
+
+  cancelConsent() {
+    this.setState({ showConsentDialog: false })
+    this.unselectStudent()
+  }
+
+  async submitStudent(student) {
+    const ballotNumber = await this.registerStudent(student)
+    if (PRINT_BALLOTS) {
+      this.printBallot(ballotNumber)
+    } else {
+      this.setState({ showRegistrationComplete: true, ballotNumber })
+    }
+  }
+
+  printBallot(number) {
+    this.setState({ showPrintingWindow: true })
+    API.printer.post('/print_ballot', { number })
+      .then(res => {
+        this.setState({ ballotIsPrinted: true })
+      })
+      .catch(err => {
+        this.setState({ printerError: err.message })
+        this.handleApiError(err)
+      })
+  }
+
+  registerStudent(student) {
     let data = {}
     data.check_in_session_token = this.state.checkInSessionToken
-    data.do_revoke_ballot = student.doRevoke
     data.student = {}
     data.student.token = student.token
     data.student.doc_type = student.docType
@@ -276,34 +384,25 @@ export default class App extends React.Component {
 
     this.setState({ loading: true })
 
-    console.log(`Submitting student with doc_num ${data.student.doc_num} (type ${data.student.doc_type}), token ${data.student.token}`)
+    console.log(`Submitting student with doctype ${data.student.doc_type}`)
 
-    backend.post('/new_ballot', data)
+    return API.back.post('/register_student', data)
       .then(res => {
-        if (res.data.error) return this.registerError(res.data.error.code)
-        let ballotNumber = res.data.data.ballot_number
-        this.printBallot(ballotNumber)
-      })
-      .catch(err => {
-        this.handleApiError(err)
-      })
-  }
-
-  printBallot(number) {
-    this.setState({ loading: false, studentSubmitted: true })
-    printer.post('/print_ballot', { number })
-      .then(res => {
+        let ballotNumber
         if (res.data.error) {
-          this.setState({ printerError: res.data.error })
-          return
+          const ignore = shouldIgnoreRegError(res.data.error)
+          if (!ignore) return this.handleErrorCode(res.data.error.code)
+          ballotNumber = res.data.error.context.ballot_number
         }
-        this.setState({ ballotPrinted: true })
-        console.log(res)
+        if (!ballotNumber) ballotNumber = res.data.data.ballot_number
+        return ballotNumber
       })
       .catch(err => {
-        console.warn('PrintApp error', err)
-        this.setState({ printerError: err })
         this.handleApiError(err)
+      })
+      .finally((ballotNumber) => {
+        this.setState({ loading: false })
+        return ballotNumber
       })
   }
 
@@ -311,10 +410,7 @@ export default class App extends React.Component {
     console.log('Going back to Search...')
     this.setState({
       students: [],
-      status: {
-        type: 'info',
-        message: "Знайдіть студента в базі"
-      }
+      status: 'Знайдіть студента в базі',
     })
     this.searchStudentByTicketNumberStarted = false
   }
@@ -323,91 +419,68 @@ export default class App extends React.Component {
     console.log('Unselecting student...')
     this.setState({
       activeStudent: null,
+      status: this.buildFoundStudentsNote(this.state.students.length, this.state.searchQuery),
     })
   }
 
   completeSession = (config) => {
     config.check_in_session_token = this.state.checkInSessionToken
-    backend.post('/complete_session', config)
+    API.back.post('/complete_session', config)
       .then(res => {
         // 508 - already closed
-        if (!res.data.error || (res.data.error && res.data.error.code === 508)) {
-          this.onSessionEnd()
-        } else {
-          this.registerError(res.data.error.code)
-        }
+        if (res.data.error && res.data.error.code !== 508) return this.handleErrorCode(res.data.error.code)
+        const studentName = this.state.activeStudentName
+        this.setState({
+          showRegistrationComplete: false,
+          studentSubmitted: studentName,
+          showCompleteSession: true, // show if no printererror
+        })
       })
       .catch(err => {
-        console.warn(err)
         this.handleApiError(err)
       })
-  }
-
-  componentDidCatch(err, errInfo) {
-    Raven.captureException(err, { extra: errInfo });
+      .finally(() => {
+        this.setState({ loading: false })
+      })
   }
 
   handleApiError(err) {
     console.warn('Handling API error:', err)
-    console.log(err.status)
+    if (!err.status && !err.response) return this.handleErrorCode(513) // network error
+    this.handleErrorCode(300, { err })
+  }
 
-    // check Network Error
-    if (!err.status && !err.response) {
-      console.warn('[API ERROR HANDLER] Network error detected')
-      this.registerError(513)
-      return
+  handleErrorCode(code, options = {}) {
+    if ([517, 518, 519].includes(code)) {
+      this.onExpiredAuth()
     }
 
-    switch (err.response.status) {
-      case 400:
-        // FIXME: deal with bad requests
-        break
-      case 403:
-        this.setState({ loading: false })
-        message.warn('Відмовлено в доступі.')
-        break
-      default:
-        this.registerError(300)
+    let error = ERRORS[code] || {
+      title: `Упс, такої помилки не очікували`,
+      message: 'Команда підтримки вже поінформована про проблему 😌',
+      icon: ICONS.bug,
+    }
+
+    Raven.captureException(
+      options.err || `${error.title} – ${error.message}`,
+      {
+        user: {
+          name: this.state.auth.user
+        }
+      }
+    )
+
+    if (!options.silent) {
+      showNotification({
+        title: error.title,
+        message: error.message,
+        icon: error.icon,
+      })
     }
   }
 
-  registerError(code, silent = false, options) {
-    this.setState({ loading: false })
-
-    let error = errors[code]
-    if (300 <= code && code < 400) {
-      error = {
-        title: 'Невідома помилка',
-        message: 'Зверніться в службу підтримки',
-        icon: ICONS.bug,
-      }
-    }
-    if (!error) error = {}
-    let title = `${error.title || 'Помилка'} [${code}]`
-
-    if (!silent) {
-      iziToast.show({
-        title,
-        message: error.message || '',
-        icon: error.icon || ICONS.errorIcon,
-        iconColor: '#fff',
-        backgroundColor: '#E15240',
-        position: 'topRight',
-        titleColor: '#fff',
-        messageColor: '#fff',
-        maxWidth: '350px',
-        layout: 2,
-        timeout: 30 * 1000,
-        transitionIn: 'bounceInLeft',
-        resetOnHover: true,
-        progressBar: true,
-        drag: false,
-        ...options
-      })
-    }
-
-    console.log(title)
-    Raven.captureException(new Error(title))
+  handlePrinterError() {
+    this.setState({ showPrintingWindow: false, printerError: null })
   }
 
   cancelSession() {
@@ -415,26 +488,43 @@ export default class App extends React.Component {
 
     console.log('Canceling session...')
     this.setState({ loading: true })
-    backend.post('/cancel_session', token)
+    API.back.post('/cancel_session', token)
       .then(res => {
-        if (res.data.error) this.registerError(res.data.error.code, true)
+        if (res.data.error) this.handleErrorCode(res.data.error.code, { silent: true })
         this.onSessionEnd()
       })
       .catch(err => {
         this.handleApiError(err)
       })
+      .finally(() => {
+        this.setState({ loading: false })
+      })
+  }
+
+  onExpiredAuth() {
+    clearInterval(this.pulseInterval)
+    localStorage.removeItem('authToken')
+    this.setState({ auth: initialState.auth }, () => { this.onSessionEnd() })
   }
 
   onSessionEnd() {
-    message.destroy()
     this.barcodeScanned = false
-    this.setState(initialState)
-    this.getAuth()
+    this.setState({ ...initialState, auth: this.state.auth })
     try {
       Quagga.stop()
-    } catch (err) {
-      console.log('Quagga stop error: ', err)
-    }
+    } catch (err) { }
+  }
+
+  logout = () => {
+    API.back
+      .post('/logout')
+      .then(res => {
+        if (res.data.error) return this.handleErrorCode(res.data.error.code)
+        this.onExpiredAuth()
+      })
+      .catch(err => {
+        this.handleApiError(err)
+      })
   }
 
   initScan() {
@@ -444,14 +534,13 @@ export default class App extends React.Component {
       { ...QUAGGA_OPTIONS, inputStream: { ...QUAGGA_OPTIONS.inputStream, target: document.querySelector('.scanner-container') } },
       (err) => {
         if (err) {
-          this.registerError(506)
+          this.handleErrorCode(506)
           return
         }
         Quagga.start()
         this.setState({
           loading: false
         })
-        message.info('Піднесіть студентський квиток до камери')
         this.initOnDetected()
       })
   }
@@ -459,12 +548,8 @@ export default class App extends React.Component {
   cancelScan() {
     Quagga.stop();
     this.setState({
-      status: {
-        type: 'info',
-        message: 'Введіть номер підтверджуючого документа'
-      }
+      status: 'Введіть номер підтверджуючого документа',
     })
-    message.destroy()
   }
 
   initOnDetected() {
@@ -474,29 +559,18 @@ export default class App extends React.Component {
 
       const number = data.codeResult.code
       if (number.length === 8) {
-        console.log('Successfuly scanned ticket:', number)
+        console.log('Successfuly scanned ticket...')
         this.barcodeScanned = true
-        message.destroy()
         Quagga.stop()
 
         let activeStudent = this.state.activeStudent
         activeStudent.docNumber = number
         activeStudent.docType = '0'
-        this.setState({ activeStudent })
-        message.success('Студентський квиток відскановано.')
-        // iziToast.show({
-        //   message: 'Студентський квиток відскановано.',
-        //   icon: ICONS.check,
-        //   iconColor: '#56A844',
-        //   backgroundColor: '#fff',
-        //   position: 'topCenter',
-        //   transitionIn: 'bounceInDown',
-        //   progressBar: false,
 
-        // })
-
+        let scannerSeed = Math.random()
+        this.setState({ activeStudent, scannerSeed })
       } else {
-        this.registerError(507)
+        this.handleErrorCode(507)
       }
     })
   }

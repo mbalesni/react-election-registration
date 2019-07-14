@@ -1,0 +1,35 @@
+.ballot-dialog {
+    margin: 0;
+}
+
+.number-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0;
+}
+
+.number {
+    display: flex;
+}
+
+.number-box {
+    align-items: center;
+    background-color: #eee;
+    border-radius: 3px;
+    display: flex;
+    font-size: 36px;
+    justify-content: center;
+    height: 80px;
+    padding: .25rem;
+    margin: 0 .4rem;
+    width: 80px;
+    user-select: none;
+}
+
+.check-in-controls {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
