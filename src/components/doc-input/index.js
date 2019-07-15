@@ -157,18 +157,7 @@ export default function DocInput(props) {
     return (
         <>
             <div className="doc-picker">
-                <FormControl component="fieldset">
-                    {/* <FormLabel component="legend">Тип документа</FormLabel> */}
-                    {/* <RadioGroup
-                        aria-label="Тип документа"
-                        name="docType"
-                        value={value}
-                        onChange={handleChange}
-                    >
-                        <FormControlLabel value="0" control={<Radio />} label="Студентський квиток" />
-                        <FormControlLabel value="1" control={<Radio />} label="Залікова книжка" />
-                        <FormControlLabel value="2" control={<Radio />} label="Довідка" />
-                    </RadioGroup> */}
+                <FormControl component="fieldset" style={{ width: '100%' }}>
                     <Tabs
                         value={value}
                         onChange={handleDocTypeChange}

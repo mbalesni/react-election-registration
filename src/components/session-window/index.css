@@ -14,7 +14,7 @@
 
 .page-content-wrapper .content {
   /* align-items: center; */
-  padding: 8rem 3rem 1rem;
+  padding: 3rem 3rem 1rem;
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
@@ -49,7 +49,7 @@ footer>* {
 
 .card-perspective.with-perspective {
   transform: perspective(500px) rotateY(4deg) rotateX(1deg) rotateZ(-2deg);
-  padding-left: 8rem;
+  /* padding-left: 8rem; */
 }
 
 .card {
@@ -59,7 +59,7 @@ footer>* {
   box-shadow: 0px 20px 30px rgba(0, 0, 0, .2);
   border-radius: 12px;
   overflow: hidden;
-  max-width: 550px;
+  max-width: 450px;
   /* min-width: 420px; */
   transition: .3s ease-in-out;
   transform: translateX(0);
@@ -305,7 +305,7 @@ p.instructions-text {
     flex-grow: 2;
   }
   .card {
-    border: .5px solid #eee;
+    border: 1px solid #eee;
     flex-grow: 2;
     border-radius: 12px 12px 0 0;
     box-shadow: none !important;

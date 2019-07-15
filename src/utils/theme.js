@@ -57,6 +57,17 @@ export const THEME = createMuiTheme({
       body2: {
         color: BASE_TEXT_COLOR
       }
+    },
+    MuiTab: {
+      root: {
+        textTransform: 'none',
+        minWidth: '0 !important',
+        // flexGrow: 1,
+        width: '33.33%',
+      },
+      labelContainer: {
+        padding: '6px 0 !important',
+      }
     }
   },
 
