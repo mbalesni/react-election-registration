@@ -6,7 +6,7 @@ import Tab from '@material-ui/core/Tab';
 import PhotoCamera from '@material-ui/icons/PhotoCamera'
 import { ICONS } from '../../utils/icons.js'
 import iziToast from 'izitoast'
-import Video from '../scanner'
+import Scanner from '../scanner'
 import CONFIG from '../../config'
 import useStoreon from 'storeon/react'
 import './index.css'
@@ -38,9 +38,10 @@ const initialState = {
 export default function DocInput(props) {
     const [value, setDocType] = useState(0)
     const [state, setState] = useState(initialState)
-    const { session, scanner, dispatch } = useStoreon('session', 'scanner')
+    const { appGlobal, session, scanner, dispatch } = useStoreon('session', 'scanner', 'appGlobal')
     const { activeStudent } = session
     const { scannerSeed } = scanner
+    const { loading } = appGlobal
 
     const handleDocTypeChange = (e, newValue) => {
         setDocType(newValue)
@@ -136,7 +137,7 @@ export default function DocInput(props) {
 
     const error = validate(docNumber)
 
-    const disabled = props.loading || Boolean(validate(docNumber))
+    const disabled = loading || Boolean(validate(docNumber))
 
     const shouldMarkError = (field) => {
         const hasError = error.length > 0
@@ -177,7 +178,7 @@ export default function DocInput(props) {
 
                         <Input
                             className="input doc-number"
-                            disabled={props.loading}
+                            disabled={loading}
                             error={shouldMarkError('docNumber')}
                             placeholder={"Номер " + docNameByValue(value)}
                             value={docNumber}
@@ -216,10 +217,10 @@ export default function DocInput(props) {
             </Button>
 
             {byTicket &&
-                <Video
+                <Scanner
                     onCancel={handleCancelScan}
                     show={state.isScanning}
-                    loading={props.loading}
+                    loading={loading}
                 />
             }
         </>
