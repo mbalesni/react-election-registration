@@ -9,6 +9,7 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import Slide from '@material-ui/core/Slide'
 import Timer from '../timer'
 import CONFIG from '../../config'
+import connect from 'storeon/react/connect'
 import './index.css'
 
 function Transition(props) {
@@ -21,7 +22,7 @@ const timerStyles = {
 
 const { COMPLETE_TIMEOUT } = CONFIG
 
-export default class RegistrationCompleteWindow extends React.Component {
+class RegistrationCompleteWindow extends React.Component {
     state = {
         timer: COMPLETE_TIMEOUT,
         open: true,
@@ -32,11 +33,11 @@ export default class RegistrationCompleteWindow extends React.Component {
     }
 
     onTimerElapsed = () => {
-        this.props.onComplete({ auto: true })
+        this.props.dispatch('session/complete', { auto: true })
     }
 
     onComplete = () => {
-        this.props.onComplete({ auto: false })
+        this.props.dispatch('session/complete', { auto: false })
     }
 
     numberBoxes(numArr) {
@@ -44,9 +45,9 @@ export default class RegistrationCompleteWindow extends React.Component {
     }
 
     render() {
-        const { number } = this.props
+        const { ballotNumber } = this.props.session
         const { onComplete, onTimerElapsed } = this
-        const numberArr = number.split('-')
+        const numberArr = ballotNumber.split('-')
 
         let title = 'Студента зареєстровано'
         let instructions = 'Заповніть бюлетень та завершіть сесію.'
@@ -84,3 +85,5 @@ export default class RegistrationCompleteWindow extends React.Component {
     }
 
 }
+
+export default connect('session', RegistrationCompleteWindow)

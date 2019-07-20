@@ -10,6 +10,7 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import Timer from '../timer'
 import CONFIG from '../../config'
 import { ICONS } from '../../utils/icons'
+import useStoreon from 'storeon/react'
 import './index.css'
 
 function Transition(props) {
@@ -24,24 +25,24 @@ const { COMPLETE_TIMEOUT } = CONFIG
 
 export default function PrintingWindow(props) {
     const [open, setOpen] = useState(true)
-    const [error, setError] = useState(props.error)
+    const { printer, dispatch } = useStoreon('printer')
+    const { ballotIsPrinted, error } = printer
 
     const onTimerElapsed = () => {
         setOpen(false)
-        props.onComplete({ auto: true })
+        dispatch('session/complete', { auto: true })
     }
 
     const onComplete = () => {
         setOpen(false)
-        props.onComplete({ auto: false })
+        dispatch('session/complete', { auto: false })
     }
 
     const onPrintFail = () => {
-        props.onError()
+        dispatch('printer/printFailAccept')
         setOpen(false)
     }
 
-    const { ballotIsPrinted } = props
     let title = 'Бюлетень друкується'
     let showSpinner = true
     let instructions = null
@@ -55,10 +56,6 @@ export default function PrintingWindow(props) {
         showSpinner = false
         instructions = error
     }
-
-    useEffect(() => {
-        setError(props.error)
-    }, [props.error])
 
     return (
         <Dialog

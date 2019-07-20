@@ -4,6 +4,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Slide from '@material-ui/core/Slide'
+import useStoreon from 'storeon/react'
 import './index.css'
 
 function Transition(props) {
@@ -12,13 +13,15 @@ function Transition(props) {
 
 const CLOSE_TIMEOUT = 3 * 1000
 
-export default function SessionCompleteWindow({ open, onSessionEnd, studentName }) {
+export default function SessionCompleteWindow({ open }) {
+    const { dispatch, session } = useStoreon('session')
+    const { activeStudent } = session
     const handleClose = () => {
-        onSessionEnd()
+        dispatch('session/end')
     }
 
     useEffect(() => {
-        if (open === true) var a = setTimeout(handleClose, CLOSE_TIMEOUT)
+        if (open === true) var a = setTimeout(handleClose, CLOSE_TIMEOUT) 
         return () => window.clearTimeout(a)
     }, [open])
 
@@ -35,7 +38,7 @@ export default function SessionCompleteWindow({ open, onSessionEnd, studentName 
                     <i style={{ fontSize: '5rem', color: '#4CAF50' }} className="fas fa-check-circle" />
                 </DialogContentText>
                 <DialogTitle>
-                    {studentName}
+                    {activeStudent.name}
                 </DialogTitle>
                 <DialogContentText style={{ margin: '1rem 0' }}>
                     Зареєстровано

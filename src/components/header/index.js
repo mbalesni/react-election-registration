@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from '@material-ui/core/Button';
-import AccountCircle from '@material-ui/icons/AccountCircle';
+import { BarLoader } from 'react-spinners';
+import { css } from 'react-emotion';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import Divider from '@material-ui/core/Divider';
 import './index.css'
 import { ICONS } from '../../utils/icons'
+import useStoreon from 'storeon/react'
 
 const ico = {
   marginRight: '8px',
@@ -19,83 +21,96 @@ const userIco = {
 }
 
 
-export default class Header extends React.Component {
-  state = {
-    anchorEl: null
+function Header(props) {
+  const [anchorEl, setAnchorEl] = useState(null)
+  const { auth, appGlobal, dispatch } = useStoreon('auth', 'appGlobal')
+  const { loggedIn, structuralUnit, user } = auth
+  const { loading } = appGlobal
+
+  const open = Boolean(anchorEl);
+
+  const loadingBar = css`
+      position: absolute !important;
+      top: 0;
+  `
+
+  const handleMenu = event => {
+    setAnchorEl(event.currentTarget)
   }
 
-  handleMenu = event => {
-    this.setState({ anchorEl: event.currentTarget })
+  const handleClose = event => {
+    setAnchorEl(null)
   }
 
-  handleClose = event => {
-    this.setState({ anchorEl: null })
+  const handleLogout = () => {
+    handleClose()
+    dispatch('auth/logout')
   }
 
-  handleLogout() {
-    this.handleClose()
-    this.props.onLogout()
-  }
-
-  render() {
-    const auth = this.props.auth
-    const { anchorEl } = this.state
-    const open = Boolean(anchorEl);
-
-    return (
-      <>
-        <header>
-          {auth.loggedIn && (
-            <>
-              <div className="structural-unit">{auth.structuralUnit}</div>
-              <div className="app-menu">
-                <Button
-                  aria-owns={open ? 'menu-appbar' : null}
-                  aria-haspopup="true"
-                  aria-label={auth.user}
-                  onClick={this.handleMenu}
-                  color="inherit"
-                  className="app-menu-btn"
-                >
+  return (
+    <>
+      <BarLoader
+        color="rgba(33, 150, 243, 0.8)"
+        className={loadingBar}
+        loading={loading}
+        width={100}
+        widthUnit={"%"}
+        height={3}
+      />
+      <header>
+        {loggedIn && (
+          <>
+            <div className="structural-unit">{structuralUnit}</div>
+            <div className="app-menu">
+              <Button
+                aria-owns={open ? 'menu-appbar' : null}
+                aria-haspopup="true"
+                aria-label={user}
+                onClick={handleMenu}
+                color="inherit"
+                className="app-menu-btn"
+              >
+                <i className={ICONS.user} style={userIco}></i>
+                <span className="user-name">{user}</span>
+              </Button>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={open}
+                onClose={handleClose}
+              >
+                <MenuItem disabled>
                   <i className={ICONS.user} style={userIco}></i>
-                  <span className="user-name">{auth.user}</span>
-                </Button>
-                <Menu
-                  id="menu-appbar"
-                  anchorEl={anchorEl}
-                  anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  open={open}
-                  onClose={this.handleClose}
-                >
-                  <MenuItem disabled>
-                    <i className={ICONS.user} style={userIco}></i>
-                    {auth.user}
+                  {user}
+                </MenuItem>
+                <a href="/admin/" target="_blank" rel="noreferrer noopener">
+                  <MenuItem>
+                    <i className={ICONS.admin} style={ico}></i>
+                    Адмін панель
                   </MenuItem>
-                  <a href="/admin/" target="_blank" rel="noreferrer noopener">
-                    <MenuItem>
-                      <i className={ICONS.admin} style={ico}></i>
-                      Адмін панель
+                </a>
+                <Divider />
+                <MenuItem onClick={handleLogout.bind(this)}>
+                  <i className={ICONS.logout} style={ico}></i>
+                  Вийти
                   </MenuItem>
-                  </a>
-                  <Divider />
-                  <MenuItem onClick={this.handleLogout.bind(this)}>
-                    <i className={ICONS.logout} style={ico}></i>
-                    Вийти
-                  </MenuItem>
-                </Menu>
+              </Menu>
 
-              </div>
-            </>
-          )}
-        </header>
-      </>
-    )
-  }
+            </div>
+          </>
+        )}
+      </header>
+    </>
+  )
+
 }
+
+export default Header

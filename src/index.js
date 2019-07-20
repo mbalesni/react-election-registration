@@ -6,7 +6,13 @@ import './utils/index.css'
 import '@fortawesome/fontawesome-free/css/all.css'
 import App from './app'
 import CONFIG from './config'
+import StoreContext from 'storeon/react/context'
+import store from './store'
 
 if (CONFIG.SENTRY_DSN) Raven.config(CONFIG.SENTRY_DSN).install()
 
-ReactDOM.render(<App />, document.getElementById('root'))
+ReactDOM.render(
+    <StoreContext.Provider value={store}>
+        <App />
+    </StoreContext.Provider>
+    , document.getElementById('root'))

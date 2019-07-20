@@ -4,17 +4,15 @@ import Input from '@material-ui/core/Input';
 import './index.css'
 import { ICONS } from '../../utils/icons.js'
 import { showNotification } from '../../utils/functions'
+import connect from 'storeon/react/connect'
 
 
 const MIN_LENGTH = {
   name: 5,
-  docNumber: 3
 }
 
-export default class StudentSearch extends React.Component {
+class StudentSearch extends React.Component {
   state = {
-    docType: '0',
-    isScanning: false,
     value: '0',
     name: {
       value: '',
@@ -23,7 +21,6 @@ export default class StudentSearch extends React.Component {
     },
     touched: {
       name: false,
-      docNumber: false,
     },
   }
 
@@ -31,24 +28,12 @@ export default class StudentSearch extends React.Component {
     this.setState({ value: event.target.value })
   }
 
-  handleStartScan() {
-    this.setState({ isScanning: true })
-    this.props.onScanStart()
-  }
-
-  handleCancelScan() {
-    this.props.onScanCancel()
-    this.setState({
-      isScanning: false
-    })
-  }
-
   search() {
     let { name } = this.state
 
     let query = name.value
 
-    this.props.onSearchByName(query)
+    this.props.dispatch('session/searchByName', query)
 
   }
 
@@ -123,6 +108,8 @@ export default class StudentSearch extends React.Component {
 
 
   render() {
+    const { appGlobal } = this.props
+    const { loading } = appGlobal
     const { name } = this.state
 
     const errors = this.validate(name.value)
@@ -143,7 +130,7 @@ export default class StudentSearch extends React.Component {
     }
 
     return (
-      <div className={"student-finder " + (this.state.isScanning ? 'showVideo' : '')}>
+      <div className="student-finder">
 
         <form >
           <div className="student-by-name-finder">
@@ -163,7 +150,7 @@ export default class StudentSearch extends React.Component {
             <Button
               color="primary"
               className="search-btn"
-              disabled={this.props.loading}
+              disabled={loading}
               onClick={this.handleSubmit.bind(this)}
               variant="text"
             >
@@ -186,12 +173,6 @@ export default class StudentSearch extends React.Component {
     this.setState({ name })
   }
 
-  handleDocNumberChange = (e) => {
-    let docNumberVal = e.target.value
-    let docNumber = { ...this.state.docNumber }
-    docNumber.value = docNumberVal
-    this.setState({ docNumber })
-  }
-
-
 }
+
+export default connect('appGlobal', StudentSearch)

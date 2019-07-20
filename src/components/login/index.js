@@ -4,10 +4,11 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import FormHelperText from '@material-ui/core/FormHelperText';
 import CircularProgress from '@material-ui/core/CircularProgress'
-import axios from 'axios'
+import { handleApiError, handleErrorCode } from '../../errors'
 import { API } from '../../config' 
 import Raven from 'raven-js'
 import './index.css'
+import store from '../../store'
 
 const fieldStyle = {
     marginBottom: '.5rem',
@@ -21,7 +22,7 @@ const Spinner = () => (
     <CircularProgress style={{ marginLeft: '.5rem', color: '#fff' }} color="inherit" size={20} />
 )
 
-export default class LoginWindow extends React.Component {
+export default class Login extends React.Component {
     state = {
         username: '',
         password: '',
@@ -65,14 +66,12 @@ export default class LoginWindow extends React.Component {
 
         API.back.post('/login', payload)
             .then(res => {
-                if (res.data.error) return this.props.handleErrorCode(res.data.error.code)
-
-                const authToken = res.data.auth_token
-                this.props.onSuccess(authToken)
+                if (res.data.error) return handleErrorCode(res.data.error.code)
+                store.dispatch('auth/get')
                 Raven.captureMessage(`Successful log-in – ${username}`)
             })
             .catch(err => {
-                this.props.handleApiError(err)
+                handleApiError(err)
             })
             .finally(() => {
                 this.setState({ loading: false })

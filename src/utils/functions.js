@@ -45,7 +45,7 @@ export function showNotification({ title, message, icon, options }) {
     })
 }
 
-export function localDateTimeFromUTC(UTCTimeString) {
+export function parseDTimeString(UTCTimeString) {
     try {
         // parse date time string
         let year = parseInt(UTCTimeString.slice(0, 4))
@@ -62,4 +62,11 @@ export function localDateTimeFromUTC(UTCTimeString) {
     } catch (err) {
         return err
     }
+}
+
+export function checkIsElectionTime(startString, endString) {
+    const start = +parseDTimeString(startString)
+    const end = +parseDTimeString(endString)
+    const now = +new Date()
+    return now >= start && now < end
 }

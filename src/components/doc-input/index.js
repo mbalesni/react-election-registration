@@ -8,6 +8,7 @@ import { ICONS } from '../../utils/icons.js'
 import iziToast from 'izitoast'
 import Video from '../scanner'
 import CONFIG from '../../config'
+import useStoreon from 'storeon/react'
 import './index.css'
 
 const { PRINT_BALLOTS } = CONFIG
@@ -37,6 +38,9 @@ const initialState = {
 export default function DocInput(props) {
     const [value, setDocType] = useState(0)
     const [state, setState] = useState(initialState)
+    const { session, scanner, dispatch } = useStoreon('session', 'scanner')
+    const { activeStudent } = session
+    const { scannerSeed } = scanner
 
     const handleDocTypeChange = (e, newValue) => {
         setDocType(newValue)
@@ -82,15 +86,15 @@ export default function DocInput(props) {
                 transitionIn: 'bounceInLeft',
             })
         } else {
-            let student = { ...props.activeStudent }
+            let student = { ...activeStudent }
             student.docType = docType
             student.docNumber = docNumber
-            props.onSubmit(student)
+            dispatch('session/registerStudent', student)
         }
     }
 
     const handleStartScan = () => {
-        props.onScanStart()
+        dispatch('scanner/start')
         setState({
             ...state,
             isScanning: true
@@ -98,7 +102,7 @@ export default function DocInput(props) {
     }
 
     const handleCancelScan = () => {
-        props.onScanCancel()
+        dispatch('scanner/stop')
         setState({
             ...state,
             isScanning: false
@@ -123,18 +127,14 @@ export default function DocInput(props) {
     useEffect(() => {
         setState({
             ...state,
-            docNumber: props.activeStudent.docNumber,
+            docNumber: activeStudent.docNumber,
             isScanning: false,
         })
-    }, [props.activeStudent.docNumber, props.scannerSeed])
+    }, [activeStudent.docNumber, scannerSeed])
 
     const docNumber = state.docNumber || ''
 
     const error = validate(docNumber)
-
-    const screenWidth = window.innerWidth
-
-    const isSmScreen = screenWidth < 600
 
     const disabled = props.loading || Boolean(validate(docNumber))
 

@@ -12,6 +12,7 @@ import Slide from '@material-ui/core/Slide'
 import signature from './signature.png'
 import { isMobileScreen } from '../../utils/functions'
 import Checkbox from '@material-ui/core/Checkbox';
+import useStoreon from 'storeon/react'
 
 function Transition(props) {
     return <Slide direction="up" {...props} />
@@ -34,17 +35,18 @@ function ConsentItem({ checked, onChange, name, label, }) {
 
 export default function ConsentDialog(props) {
     const [privacyConsent, setPrivacyConsent] = useState(false)
+    const { auth: { user }, dispatch } = useStoreon('auth')
 
     const handleClose = () => {
-        props.onCancel()
+        dispatch('session/cancelConsent')
     }
 
     const handleComplete = () => {
-        props.onComplete()
+        dispatch('session/confirmConsent')
     }
 
     const confirmedConsent = privacyConsent
-    const { staffName } = props
+    const staffName = user
     const fullScreen = isMobileScreen()
 
     return (
