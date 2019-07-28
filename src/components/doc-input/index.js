@@ -90,7 +90,7 @@ export default function DocInput(props) {
             let student = { ...activeStudent }
             student.docType = docType
             student.docNumber = docNumber
-            dispatch('session/registerStudent', student)
+            dispatch('session/issueBallot', student)
         }
     }
 

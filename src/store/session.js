@@ -179,7 +179,7 @@ export default store => {
         }
     })
 
-    store.on('session/registerStudent', ({ session }, student) => {
+    store.on('session/issueBallot', ({ session }, student) => {
         let data = {}
         data.check_in_session_token = session.token
         data.student = {}
@@ -191,7 +191,7 @@ export default store => {
     
         console.log(`Submitting student with doctype ${data.student.doc_type}`)
     
-        return API.back.post('/register_student', data)
+        return API.back.post('/issue_ballot', data)
           .then(res => {
             let ballotNumber
             if (res.data.error) {
@@ -201,7 +201,7 @@ export default store => {
             }
             if (!ballotNumber) ballotNumber = res.data.data.ballot_number
 
-            store.dispatch('session/registerStudentSuccess', ballotNumber)
+            store.dispatch('session/issueBallotSuccess', ballotNumber)
           })
           .catch(err => {
             handleApiError(err)
@@ -212,11 +212,11 @@ export default store => {
 
     })
 
-    store.on('session/registerStudentSuccess', (_, ballotNumber) => {
+    store.on('session/issueBallotSuccess', (_, ballotNumber) => {
         if (PRINT_BALLOTS) {
             store.dispatch('printer/print', ballotNumber)
           } else {
-            store.dispatch('session/registerStudentEnd', ballotNumber)
+            store.dispatch('session/issueBallotEnd', ballotNumber)
           }
     })
 
@@ -247,7 +247,7 @@ export default store => {
         }
     })
 
-    store.on('session/registerStudentEnd', ({ session }, ballotNumber) => {
+    store.on('session/issueBallotEnd', ({ session }, ballotNumber) => {
         return {
             session: {
                 ...session,
