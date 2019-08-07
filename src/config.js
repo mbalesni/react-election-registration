@@ -28,8 +28,8 @@ const back = axios.create({
 })
 
 back.interceptors.response.use(function (response) {
-    if (response.data && response.data.auth_token) {
-        back.headers = {
+        if (response.data && response.data.auth_token) {
+        back.defaults.headers = {
             'X-Auth-Token': response.data.auth_token
         }
         localStorage.setItem('authToken', response.data.auth_token)
