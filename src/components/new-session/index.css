@@ -60,6 +60,11 @@
   }
 
 @media (max-width: 600px) {
+    .new-session-container {
+        padding: 1rem 0 0;
+        max-width: 450px;
+        min-width: unset;
+    }
     .election-heading {
         font-size: 1.5em;
     }
@@ -68,5 +73,12 @@
     }
     .hero-container {
         width: 300px;
+    }
+}
+
+@media (max-height: 460px) {
+    .logo-container .logo {
+        width: 60px;
+        height: 60px;
     }
 }

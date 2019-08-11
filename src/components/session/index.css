@@ -40,36 +40,23 @@ footer>* {
 
 .card-perspective {
   align-items: center;
-  transform: perspective(500px) rotateY(0) rotateX(0) rotateZ(0);
-  width: 60%;
+  width: 50%;
   display: flex;
   justify-content: center;
   transition: .3s ease-in-out;
 }
 
-.card-perspective.with-perspective {
-  transform: perspective(500px) rotateY(4deg) rotateX(1deg) rotateZ(-2deg);
-  /* padding-left: 8rem; */
-}
-
 .card {
   background-color: #fff;
-  /* box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12);
-  border-radius: 3px; */
   box-shadow: 0px 20px 30px rgba(0, 0, 0, .2);
   border-radius: 12px;
   overflow: hidden;
   max-width: 450px;
-  /* min-width: 420px; */
   transition: .3s ease-in-out;
-  transform: translateX(0);
-  /* padding: 1rem; */
-  /* margin: 0 auto; */
 }
 
 .card:hover {
   box-shadow: 0px 30px 30px rgba(0, 0, 0, .25);
-  transform: translateY(-3px);
 }
 
 .card .card-enlarger {
@@ -81,16 +68,15 @@ footer>* {
   max-width: 450px;
   min-width: 320px;
   /* width: 100%; */
-  /* transform: translate(250px); */
 }
 
 .card .card-header {
-  border-bottom: 3px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
   display: flex;
   justify-content: space-between;
   /* text-transform: uppercase; */
   align-items: center;
-  padding: .5rem 1.5rem;
+  padding: .5rem 1rem;
 }
 
 .card .card-header .card-title {
@@ -307,7 +293,7 @@ p.instructions-text {
   .card {
     border: 1px solid #eee;
     flex-grow: 2;
-    border-radius: 12px 12px 0 0;
+    border-radius: 0;
     box-shadow: none !important;
   }
   .card-header {
@@ -319,20 +305,14 @@ p.instructions-text {
 
   .card-perspective {
     align-items: center;
-    transform: perspective(500px) rotateY(0) rotateX(0) rotateZ(0) translate(0) !important;
     box-shadow: none !important;
     width: 100%;
     display: flex;
     justify-content: center;
-    order: 2;
   }
   
   .card-perspective.with-perspective {
     padding-left: 0;
-  }
-
-  .card:hover {
-    transform: translateY(0);
   }
 
   .instructions-text {
@@ -364,5 +344,11 @@ p.instructions-text {
   }
   .overlay.show {
     background-color: #fff;
+  }
+}
+
+@media (max-width: 960px) {
+  .card-perspective {
+    width: 100%;
   }
 }

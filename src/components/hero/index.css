@@ -12,18 +12,8 @@
     /* transform: translate(350px) skew(5deg); */
 }
 
-@media (max-width: 600px) {
-    #hero {
-        margin-top: 0;
-        width: 250px;
-        height: 100%;
-
-    }
+@media (max-width: 960px) {
     .hero-container {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        margin-bottom: 1rem;
+        display: none;
     }
-
 }

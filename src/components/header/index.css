@@ -44,7 +44,7 @@ a:hover {
 @media (max-width: 600px) {
   header {
     align-items: center;
-    justify-content: flex-start;
+    justify-content: flex-end;
     height: 56px;
     padding: 0.25rem 1rem;
   }
