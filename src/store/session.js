@@ -182,6 +182,7 @@ export default store => {
     store.on('session/issueBallot', ({ session }, student) => {
         let data = {}
         data.check_in_session_token = session.token
+        data.do_revoke_ballot = student.hasVoted
         data.student = {}
         data.student.token = student.token
         data.student.doc_type = student.docType
@@ -193,14 +194,15 @@ export default store => {
     
         return API.back.post('/issue_ballot', data)
           .then(res => {
-            let ballotNumber
+            let ballot
             if (res.data.error) {
               const ignore = shouldIgnoreRegError(res.data.error)
               if (!ignore) return handleErrorCode(res.data.error.code)
-              ballotNumber = res.data.error.context.ballot_number
+              ballot = res.data.error.context.ballot
             }
-            if (!ballotNumber) ballotNumber = res.data.data.ballot_number
+            if (!ballot) ballot = res.data.data.ballot
 
+            let ballotNumber = PRINT_BALLOTS ? ballot.uuid : ballot.number
             store.dispatch('session/issueBallotSuccess', ballotNumber)
           })
           .catch(err => {
