@@ -29,7 +29,7 @@ export const THEME = createMuiTheme({
       },
       root: {
         color: BASE_TEXT_COLOR,
-        borderRadius: '20px',
+        borderRadius: '24px',
         fontSize: '.95rem',
       }
     },
