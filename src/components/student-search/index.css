@@ -56,5 +56,11 @@
 @media (max-width: 600px) {
   .student-by-name-finder {
     align-items: flex-end;
+    min-width: 0;
+
+  }
+
+  .card .card-block {
+    min-width: 0;
   }
 }

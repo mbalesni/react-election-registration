@@ -301,6 +301,7 @@ p.instructions-text {
   }
   .card .card-block {
     padding: 1rem 1rem !important;
+    min-width: 320px;
   }
 
   .card-perspective {
@@ -327,7 +328,7 @@ p.instructions-text {
     margin-left: -1rem;
   }
   button {
-    height: 48px;
+    min-height: 48px;
   }
   footer {
     background-color: #fff;
