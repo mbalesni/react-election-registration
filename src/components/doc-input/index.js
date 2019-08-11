@@ -54,7 +54,7 @@ export default function DocInput(props) {
         const maxLen = MAX_LENGTH[docType]
 
         const lengthInvalid = len < minLen || len > maxLen
-        const typeInvalid = docType === '0' && (isNaN(parseInt(docNumber)) || parseInt(docNumber).toString().length !== docNumber.length)
+        const typeInvalid = docType === 0 && (isNaN(parseInt(docNumber)) || parseInt(docNumber).toString().length !== docNumber.length)
 
         return lengthInvalid || typeInvalid
     }
