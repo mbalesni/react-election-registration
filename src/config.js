@@ -3,7 +3,8 @@ import axios from 'axios'
 const PROD = process.env.NODE_ENV === 'production'
 
 const CONFIG = {
-    BACKEND_BASE_URL: PROD ? '/api' : 'http://' + (process.env.REACT_APP_LOCAL_IP || 'localhost') + '/api',
+    ADMIN_PANEL_URL:  process.env.REACT_APP_BACKEND_URL + '/admin/',
+    BACKEND_BASE_URL: PROD ? process.env.REACT_APP_BACKEND_URL + '/api' : 'http://' + (process.env.REACT_APP_LOCAL_IP || 'localhost') + '/api',
     PRINTER_BASE_URL: PROD ? 'http://localhost:8012' : 'http://' + (process.env.REACT_APP_LOCAL_IP || 'localhost') + ':8012',
     COMPLETE_TIMEOUT: PROD ? process.env.REACT_APP_COMPLETE_TIMEOUT : 30,
     PULSE_INTERVAL:   PROD ? process.env.REACT_APP_PULSE_INTERVAL : 30,

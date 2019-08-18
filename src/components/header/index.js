@@ -8,6 +8,9 @@ import Divider from '@material-ui/core/Divider';
 import './index.css'
 import { ICONS } from '../../utils/icons'
 import useStoreon from 'storeon/react'
+import CONFIG from '../../config'
+
+const { ADMIN_PANEL_URL } = CONFIG
 
 const ico = {
   marginRight: '8px',
@@ -91,7 +94,7 @@ function Header(props) {
                   <i className={ICONS.user} style={userIco}></i>
                   {user}
                 </MenuItem>
-                <a href="/admin/" target="_blank" rel="noreferrer noopener">
+                <a href={ADMIN_PANEL_URL} target="_blank" rel="noreferrer noopener">
                   <MenuItem>
                     <i className={ICONS.admin} style={ico}></i>
                     Адмін панель
