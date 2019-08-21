@@ -15,12 +15,15 @@ import SessionCompleteWindow from './components/session-complete-window';
 import PrintingWindow from './components/printing-window/index.js';
 import Hero from './components/hero'
 import connect from 'storeon/react/connect'
+import PrinterPicker from './components/printer-picker'
+import CONFIG from './config'
 
 class App extends React.Component {
   componentWillMount() {
     let storedAuthToken = localStorage.getItem('authToken')
     if (storedAuthToken) {
       this.props.dispatch('auth/get')
+      if (CONFIG.PRINT_BALLOTS) this.props.dispatch('printer/getPrinterList')
     }
   }
 
@@ -39,7 +42,7 @@ class App extends React.Component {
   render() {
     const { loggedIn } = this.props.auth
     const { endSession, isOpen, showRegistrationComplete, showCompleteSession, showConsentDialog } = this.props.session
-    const { showPrintingWindow } = this.props.printer
+    const { showPrintingWindow, showPrinterPicker } = this.props.printer
 
     if (endSession) this.onSessionEnd()
 
@@ -62,6 +65,8 @@ class App extends React.Component {
               {loggedIn && <Hero />}
 
               {showRegistrationComplete && <RegistrationCompleteWindow /> }
+
+              {showPrinterPicker && <PrinterPicker />}
 
               {showPrintingWindow && <PrintingWindow /> }
 

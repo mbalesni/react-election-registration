@@ -4,15 +4,15 @@ const PROD = process.env.NODE_ENV === 'production'
 
 const CONFIG = {
     ADMIN_PANEL_URL:  process.env.REACT_APP_BACKEND_URL + '/admin/',
-    BACKEND_BASE_URL: PROD ? process.env.REACT_APP_BACKEND_URL + '/api' : 'http://' + (process.env.REACT_APP_LOCAL_IP || 'localhost') + '/api',
-    PRINTER_BASE_URL: PROD ? 'http://localhost:8012' : 'http://' + (process.env.REACT_APP_LOCAL_IP || 'localhost') + ':8012',
-    COMPLETE_TIMEOUT: PROD ? process.env.REACT_APP_COMPLETE_TIMEOUT : 30,
-    PULSE_INTERVAL:   PROD ? process.env.REACT_APP_PULSE_INTERVAL : 30,
-    SENTRY_DSN:       PROD ? process.env.REACT_APP_SENTRY_DSN : null,
+    ASK_CONSENT:      process.env.REACT_APP_ASK_CONSENT === 'true' ? true   : false,
+    BACKEND_BASE_URL: PROD ? process.env.REACT_APP_BACKEND_URL + '/api' : (process.env.REACT_APP_LOCAL_IP || 'http://localhost') + '/api',
+    COMPLETE_TIMEOUT: PROD ? process.env.REACT_APP_COMPLETE_TIMEOUT     : 30,
     ELECTION_TYPE:    'Е-голосування',
+    OFFICIAL_TITLE:   PROD ? process.env.REACT_APP_ELECTION_NAME            : 'Вибори голови студентського парламенту факультету інформаційних технологій',
     PRINT_BALLOTS:    process.env.REACT_APP_PRINT_BALLOTS === 'true' ? true : false,
-    ASK_CONSENT:      process.env.REACT_APP_ASK_CONSENT === 'true' ? true : false,
-    OFFICIAL_TITLE:   PROD ? process.env.REACT_APP_ELECTION_NAME : 'Вибори голови студентського парламенту факультету інформаційних технологій',
+    PRINTER_BASE_URL: PROD ? process.env.REACT_APP_PRINTER_URL          : (process.env.REACT_APP_LOCAL_IP || 'http://localhost') + ':8012',
+    PULSE_INTERVAL:   PROD ? process.env.REACT_APP_PULSE_INTERVAL       : 30,
+    SENTRY_DSN:       PROD ? process.env.REACT_APP_SENTRY_DSN           : null,
 }
 
 // check that all properties 

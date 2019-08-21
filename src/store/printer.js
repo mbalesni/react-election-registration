@@ -4,16 +4,51 @@ import { handleApiError, handleErrorCode } from '../errors'
 const INITIAL_STATE = {
   ballotIsPrinted: false,
   error: null,
+  listOfPrinters: [],
+  showPrinterPicker: false,
   showPrintingWindow: false,
+  printerIdx: null,
 }
     
 export default store => {
     store.on('@init', () => ({ printer: INITIAL_STATE }));
 
+    store.on('printer/getPrinterList', () => {
+      console.log('fetching printers')
+      API.printer.get('/get_printers')
+        .then(res => {
+          if (res.data.error) throw res.data.error
+          store.dispatch('printer/askPrinterSelect', res.data)
+        })
+        .catch(err => {
+          handleApiError(err)
+        })
+    })
+
+    store.on('printer/askPrinterSelect', ({ printer }, printers) => {
+      return {
+        printer: {
+          ...printer,
+          listOfPrinters: printers,
+          showPrinterPicker: true,
+        }
+      }
+    })
+
+    store.on('printer/pickPrinter', ({ printer }, choice) => {
+      return {
+        printer: {
+          ...printer,
+          printerIdx: choice,
+          showPrinterPicker: false,
+        }
+      }
+    })
+
     store.on('printer/print', ({ printer }, number) => {
         store.dispatch('printer/printStart')
 
-        API.printer.post('/print_ballot', { number })
+        API.printer.post('/print_ballot', { number, printer_idx: printer.printerIdx })
           .then(res => {
             store.dispatch('printer/printEnd')
           })
@@ -60,9 +95,13 @@ export default store => {
       }
     })
 
-    store.on('session/end', () => {
+    store.on('session/end', ({ printer }) => {
+      console.log(printer)
       return {
-        printer: INITIAL_STATE
+        printer: {
+          ...INITIAL_STATE,
+          printerIdx: printer.printerIdx
+        }
       }
     })
 }
