@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Button from '@material-ui/core/Button';
 import { BarLoader } from 'react-spinners';
 import { css } from 'react-emotion';
@@ -9,6 +9,7 @@ import './index.css'
 import { ICONS } from '../../utils/icons'
 import useStoreon from 'storeon/react'
 import CONFIG from '../../config'
+import { TEST_BALLOT_UUIDS } from '../../constants'
 
 const { ADMIN_PANEL_URL } = CONFIG
 
@@ -26,9 +27,10 @@ const userIco = {
 
 function Header(props) {
   const [anchorEl, setAnchorEl] = useState(null)
-  const { auth, appGlobal, dispatch } = useStoreon('auth', 'appGlobal')
+  const { auth, appGlobal, printer, dispatch } = useStoreon('auth', 'appGlobal', 'printer')
   const { loggedIn, structuralUnit, user } = auth
   const { loading } = appGlobal
+  const { printerIdx } = printer
 
   const open = Boolean(anchorEl);
 
@@ -48,6 +50,11 @@ function Header(props) {
   const handleLogout = () => {
     handleClose()
     dispatch('auth/logout')
+  }
+
+  const handlePrint = () => {
+    handleClose()
+    dispatch('printer/print', { number: TEST_BALLOT_UUIDS[printerIdx], test_ballot: true  })
   }
 
   return (
@@ -94,6 +101,10 @@ function Header(props) {
                   <i className={ICONS.user} style={userIco}></i>
                   {user}
                 </MenuItem>
+                <MenuItem onClick={handlePrint}>
+                    <i className={ICONS.print} style={ico}></i>
+                    Тестовий друк
+                  </MenuItem>
                 <a href={ADMIN_PANEL_URL} target="_blank" rel="noreferrer noopener">
                   <MenuItem>
                     <i className={ICONS.admin} style={ico}></i>
@@ -101,7 +112,7 @@ function Header(props) {
                   </MenuItem>
                 </a>
                 <Divider />
-                <MenuItem onClick={handleLogout.bind(this)}>
+                <MenuItem onClick={handleLogout}>
                   <i className={ICONS.logout} style={ico}></i>
                   Вийти
                   </MenuItem>

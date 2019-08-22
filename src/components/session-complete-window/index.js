@@ -38,7 +38,7 @@ export default function SessionCompleteWindow({ open }) {
                     <i style={{ fontSize: '5rem', color: '#4CAF50' }} className="fas fa-check-circle" />
                 </DialogContentText>
                 <DialogTitle>
-                    {activeStudent.name}
+                    {activeStudent.name || ''}
                 </DialogTitle>
                 <DialogContentText style={{ margin: '1rem 0' }}>
                     Зареєстровано

@@ -8,7 +8,7 @@ export default function Hero() {
   const { auth } = useStoreon('auth')
   return (
     <div className="hero-container">
-      <img id="hero" src={auth.isElectionTime ? voters : children} />
+      <img id="hero" src={auth.isElectionTime ? voters : children} alt="Арт зображення виборців" />
     </div>
   )
 }

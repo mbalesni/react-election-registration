@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Button, Radio, RadioGroup, FormLabel, FormControl, FormControlLabel, Input } from '@material-ui/core'
+import { Button, FormControl, Input } from '@material-ui/core'
 import IconButton from '@material-ui/core/IconButton'
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -35,7 +35,7 @@ const initialState = {
 }
 
 
-export default function DocInput(props) {
+export default function DocInput() {
     const [value, setDocType] = useState(0)
     const [state, setState] = useState(initialState)
     const { appGlobal, session, scanner, dispatch } = useStoreon('session', 'scanner', 'appGlobal')

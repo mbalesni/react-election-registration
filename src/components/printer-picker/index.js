@@ -15,7 +15,7 @@ function Transition(props) {
 }
 
 const Printer = ({ name, id, onPick, picked }) => {
-    function pick () {
+    function pick() {
         onPick(id)
     }
 
@@ -42,7 +42,13 @@ export default function PrinterPicker(props) {
         dispatch('printer/pickPrinter', choice)
     }
 
-    const printers = listOfPrinters.map(printer => <Printer picked={choice === printer[1]} name={printer[0]} id={printer[1]} onPick={onPick} />)
+    const printers = listOfPrinters.map(printer => <Printer
+        key={printer[1]}
+        id={printer[1]}
+        picked={choice === printer[1]}
+        name={printer[0]}
+        onPick={onPick}
+    />)
 
     const buttonDisabled = typeof choice !== 'number'
 

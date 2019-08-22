@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
@@ -25,17 +25,22 @@ const { COMPLETE_TIMEOUT } = CONFIG
 
 export default function PrintingWindow(props) {
     const [open, setOpen] = useState(true)
-    const { printer, dispatch } = useStoreon('printer')
-    const { ballotIsPrinted, error } = printer
+    const someStore = useStoreon('printer')
+    const { printer, dispatch } = someStore
+    const { ballotIsPrinted, error, isTest, number, printerIdx, listOfPrinters } = printer
+
+    const completeSession = (auto) => {
+        setOpen(false)
+        dispatch('printer/printFinished')
+        if (!isTest) dispatch('session/complete', { auto })
+    }
 
     const onTimerElapsed = () => {
-        setOpen(false)
-        dispatch('session/complete', { auto: true })
+        completeSession(true)
     }
 
     const onComplete = () => {
-        setOpen(false)
-        dispatch('session/complete', { auto: false })
+        completeSession(false)
     }
 
     const onPrintFail = () => {
@@ -49,7 +54,22 @@ export default function PrintingWindow(props) {
     if (ballotIsPrinted) {
         title = 'Бюлетень надруковано'
         showSpinner = false
-        instructions = 'Заповніть бюлетень та завершіть сесію.'
+        instructions = isTest ? (
+            <>
+                <span>Принтер:</span>
+                <br />
+                <strong>#{printerIdx} {listOfPrinters.find(printer => printer[1] === printerIdx)[0]} </strong>
+                <br />
+                <br />
+                <span>Номер надрукованого бюлетня:</span>
+                <br />
+                <strong>{number} </strong>
+                <br />
+                <br />
+                <span>Перевірте якість друку та завершіть тестовий друк</span>
+            </>)
+            :
+            'Заповніть бюлетень та завершіть сесію.'
     }
     if (error) {
         title = 'Помилка при друкуванні бюлетеня'
@@ -72,7 +92,7 @@ export default function PrintingWindow(props) {
             </DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-slide-description">
-                    <p>{instructions}</p>
+                    {instructions}
                 </DialogContentText>
                 {showSpinner && <CircularProgress style={{ margin: '0 auto', display: 'block' }} />}
             </DialogContent>

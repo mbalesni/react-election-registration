@@ -29,7 +29,7 @@ export default function NewSession() {
     <>
       <div className="new-session-container">
         <div className="logo-container">
-          <img className="logo" src={logo} logo="Логотип ЦВК студентів КНУ" />
+          <img alt="Логотип ЦВК студентів КНУ" className="logo" src={logo} logo="Логотип ЦВК студентів КНУ" />
         </div>
         <div className="election-text">
           <div className="election-type">{electionType}</div>

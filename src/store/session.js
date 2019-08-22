@@ -216,7 +216,7 @@ export default store => {
 
     store.on('session/issueBallotSuccess', (_, ballotNumber) => {
         if (PRINT_BALLOTS) {
-            store.dispatch('printer/print', ballotNumber)
+            store.dispatch('printer/print', { number: ballotNumber })
           } else {
             store.dispatch('session/issueBallotEnd', ballotNumber)
           }
