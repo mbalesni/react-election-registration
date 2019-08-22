@@ -104,6 +104,9 @@ function Header(props) {
                 <MenuItem onClick={handlePrint}>
                     <i className={ICONS.print} style={ico}></i>
                     Тестовий друк
+                    <span style={{ marginLeft: '.5rem', 'fontSize': '.8em', 'opacity': '.6' }}>
+                      #{printerIdx}
+                    </span>
                   </MenuItem>
                 <a href={ADMIN_PANEL_URL} target="_blank" rel="noreferrer noopener">
                   <MenuItem>
