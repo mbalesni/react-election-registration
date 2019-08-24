@@ -1,6 +1,0 @@
-export const PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
-    MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDM9KpkSiIiG4hoCP8bvtjx/hyt
-    DLFG5VEsQ1y7JdABDfvGswbPX9eb4niTp/Nbg5A3IbFgY4v0FuNaitWggpScTztS
-    4xZcbfnclqswuzgF4B+5Lsj719fmY1CtCfSmYAkCB8J8VF1N5A1HL6CzuiEaPYO1
-    aAqDw+bU/54SEvTH/wIDAQAB
-    -----END PUBLIC KEY-----`

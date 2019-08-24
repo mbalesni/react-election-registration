@@ -1,0 +1,84 @@
+.new-session-container {
+    padding: 1rem 0 0;
+    max-width: 450px;
+    min-width: 350px;
+}
+
+.election-type {
+    font-size: 1.8em;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.election-text {
+    font-family: "Montserrat", sans-serif;
+    text-align: center;
+    text-transform: uppercase;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+
+.new-session-container .blue-strip {
+    background-color: #2196f3;
+    color: #fff;
+    padding: 1rem;
+    font-weight: 500;
+}
+
+.hero-container {
+    width: 400px;
+    transition: .42s ease-in-out;
+}
+
+/* .new-session-card {
+    padding: 1rem;
+} */
+
+.logo-container {
+    display: flex;
+    justify-content: center;
+}
+
+.logo-container .logo {
+    height: 100px;
+    width: 100px;
+}
+
+.hero-container.move-right {
+    /* transform: translate(350px) skew(5deg); */
+}
+
+.card-footer {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+@media (max-width: 600px) {
+    .new-session-container {
+        padding: 1rem 0 0;
+        max-width: 450px;
+        min-width: unset;
+    }
+    .election-heading {
+        font-size: 1.5em;
+    }
+    .election-text {
+        font-size: 1em;
+    }
+    .hero-container {
+        width: 300px;
+    }
+}
+
+@media (max-height: 460px) {
+    .logo-container .logo {
+        width: 60px;
+        height: 60px;
+    }
+}
