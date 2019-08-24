@@ -64,7 +64,7 @@ export default class Login extends React.Component {
         console.log('Log-in attempt into user: ' + username)
         const payload = { username, password: btoa(password) }
 
-        API.back.post('/login', payload)
+        API.regback.post('/login', payload)
             .then(res => {
                 if (res.data.error) return handleErrorCode(res.data.error.code)
                 store.dispatch('auth/get')

@@ -44,7 +44,7 @@ export default store => {
     store.on('session/start', ({ session }) => {
         console.log('Starting new session...')
         store.dispatch('appGlobal/loadingStart')
-        API.back.post('/start_new_session', {})
+        API.regback.post('/start_new_session', {})
             .then(res => {
                 if (res.data.error) return handleErrorCode(res.data.error.code)
                 const token = res.data.data.check_in_session.token
@@ -79,7 +79,7 @@ export default store => {
 
         store.dispatch('appGlobal/loadingStart')
 
-        API.back.post('/search_by_name', data)
+        API.regback.post('/search_by_name', data)
             .then(res => {
                 if (res.data.error) return handleErrorCode(res.data.error.code)
 
@@ -192,7 +192,7 @@ export default store => {
     
         console.log(`Submitting student with doctype ${data.student.doc_type}`)
     
-        return API.back.post('/issue_ballot', data)
+        return API.regback.post('/issue_ballot', data)
           .then(res => {
             let ballot
             if (res.data.error) {
@@ -225,7 +225,7 @@ export default store => {
     store.on('session/complete', ({ session }, config) => {
         config.check_in_session_token = session.token
 
-        API.back.post('/complete_session', config)
+        API.regback.post('/complete_session', config)
             .then(res => {
                 // 508 - already closed
                 if (res.data.error && res.data.error.code !== 508) return handleErrorCode(res.data.error.code)
@@ -265,7 +265,7 @@ export default store => {
 
         console.log('Canceling session...')
         store.dispatch('appGlobal/loadingStart')
-        API.back.post('/cancel_session', token)
+        API.regback.post('/cancel_session', token)
             .then(res => {
                 if (res.data.error) handleErrorCode(res.data.error.code, { silent: true })
                 store.dispatch('session/end')
@@ -280,7 +280,7 @@ export default store => {
     })
 
     store.on('session/closeAll', ({ session }) => {
-        API.back.post('/close_sessions', {})
+        API.regback.post('/close_sessions', {})
             .catch(err => {
                 console.warn(err)
             })

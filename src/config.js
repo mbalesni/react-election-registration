@@ -1,52 +1,55 @@
 import axios from 'axios'
+import { 
+    strToBool, 
+    setupAuthTokenUpdate, 
+    hasUndefinedValues,
+} from './utils/functions'
 
 const PROD = process.env.NODE_ENV === 'production'
 
-const CONFIG = {
-    ADMIN_PANEL_URL:    process.env.REACT_APP_BACKEND_URL + '/admin/',
-    ASK_CONSENT:        process.env.REACT_APP_ASK_CONSENT === 'true' ? true   : false,
-    BACKEND_BASE_URL:   PROD ? process.env.REACT_APP_BACKEND_URL + '/api' : (process.env.REACT_APP_LOCAL_IP || 'http://localhost') + '/api',
-    COMPLETE_TIMEOUT:   PROD ? process.env.REACT_APP_COMPLETE_TIMEOUT     : 30,
-    ELECTION_TYPE:      'Е-голосування',
-    OFFICIAL_TITLE:     PROD ? process.env.REACT_APP_ELECTION_NAME            : 'Вибори голови студентського парламенту факультету інформаційних технологій',
-    PRINT_BALLOTS:      process.env.REACT_APP_PRINT_BALLOTS === 'true' ? true : false,
-    PRINTER_BASE_URL:   PROD ? process.env.REACT_APP_PRINTER_URL          : (process.env.REACT_APP_LOCAL_IP || 'http://localhost') + ':8012',
-    PULSE_INTERVAL:     PROD ? process.env.REACT_APP_PULSE_INTERVAL       : 30,
-    SENTRY_DSN:         PROD ? process.env.REACT_APP_SENTRY_DSN           : null,
+const DEV_CONFIG = {
+    ADMIN_PANEL_URL:    'http://localhost/admin/',
+    ASK_CONSENT:        true,
+    BACKEND_URL:        'http://localhost/api',
+    COMPLETE_TIMEOUT:   30,
+    ELECTION_TYPE:      'QR голосування', // could also be 'Е-голосування'
+    ELECTION_NAME:     'Демо вибори',
+    PRINT_BALLOTS:      true,
+    PRINTER_URL:        'http://localhost:8012',
+    PULSE_INTERVAL:     30,
+    SENTRY_DSN:         null,
 }
 
-// check that all properties 
-// have a value other than undefined
-for (let item in CONFIG) {
-    if (CONFIG.hasOwnProperty(item) && CONFIG[item] === undefined) {
-        throw new Error(`Please specify REACT_APP_${item} in the .env file.`)
-    }
+const PROD_CONFIG = {
+    ADMIN_PANEL_URL:    process.env.REACT_APP_BACKEND_URL.concat('/admin/'),
+    ASK_CONSENT:        strToBool(process.env.REACT_APP_ASK_CONSENT),
+    BACKEND_URL:        process.env.REACT_APP_BACKEND_URL.concat('/api'),
+    COMPLETE_TIMEOUT:   process.env.REACT_APP_COMPLETE_TIMEOUT,
+    ELECTION_TYPE:      process.env.REACT_APP_ELECTION_TYPE,
+    ELECTION_NAME:      process.env.REACT_APP_ELECTION_NAME,
+    PRINT_BALLOTS:      strToBool(process.env.REACT_APP_PRINT_BALLOTS),
+    PRINTER_URL:        process.env.REACT_APP_PRINTER_URL,
+    PULSE_INTERVAL:     process.env.REACT_APP_PULSE_INTERVAL,
+    SENTRY_DSN:         process.env.REACT_APP_SENTRY_DSN,
 }
 
-const back = axios.create({
-    baseURL: CONFIG.BACKEND_BASE_URL,
+const CONFIG = PROD ? PROD_CONFIG : DEV_CONFIG
+
+if (hasUndefinedValues(CONFIG))
+    throw new Error(`Please specify all required variables in the .env file.`)
+
+const backend = axios.create({
+    baseURL: CONFIG.BACKEND_URL,
     timeout: 5 * 1000,
 })
 
-back.interceptors.response.use(function (response) {
-        if (response.data && response.data.auth_token) {
-        back.defaults.headers = {
-            'X-Auth-Token': response.data.auth_token
-        }
-        localStorage.setItem('authToken', response.data.auth_token)
-    }
-    return response
-}, function (error) {
-    return Promise.reject(error)
-})
-
 const printer = axios.create({
-    baseURL: CONFIG.PRINTER_BASE_URL,
+    baseURL: CONFIG.PRINTER_URL,
     timeout: 2 * 60 * 1000, // wait to complete priting
 })
 
 const API = {
-    back,
+    regback: setupAuthTokenUpdate(backend),
     printer,
 }
 

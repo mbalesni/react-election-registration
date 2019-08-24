@@ -23,7 +23,6 @@ class App extends React.Component {
     let storedAuthToken = localStorage.getItem('authToken')
     if (storedAuthToken) {
       this.props.dispatch('auth/get')
-      if (CONFIG.PRINT_BALLOTS) this.props.dispatch('printer/getPrinterList')
     }
   }
 

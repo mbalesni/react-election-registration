@@ -17,7 +17,7 @@ export default store => {
         store.dispatch('appGlobal/loadingStart')
         console.log('getting Auth')
 
-        return API.back.post('/me', {})
+        return API.regback.post('/me', {})
             .then(res => {
                 if (res.data.error) return handleErrorCode(res.data.error.code)
                 const {
@@ -39,6 +39,7 @@ export default store => {
                 })
 
                 store.dispatch('session/closeAll')
+                if (CONFIG.PRINT_BALLOTS) store.dispatch('printer/getPrinterList')
             })
             .catch(err => {
                 handleApiError(err)
@@ -61,7 +62,7 @@ export default store => {
     });
 
     store.on('auth/logout', () => {
-        API.back
+        API.regback
             .post('/logout')
             .then(res => {
                 if (res.data.error) return handleErrorCode(res.data.error.code)
@@ -88,7 +89,7 @@ export default store => {
 function pulse() {
     console.log('pulse')
 
-    API.back.post('/me', {})
+    API.regback.post('/me', {})
         .then(res => {
             if (res.data.error) handleErrorCode(res.data.error.code)
         })

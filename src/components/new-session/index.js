@@ -19,7 +19,7 @@ export default function NewSession() {
   }
 
   const electionType = CONFIG.ELECTION_TYPE
-  const electionTitle = CONFIG.OFFICIAL_TITLE
+  const electionTitle = CONFIG.ELECTION_NAME
 
   const startSession = () => {
     dispatch('session/start')

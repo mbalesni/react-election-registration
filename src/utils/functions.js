@@ -70,3 +70,32 @@ export function checkIsElectionTime(startString, endString) {
     const now = +new Date()
     return now >= start && now < end
 }
+
+export function strToBool(string) {
+    const YES_VALUES = ['true', 'yes', 'y', 'on', '1']
+    return (YES_VALUES.indexOf(string.toLowerCase()) > -1)
+}
+
+export function setupAuthTokenUpdate(axiosInstance) {
+    axiosInstance.interceptors.response.use(function (response) {
+        if (response.data && response.data.auth_token) {
+            axiosInstance.defaults.headers = {
+                'X-Auth-Token': response.data.auth_token
+            }
+            localStorage.setItem('authToken', response.data.auth_token)
+        }
+        return response
+    }, function (error) {
+        return Promise.reject(error)
+    })
+    return axiosInstance
+}
+
+export function hasUndefinedValues(object) {
+    for (let item in object) {
+        if (object.hasOwnProperty(item) && object[item] === undefined) {
+            return true
+        }
+    }
+    return false
+}
