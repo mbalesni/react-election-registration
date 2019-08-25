@@ -77,11 +77,12 @@ export function strToBool(string) {
 }
 
 export function setupAuthTokenUpdate(axiosInstance) {
+    const storedAuthToken = localStorage.getItem('authToken')
+    if (storedAuthToken) includeAuthToken(axiosInstance, storedAuthToken)
+
     axiosInstance.interceptors.response.use(function (response) {
         if (response.data && response.data.auth_token) {
-            axiosInstance.defaults.headers = {
-                'X-Auth-Token': response.data.auth_token
-            }
+            includeAuthToken(axiosInstance, response.data.auth_token)
             localStorage.setItem('authToken', response.data.auth_token)
         }
         return response
@@ -89,6 +90,12 @@ export function setupAuthTokenUpdate(axiosInstance) {
         return Promise.reject(error)
     })
     return axiosInstance
+}
+
+export function includeAuthToken(axiosInstance, authToken) {
+    axiosInstance.defaults.headers = {
+        'X-Auth-Token': authToken
+    }
 }
 
 export function hasUndefinedValues(object) {
