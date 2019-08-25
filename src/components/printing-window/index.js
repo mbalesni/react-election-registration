@@ -23,6 +23,12 @@ const timerStyles = {
 
 const { COMPLETE_TIMEOUT } = CONFIG
 
+const SpinnerWrapper = () => (
+    <div style={{ height: '40px', overflow: 'hidden' }}>
+        <CircularProgress />
+    </div>
+)
+
 export default function PrintingWindow(props) {
     const [open, setOpen] = useState(true)
     const someStore = useStoreon('printer')
@@ -48,20 +54,22 @@ export default function PrintingWindow(props) {
         setOpen(false)
     }
 
-    let title = 'Бюлетень друкується'
+    let title = 'Очікую відповідь принтера'
     let showSpinner = true
     let instructions = null
     if (ballotIsPrinted) {
-        title = 'Бюлетень надруковано'
+        title = 'Бюлетень друкується'
         showSpinner = false
+        const currentPrinter = listOfPrinters.find(printer => printer[1] === printerIdx)
+        const printerVerboseName = currentPrinter && currentPrinter[0]
         instructions = isTest ? (
             <>
                 <span>Принтер:</span>
                 <br />
-                <strong>#{printerIdx} {listOfPrinters.find(printer => printer[1] === printerIdx)[0]} </strong>
+                <strong>#{printerIdx} {printerVerboseName} </strong>
                 <br />
                 <br />
-                <span>Номер надрукованого бюлетня:</span>
+                <span>Номер бюлетня:</span>
                 <br />
                 <strong>{number} </strong>
                 <br />
@@ -90,11 +98,11 @@ export default function PrintingWindow(props) {
 
                 {title}
             </DialogTitle>
-            <DialogContent>
+            <DialogContent style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <DialogContentText id="alert-dialog-slide-description">
                     {instructions}
                 </DialogContentText>
-                {showSpinner && <CircularProgress style={{ margin: '0 auto', display: 'block' }} />}
+                {showSpinner && <SpinnerWrapper />}
             </DialogContent>
             <DialogActions style={{ padding: '.5rem' }}>
                 {ballotIsPrinted && <Button onClick={onComplete} color="primary" variant="contained">
