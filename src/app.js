@@ -16,7 +16,6 @@ import PrintingWindow from './components/printing-window/index.js';
 import Hero from './components/hero'
 import connect from 'storeon/react/connect'
 import PrinterPicker from './components/printer-picker'
-import CONFIG from './config'
 
 class App extends React.Component {
   componentWillMount() {
