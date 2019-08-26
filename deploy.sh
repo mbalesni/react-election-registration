@@ -3,16 +3,16 @@
 # small util to easily build and move bundle to bigreg
 
 SRC="./build"
-DIST="../bigreg"
+DIST="../client/prod-build"
 
-pnpm run build
+npm run build
 
 rm -r "$DIST/static/"
-rm "$DIST/config/web/html/index.html"
+rm "$DIST/index.html"
 
 mkdir "$DIST/static"
 cp -R "$SRC/static/" "$DIST/static/"
-cp "$SRC/index.html" "$DIST/config/web/html/"
+cp "$SRC/index.html" "$DIST"
 cp "$SRC/favicon.ico" "$DIST/static"
 
 echo "Copied files to '$DIST'."
