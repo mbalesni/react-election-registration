@@ -52,7 +52,7 @@ class App extends React.Component {
             <Header />
 
             <div className="content">
-              <div className={"card-perspective " + (loggedIn ? 'with-perspective' : '')}>
+              <div className="card-perspective">
                 <div className="card">
                   {loggedIn  && isOpen  && <Session />}
                   {loggedIn  && !isOpen && <NewSession />}
