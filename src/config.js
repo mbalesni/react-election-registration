@@ -10,7 +10,7 @@ const PROD = process.env.NODE_ENV === 'production'
 const DEV_CONFIG = {
     ADMIN_PANEL_URL:    'http://localhost/admin/',
     ASK_CONSENT:        true,
-    BACKEND_URL:        'http://localhost/api',
+    BACKEND_URL:        'http://localhost:8011/api',
     COMPLETE_TIMEOUT:   30,
     ELECTION_TYPE:      'QR голосування', // could also be 'Е-голосування'
     ELECTION_NAME:     'Демо вибори',
