@@ -18,6 +18,7 @@ const DEV_CONFIG = {
     PRINTER_URL:        'http://localhost:8012',
     PULSE_INTERVAL:     30,
     SENTRY_DSN:         null,
+    USE_SENTRY:         false,
 }
 
 const PROD_CONFIG = {
@@ -31,6 +32,7 @@ const PROD_CONFIG = {
     PRINTER_URL:        process.env.REACT_APP_PRINTER_URL,
     PULSE_INTERVAL:     process.env.REACT_APP_PULSE_INTERVAL,
     SENTRY_DSN:         process.env.REACT_APP_SENTRY_DSN,
+    USE_SENTRY:         strToBool(process.env.REACT_APP_USE_SENTRY),
 }
 
 const CONFIG = PROD ? PROD_CONFIG : DEV_CONFIG
