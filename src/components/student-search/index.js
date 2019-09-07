@@ -145,6 +145,7 @@ class StudentSearch extends React.Component {
               onBlur={this.handleBlur('name')}
               tabIndex="1"
               onKeyPress={this.handleSubmitOnEnter.bind(this)}
+              autoFocus
             />
 
             <Button
