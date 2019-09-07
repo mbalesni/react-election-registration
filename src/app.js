@@ -60,8 +60,6 @@ class App extends React.Component {
                 </div>
               </div>
 
-              {loggedIn && <Hero />}
-
               {showRegistrationComplete && <RegistrationCompleteWindow /> }
 
               {showPrinterPicker && <PrinterPicker />}
