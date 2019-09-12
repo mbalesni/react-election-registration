@@ -175,7 +175,6 @@ export default function DocInput() {
 
                 <div>
                     <div className="doc-number-field">
-
                         <Input
                             className="input doc-number"
                             disabled={loading}
@@ -189,17 +188,6 @@ export default function DocInput() {
                             onKeyPress={handleSubmitOnEnter}
                             startAdornment={byTicket && <span style={startAdornment}>KB</span>}
                         />
-
-                        {byTicket &&
-                            <IconButton
-                                color="primary"
-                                component="span"
-                                style={{ marginTop: -6 }}
-                                onClick={handleStartScan}
-                            >
-                                <PhotoCamera />
-                            </IconButton>
-                        }
                     </div>
                 </div>
 
