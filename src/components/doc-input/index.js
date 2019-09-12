@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { Button, FormControl, Input } from '@material-ui/core'
-import IconButton from '@material-ui/core/IconButton'
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import PhotoCamera from '@material-ui/icons/PhotoCamera'
 import { ICONS } from '../../utils/icons.js'
 import iziToast from 'izitoast'
-import Scanner from '../scanner'
 import CONFIG from '../../config'
 import useStoreon from 'storeon/react'
 import './index.css'
@@ -92,22 +89,6 @@ export default function DocInput() {
             student.docNumber = docNumber
             dispatch('session/issueBallot', student)
         }
-    }
-
-    const handleStartScan = () => {
-        dispatch('scanner/start')
-        setState({
-            ...state,
-            isScanning: true
-        })
-    }
-
-    const handleCancelScan = () => {
-        dispatch('scanner/stop')
-        setState({
-            ...state,
-            isScanning: false
-        })
     }
 
     const handleSubmitOnEnter = (e) => {
@@ -203,14 +184,6 @@ export default function DocInput() {
             >
                 {SUBMIT_BTN_NAME}
             </Button>
-
-            {byTicket &&
-                <Scanner
-                    onCancel={handleCancelScan}
-                    show={state.isScanning}
-                    loading={loading}
-                />
-            }
         </>
     )
 }

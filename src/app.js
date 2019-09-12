@@ -13,7 +13,6 @@ import './utils/override-izitoast.css'
 import Login from './components/login';
 import SessionCompleteWindow from './components/session-complete-window';
 import PrintingWindow from './components/printing-window/index.js';
-import Hero from './components/hero'
 import connect from 'storeon/react/connect'
 import PrinterPicker from './components/printer-picker'
 
