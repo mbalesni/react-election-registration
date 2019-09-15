@@ -13,14 +13,11 @@
 }
 
 .page-content-wrapper .content {
-  /* align-items: center; */
-  padding: 3rem 3rem 1rem;
+  padding: 1rem 3rem 1rem;
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
-  /* flex-flow: column; */
   margin: 0;
-  /* justify-content: space-between; */
 }
 
 footer {
@@ -31,6 +28,11 @@ footer {
   justify-content: space-between;
   padding: 1.5rem 0px;
   margin: 0 60px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: -1;
 }
 
 footer>* {

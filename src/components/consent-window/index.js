@@ -68,7 +68,7 @@ export default function ConsentDialog(props) {
                 </DialogContentText>
                 <DialogContentText id="alert-dialog-slide-description">
                     <span style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', margin: '1rem 0 2rem' }}>
-                        <img style={{ maxHeight: '200px' }} src={signature} alt="Ілюстрація згоди" />
+                        <img style={{ maxHeight: '80px' }} src={signature} alt="Ілюстрація згоди" />
                     </span>
                 </DialogContentText>
                 <FormControl component="fieldset">
