@@ -38,7 +38,7 @@ export default function DocInput() {
     const { appGlobal, session, scanner, dispatch } = useStoreon('session', 'scanner', 'appGlobal')
     const { activeStudent } = session
     const { scannerSeed } = scanner
-    const { loading } = appGlobal
+    const { loading, isOnline } = appGlobal
 
     const handleDocTypeChange = (e, newValue) => {
         setDocType(newValue)
@@ -118,7 +118,7 @@ export default function DocInput() {
 
     const error = validate(docNumber)
 
-    const disabled = loading || Boolean(validate(docNumber))
+    const disabled = !isOnline || loading || Boolean(validate(docNumber))
 
     const shouldMarkError = (field) => {
         const hasError = error.length > 0

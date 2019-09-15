@@ -109,7 +109,7 @@ class StudentSearch extends React.Component {
 
   render() {
     const { appGlobal } = this.props
-    const { loading } = appGlobal
+    const { loading, isOnline } = appGlobal
     const { name } = this.state
 
     const errors = this.validate(name.value)
@@ -151,7 +151,7 @@ class StudentSearch extends React.Component {
             <Button
               color="primary"
               className="search-btn"
-              disabled={loading}
+              disabled={loading || !isOnline}
               onClick={this.handleSubmit.bind(this)}
               variant="text"
             >

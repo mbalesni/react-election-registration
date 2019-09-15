@@ -35,7 +35,7 @@ function handleErrorCode(code, options = {}) {
 
 function handleApiError(err) {
     console.warn('Handling API error:', err)
-    if (!err.status && !err.response) return handleErrorCode(513) // network error
+    if (!err.status && !err.response) return store.dispatch('appGlobal/setOnline', false) // network error
     handleErrorCode(300, { err })
 }
 

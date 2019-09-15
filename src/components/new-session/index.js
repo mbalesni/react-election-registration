@@ -9,7 +9,7 @@ import './index.css'
 
 export default function NewSession() {
   const { auth, appGlobal, dispatch } = useStoreon('auth', 'appGlobal')
-  const { loading } = appGlobal
+  const { loading, isOnline } = appGlobal
   const { isElectionTime } = auth
 
   const iconRight = {
@@ -39,7 +39,7 @@ export default function NewSession() {
           </div>
         </div>
         {isElectionTime && <div className="card-footer">
-          <Button disabled={loading} variant="contained" color="secondary" onClick={startSession}>
+          <Button disabled={loading || !isOnline} variant="contained" color="secondary" onClick={startSession}>
             <i className={ICONS.userCheck} style={iconRight}></i>
             Зареєструвати виборця
         </Button>

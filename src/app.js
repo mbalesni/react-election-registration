@@ -15,6 +15,7 @@ import SessionCompleteWindow from './components/session-complete-window';
 import PrintingWindow from './components/printing-window/index.js';
 import connect from 'storeon/react/connect'
 import PrinterPicker from './components/printer-picker'
+import OfflineMessage from './components/offline-message'
 
 class App extends React.Component {
   componentWillMount() {
@@ -40,7 +41,7 @@ class App extends React.Component {
     const { loggedIn } = this.props.auth
     const { endSession, isOpen, showRegistrationComplete, showCompleteSession, showConsentDialog } = this.props.session
     const { showPrintingWindow, showPrinterPicker } = this.props.printer
-
+    const { isOnline } = this.props.appGlobal
     if (endSession) this.onSessionEnd()
 
     return (
@@ -49,7 +50,7 @@ class App extends React.Component {
 
           <div className="header-and-content">
             <Header />
-
+            {!isOnline && <OfflineMessage />}
             <div className="content">
               <div className="card-perspective">
                 <div className="card">

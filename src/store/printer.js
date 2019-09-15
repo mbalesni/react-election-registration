@@ -1,5 +1,5 @@
 import { API } from '../config'
-import { handleApiError } from '../errors'
+import { handleApiError, handleErrorCode } from '../errors'
 
 const INITIAL_STATE = {
   ballotIsPrinted: false,
@@ -23,7 +23,7 @@ export default store => {
         store.dispatch('printer/askPrinterSelect', res.data)
       })
       .catch(err => {
-        handleApiError(err)
+        handleErrorCode(523)
       })
   })
 

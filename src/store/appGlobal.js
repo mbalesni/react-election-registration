@@ -12,4 +12,8 @@ export default store => {
     store.on('appGlobal/loadingEnd', ({ appGlobal }) => {
         return { appGlobal: { ...appGlobal, loading: false }}
     })
+
+    store.on('appGlobal/setOnline', ({ appGlobal }, isOnline) => {
+        return { appGlobal: { ...appGlobal, isOnline }}
+    })
 };

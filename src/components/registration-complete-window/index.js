@@ -46,6 +46,7 @@ class RegistrationCompleteWindow extends React.Component {
 
     render() {
         const { ballotNumber } = this.props.session
+        const { isOnline } = this.props.appGlobal
         const { onComplete, onTimerElapsed } = this
         const numberArr = ballotNumber.split('-')
 
@@ -75,7 +76,7 @@ class RegistrationCompleteWindow extends React.Component {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions style={{ padding: '.5rem' }}>
-                    <Button onClick={onComplete} color="primary" variant="contained">
+                    <Button disabled={!isOnline} onClick={onComplete} color="primary" variant="contained">
                         Видано
                             <Timer style={timerStyles} onElapsed={onTimerElapsed} timeout={COMPLETE_TIMEOUT} />
                     </Button>
@@ -86,4 +87,4 @@ class RegistrationCompleteWindow extends React.Component {
 
 }
 
-export default connect('session', RegistrationCompleteWindow)
+export default connect('session', 'appGlobal', RegistrationCompleteWindow)

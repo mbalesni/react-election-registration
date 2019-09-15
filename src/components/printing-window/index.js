@@ -31,9 +31,10 @@ const SpinnerWrapper = () => (
 
 export default function PrintingWindow(props) {
     const [open, setOpen] = useState(true)
-    const someStore = useStoreon('printer')
-    const { printer, dispatch } = someStore
+    const someStore = useStoreon('printer', 'appGlobal')
+    const { printer, appGlobal, dispatch } = someStore
     const { ballotIsPrinted, error, isTest, number, printerIdx, listOfPrinters } = printer
+    const { isOnline } = appGlobal
 
     const completeSession = (auto) => {
         setOpen(false)
@@ -105,11 +106,11 @@ export default function PrintingWindow(props) {
                 {showSpinner && <SpinnerWrapper />}
             </DialogContent>
             <DialogActions style={{ padding: '.5rem' }}>
-                {ballotIsPrinted && <Button onClick={onComplete} color="primary" variant="contained">
+                {ballotIsPrinted && <Button disabled={!isOnline} onClick={onComplete} color="primary" variant="contained">
                     Завершити
                             <Timer style={timerStyles} onElapsed={onTimerElapsed} timeout={COMPLETE_TIMEOUT} />
                 </Button>}
-                {error && <Button onClick={onPrintFail} color="primary" variant="contained">
+                {error && <Button disabled={!isOnline} onClick={onPrintFail} color="primary" variant="contained">
                     Повторити реєстрацію
                         </Button>}
             </DialogActions>

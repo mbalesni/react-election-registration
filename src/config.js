@@ -16,7 +16,7 @@ const DEV_CONFIG = {
     ELECTION_NAME:     'Демо вибори',
     PRINT_BALLOTS:      true,
     PRINTER_URL:        'http://localhost:8012',
-    PULSE_INTERVAL:     30,
+    PULSE_INTERVAL:     5,
     SENTRY_DSN:         null,
     USE_SENTRY:         false,
 }

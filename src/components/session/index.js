@@ -36,7 +36,7 @@ class Session extends React.Component {
 
   render() {
     const { appGlobal, session } = this.props
-    const { loading } = appGlobal
+    const { loading, isOnline } = appGlobal
     const { helpText, students } = session
 
     const studentOptions = this.buildStudentOptionArr(students)
@@ -55,7 +55,7 @@ class Session extends React.Component {
             {students.length > 0 &&
               <Button onClick={this.handleGoBack.bind(this)}>Назад</Button>
             }
-            <Button disabled={loading} onClick={this.cancelSession} color="secondary">Скасувати</Button>
+            <Button disabled={loading || !isOnline} onClick={this.cancelSession} color="secondary">Скасувати</Button>
           </div>
 
         </div>

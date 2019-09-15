@@ -35,7 +35,7 @@ function ConsentItem({ checked, onChange, name, label, }) {
 
 export default function ConsentDialog(props) {
     const [privacyConsent, setPrivacyConsent] = useState(false)
-    const { auth: { user }, dispatch } = useStoreon('auth')
+    const { auth: { user }, appGlobal: { isOnline }, dispatch } = useStoreon('auth', 'appGlobal')
 
     const handleClose = () => {
         dispatch('session/cancelConsent')
@@ -84,10 +84,10 @@ export default function ConsentDialog(props) {
                 </FormControl>
             </DialogContent>
             <DialogActions style={{ padding: '.5rem' }}>
-                <Button onClick={handleClose} color="primary" variant="text">
+                <Button disabled={!isOnline} onClick={handleClose} color="primary" variant="text">
                     Скасувати
                 </Button>
-                <Button disabled={!confirmedConsent} onClick={handleComplete} color="primary" variant="contained">
+                <Button disabled={!confirmedConsent || !isOnline} onClick={handleComplete} color="primary" variant="contained">
                     Підтвердити
                 </Button>
             </DialogActions>

@@ -1,4 +1,5 @@
 import iziToast from 'izitoast'
+import store from '../store'
 
 const MAX_SCREEN_WIDTH = 600
 
@@ -84,6 +85,9 @@ export function setupAuthTokenUpdate(axiosInstance) {
         if (response.data && response.data.auth_token) {
             includeAuthToken(axiosInstance, response.data.auth_token)
             localStorage.setItem('authToken', response.data.auth_token)
+        }
+        if (response.status) {
+            store.dispatch('appGlobal/setOnline', true)
         }
         return response
     }, function (error) {
