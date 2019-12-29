@@ -48,15 +48,15 @@ export default function StudentOption(props) {
 
   switch (hasVoted) {
     case false:
-      button.name = 'Зареєструвати'
+      button.name = 'Check in'
       button.color = 'primary'
       break
     case true:
-      button.name = PRINT_BALLOTS ? 'Повторний бюлетень' : 'Зареєстровано'
+      button.name = PRINT_BALLOTS ? 'Additional ballot' : 'Checked-in'
       button.color = PRINT_BALLOTS ? 'secondary' : 'primary'
       break
     default:
-      button.name = 'Зареєструвати'
+      button.name = 'Check in'
       button.color = 'primary'
   }
 

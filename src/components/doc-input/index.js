@@ -9,7 +9,7 @@ import useStoreon from 'storeon/react'
 import './index.css'
 
 const { PRINT_BALLOTS } = CONFIG
-const SUBMIT_BTN_NAME = PRINT_BALLOTS ? 'Надрукувати бюлетень' : 'Підтвердити'
+const SUBMIT_BTN_NAME = PRINT_BALLOTS ? 'Print ballot' : 'Confirm'
 
 const MIN_LENGTH = {
     '0': 8,     // ticket
@@ -70,7 +70,7 @@ export default function DocInput() {
         const error = validate(docNumber)
 
         if (error) {
-            let message = `Перевірте правильність номеру ${docNameByValue(docType)}.`
+            let message = `Check the correctness of the ${docNameByValue(docType)} number.`
             console.warn(message)
 
             iziToast.show({
@@ -106,11 +106,11 @@ export default function DocInput() {
     }
 
     useEffect(() => {
-        setState({
+        setState(state => ({
             ...state,
             docNumber: activeStudent.docNumber,
             isScanning: false,
-        })
+        }))
     }, [activeStudent.docNumber, scannerSeed])
 
     const docNumber = state.docNumber || ''
@@ -143,9 +143,9 @@ export default function DocInput() {
                         textColor="primary"
                         className="doc-types-tabs"
                     >
-                        <Tab label="Студентський" icon={<i className={ICONS.studentCard}></i>} />
-                        <Tab label="Залікова" icon={<i className={ICONS.gradeBook}></i>} />
-                        <Tab label="Довідка" icon={<i className={ICONS.certificate}></i>} />
+                        <Tab label="Student ID" icon={<i className={ICONS.studentCard}></i>} />
+                        <Tab label="Gradebook" icon={<i className={ICONS.gradeBook}></i>} />
+                        <Tab label="Certificate" icon={<i className={ICONS.certificate}></i>} />
                     </Tabs>
 
                 </FormControl>
@@ -156,7 +156,7 @@ export default function DocInput() {
                             className="input doc-number"
                             disabled={loading}
                             error={shouldMarkError('docNumber')}
-                            placeholder={"Номер " + docNameByValue(docType)}
+                            placeholder={docNameByValue(docType) + " number"}
                             value={docNumber}
                             fullWidth={true}
                             onChange={handleDocNumberChange}
@@ -188,16 +188,16 @@ function docNameByValue(value) {
     let name
     switch (value) {
         case 0:
-            name = 'студентського'
+            name = 'student ID'
             break
         case 1:
-            name = 'залікової книжки'
+            name = 'gradebook'
             break
         case 2:
-            name = 'довідки'
+            name = 'certificate'
             break
         default:
-            name = 'документа'
+            name = 'document'
     }
     return name
 

@@ -8,7 +8,7 @@ import connect from 'storeon/react/connect'
 
 
 const MIN_LENGTH = {
-  name: 5,
+  name: 4,
 }
 
 class StudentSearch extends React.Component {
@@ -16,7 +16,7 @@ class StudentSearch extends React.Component {
     value: '0',
     name: {
       value: '',
-      label: `ім'я`,
+      label: `name`,
       name: 'name'
     },
     touched: {
@@ -45,7 +45,7 @@ class StudentSearch extends React.Component {
     // true condition means error
     // string is error explanation
     return {
-      name: (parsedName.length < MIN_LENGTH.name) ? `Введіть не менше ${MIN_LENGTH.name} символів` : '',
+      name: (parsedName.length < MIN_LENGTH.name) ? `Use at least ${MIN_LENGTH.name} characters` : '',
     }
   }
 
@@ -77,7 +77,7 @@ class StudentSearch extends React.Component {
         noErrors = false
 
         let text = ''
-        text += `Введіть не менше ${MIN_LENGTH[field.name]} символів.`
+        text += `Use at least ${MIN_LENGTH[field.name]} characters.`
 
         showNotification({
           message: text,
@@ -138,7 +138,7 @@ class StudentSearch extends React.Component {
             <Input
               className="input student-name"
               error={shouldMarkError('name')}
-              placeholder="Повне ім'я"
+              placeholder="Full name"
               value={this.state.name.value}
               fullWidth={true}
               onChange={this.handleNameChange}
@@ -156,7 +156,7 @@ class StudentSearch extends React.Component {
               variant="text"
             >
               <i className={ICONS.searchingIcon} style={iconRight}></i>
-              Знайти студента
+              Find voter
             </Button>
 
 

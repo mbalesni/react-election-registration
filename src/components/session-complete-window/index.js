@@ -42,7 +42,7 @@ export default function SessionCompleteWindow({ open }) {
                     {activeStudent.name || ''}
                 </DialogTitle>
                 <DialogContentText style={{ margin: '1rem 0' }}>
-                    Зареєстровано
+                    Checked-in
                 </DialogContentText>
             </DialogContent>
         </Dialog >

@@ -10,8 +10,8 @@ function handleErrorCode(code, options = {}) {
     }
 
     let error = ERRORS[code] || {
-        title: `Упс, такої помилки не очікували`,
-        message: 'Команда підтримки вже поінформована про проблему 😌',
+        title: `Oops, didn't expect this error.`,
+        message: 'The support team has been just notified of your problem 😌',
         icon: ICONS.bug,
     }
 
@@ -40,10 +40,3 @@ function handleApiError(err) {
 }
 
 export { handleErrorCode, handleApiError }
-
-
-
-
-// function handlePrinterError () {
-//     this.setState({ showPrintingWindow: false, printerError: null })
-// }

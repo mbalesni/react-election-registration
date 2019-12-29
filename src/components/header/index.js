@@ -103,7 +103,7 @@ function Header(props) {
                 </MenuItem>
                 {PRINT_BALLOTS && <MenuItem onClick={handlePrint}>
                   <i className={ICONS.print} style={ico}></i>
-                  Тестовий друк
+                  Test print
                     <span style={{ marginLeft: '.5rem', 'fontSize': '.8em', 'opacity': '.6' }}>
                     #{printerIdx}
                   </span>
@@ -111,13 +111,13 @@ function Header(props) {
                 <a href={ADMIN_PANEL_URL} target="_blank" rel="noreferrer noopener">
                   <MenuItem>
                     <i className={ICONS.admin} style={ico}></i>
-                    Адмін панель
+                    Admin panel
                   </MenuItem>
                 </a>
                 <Divider />
                 <MenuItem onClick={handleLogout}>
                   <i className={ICONS.logout} style={ico}></i>
-                  Вийти
+                  Logout
                   </MenuItem>
               </Menu>
 

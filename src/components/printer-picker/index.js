@@ -50,7 +50,7 @@ export default function PrinterPicker(props) {
         onPick={onPick}
     />)
 
-    const buttonDisabled = typeof choice === null
+    const buttonDisabled = choice === null
 
     return (
         <Dialog
@@ -60,7 +60,7 @@ export default function PrinterPicker(props) {
             aria-describedby="alert-dialog-slide-description"
         >
             <DialogTitle id="alert-dialog-slide-title">
-                Обери принтер для друку бюлетенів
+                Select a printer for ballot printing
             </DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-slide-description">
@@ -69,7 +69,7 @@ export default function PrinterPicker(props) {
             </DialogContent>
             <DialogActions style={{ padding: '.5rem' }}>
                 <Button disabled={buttonDisabled} onClick={confirm} color="primary" variant="contained">
-                    Обрати принтер
+                    Select printer
                 </Button>
             </DialogActions>
         </Dialog>

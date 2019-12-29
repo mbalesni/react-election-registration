@@ -15,7 +15,7 @@ const style = {
 function OfflineMessage() {
     return (
         <div style={style}>
-            Немає зв'язку. Очікуємо зв'язок...
+            Waiting for connection...
         </div>
     )
 }

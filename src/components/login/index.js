@@ -34,24 +34,24 @@ export default class Login extends React.Component {
         const { loading } = this.state
         return (
             <form onSubmit={(e) => e.preventDefault()} className="login-window">
-                <Typography style={{ marginBottom: '.5rem' }} variant="h6" >Авторизуватися</Typography>
+                <Typography style={{ marginBottom: '.5rem' }} variant="h6" >Election Officer Sign In</Typography>
                 <TextField
-                    label="Ім'я користувача"
+                    label="Username"
                     onChange={(event) => this.setState({ username: event.target.value })}
                     style={fieldStyle}
                 />
                 <TextField
-                    label="Пароль"
+                    label="Password"
                     type="password"
                     style={fieldStyle}
                     onChange={(event) => this.setState({ password: event.target.value })}
                 />
                 <Button variant="contained" color="primary" type="submit" style={buttonStyle} onClick={this.login.bind(this)} >
-                    Увійти
+                    Log In
                         {loading && <Spinner />}
                 </Button>
                 <FormHelperText style={{ marginTop: '1rem', lineHeight: '1.3', textAlign: 'center' }}>
-                    Або перейти до <a style={{ fontSize: 'inherit', color: '#f44336' }} href={CONFIG.ADMIN_PANEL_URL} rel="noopener noreferrer" target="_blank">адмін панелі</a>.
+                    Or go to the <a style={{ fontSize: 'inherit', color: '#f44336' }} href={CONFIG.ADMIN_PANEL_URL} rel="noopener noreferrer" target="_blank">admin panel</a>.
                 </FormHelperText>
             </form>
         )

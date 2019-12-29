@@ -55,33 +55,33 @@ export default function PrintingWindow(props) {
         setOpen(false)
     }
 
-    let title = 'Очікую відповідь принтера'
+    let title = 'Waiting for printer response'
     let showSpinner = true
     let instructions = null
     if (ballotIsPrinted) {
-        title = 'Бюлетень друкується'
+        title = 'Ballot is printing'
         showSpinner = false
         const currentPrinter = listOfPrinters.find(printer => printer[1] === printerIdx)
         const printerVerboseName = currentPrinter && currentPrinter[0]
         instructions = isTest ? (
             <>
-                <span>Принтер:</span>
+                <span>Printer:</span>
                 <br />
                 <strong>#{printerIdx} {printerVerboseName} </strong>
                 <br />
                 <br />
-                <span>Номер бюлетня:</span>
+                <span>Ballot number:</span>
                 <br />
                 <strong>{number} </strong>
                 <br />
                 <br />
-                <span>Перевірте якість друку та завершіть тестовий друк</span>
+                <span>Verify the ballot legibility and finish the test print</span>
             </>)
             :
-            'Заповніть бюлетень та завершіть сесію.'
+            'Fill in the ballot and finish the session.'
     }
     if (error) {
-        title = 'Помилка при друкуванні бюлетеня'
+        title = 'Error printing the ballot'
         showSpinner = false
         instructions = error
     }
@@ -107,11 +107,11 @@ export default function PrintingWindow(props) {
             </DialogContent>
             <DialogActions style={{ padding: '.5rem' }}>
                 {ballotIsPrinted && <Button disabled={!isOnline} onClick={onComplete} color="primary" variant="contained">
-                    Завершити
+                    Finish
                             <Timer style={timerStyles} onElapsed={onTimerElapsed} timeout={COMPLETE_TIMEOUT} />
                 </Button>}
                 {error && <Button disabled={!isOnline} onClick={onPrintFail} color="primary" variant="contained">
-                    Повторити реєстрацію
+                    Repeat check-in
                         </Button>}
             </DialogActions>
         </Dialog>

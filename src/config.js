@@ -13,8 +13,8 @@ let CONFIG = {
     ASK_CONSENT:        true,
     BACKEND_URL:        'http://localhost:8011/api',
     COMPLETE_TIMEOUT:   30,
-    ELECTION_TYPE:      'QR голосування', // could also be 'Е-голосування'
-    ELECTION_NAME:      'Демо вибори',
+    ELECTION_TYPE:      'Voter Check-in',
+    ELECTION_NAME:      'Demo Election',
     PRINT_BALLOTS:      false,
     PRINTER_URL:        'http://localhost:8012',
     PULSE_INTERVAL:     5,

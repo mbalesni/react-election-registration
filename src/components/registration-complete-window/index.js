@@ -50,8 +50,8 @@ class RegistrationCompleteWindow extends React.Component {
         const { onComplete, onTimerElapsed } = this
         const numberArr = ballotNumber.split('-')
 
-        let title = 'Студента зареєстровано'
-        let instructions = 'Заповніть бюлетень та завершіть сесію.'
+        let title = 'You were successfully checked in'
+        let instructions = 'Fill out the ballot and finish the session.'
 
         return (
 
@@ -77,7 +77,7 @@ class RegistrationCompleteWindow extends React.Component {
                 </DialogContent>
                 <DialogActions style={{ padding: '.5rem' }}>
                     <Button disabled={!isOnline} onClick={onComplete} color="primary" variant="contained">
-                        Видано
+                        Received
                             <Timer style={timerStyles} onElapsed={onTimerElapsed} timeout={COMPLETE_TIMEOUT} />
                     </Button>
                 </DialogActions>

@@ -48,14 +48,14 @@ class Session extends React.Component {
 
           <div className="card-title">
             <i className={ICONS.userCheck} style={iconStyle}></i>
-            Реєстрація
+            Voter Check In
             </div>
 
           <div className="session-controls">
             {students.length > 0 &&
-              <Button onClick={this.handleGoBack.bind(this)}>Назад</Button>
+              <Button onClick={this.handleGoBack.bind(this)}>Back</Button>
             }
-            <Button disabled={loading || !isOnline} onClick={this.cancelSession} color="secondary">Скасувати</Button>
+            <Button disabled={loading || !isOnline} onClick={this.cancelSession} color="secondary">Cancel</Button>
           </div>
 
         </div>

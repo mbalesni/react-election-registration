@@ -31,9 +31,9 @@ function parseStudent(student) {
 function buildFoundStudentsNote(numOfStudents, query) {
     return (
         <>
-            {numOfStudents > 1 ? 'Оберіть' : 'Перевірте дані та зареєструйте'} студента
+            {numOfStudents > 1 ? 'Select' : 'Check the information and select'} the voter
         <br />
-            За запитом <strong>{query}</strong> знайдено {numOfStudents} студент{numOfStudents > 1 ? 'ів' : 'а'}
+            The query <strong>{query}</strong> returned {numOfStudents} voter{numOfStudents > 1 && 's'}
         </>
     )
 }
@@ -64,7 +64,7 @@ export default store => {
                 ...session,
                 token,
                 isOpen: true,
-                helpText: 'Знайдіть студента в базі'
+                helpText: 'Search for the voter'
             }
         }
     })
@@ -140,7 +140,7 @@ export default store => {
             session: {
                 ...session,
                 students: [],
-                helpText: 'Знайдіть студента в базі',
+                helpText: 'Search for the voter',
             }
         }
     })

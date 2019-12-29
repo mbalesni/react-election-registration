@@ -1,92 +1,92 @@
 {
     "304": {
-        "title": "Студента вже зареєстровано",
-        "message": "Можеш скасувати сесію."
+        "title": "Voter is already checked-in",
+        "message": "You may cancel the session."
     },
-    "501": "Не знайдено студента з таким номером квитка",
+    "501": "Didn't found a voter with this student ID",
     "502": {
-        "title": "Ви вже маєте відкриту чек-ін сесію",
-        "message": "Перезавантаж сторінку, щоб розпочати нову сесію."
+        "title": "You already have an open check-in session",
+        "message": "Refresh the page to start a new session."
     },
-    "503": "Мобільні пристрої Apple не підтримуються цим додатком. Скористайтесь Android, Windows, Mac OS або Linux.",
+    "503": "Apple iPhones may have problems using this service. You may use Android, MacOS, Windows or Linux.",
     "504": {
-        "title": "Цей студент завершив реєстрацію",
+        "title": "This voter finished their check-in",
         "message": ""
     },
     "506": {
-        "title": "З камерою все ОК?",
-        "message": "Перевір дозвіл на використання камери."
+        "title": "Is the camera alright?",
+        "message": "Check the permissions for your camera."
     },
     "507": {
-        "title": "Помилка зчитування",
-        "message": "Спробуй покращити освітлення та уникай засвітів."
+        "title": "Scanning error",
+        "message": "Try to improve the lighting and avoid bright lights."
     },
     "508": {
-        "title": "Тебе довго не було",
-        "message": "Скасуй поточну чек-ін сесію та почни нову."
+        "title": "You've been away for too long",
+        "message": "Cancel this session and start a new one."
     },
     "509": {
-        "title": "Упс, таких немає",
-        "message": "Перевір введені дані. Якщо вони правильні, звернись до ЦВК студентів.",
+        "title": "Oops, haven't found anyone",
+        "message": "Check the query again. If it's correct, turn to one of the election officers.",
         "icon": "fas fa-language"
     },
     "510": {
-        "title": "А-та-та",
-        "message": "Дія можлива лише під час проведення виборів"
+        "title": "Not now.",
+        "message": "The action is only allowed during the election time"
     },
     "511": {
-        "title": "Упс, таких багато",
-        "message": "Спробуй повністю ввести ПІБ."
+        "title": "Oops, too many results",
+        "message": "Try to input your full name"
     },
     "512": {
-        "title": "Ой всьо",
-        "message": "Студента з таким документом вже зареєстровано."
+        "title": "Already checked in",
+        "message": "Voter with this ID has checked in before."
     },
     "513": {
-        "title": "Шо по Інету?",
-        "message": "Перевір підключення до Інтернету.",
+        "title": "What's with the connection?",
+        "message": "Check your connetion status.",
         "icon": "fas fa-wifi"
     },
     "514": {
-        "title": "Шось попутали",
-        "message": "Цей студент голосував з іншим документом.",
+        "title": "Something's wrong",
+        "message": "You used a different ID last time.",
         "icon": "fas fa-id-badge"
     },
     "515": {
-        "title": "Шось не так",
-        "message": "Перевір правильність імені та паролю."
+        "title": "Something's wrong",
+        "message": "Verify the username and password."
     },
     "516": {
-        "title": "Ти хто?",
-        "message": "Увійди в систему.",
+        "title": "Logged out",
+        "message": "Ask one of the election officers to sign in.",
         "icon": "fas fa-sign-in-alt"
     },
     "517": {
-        "title": "Чи ти ВКС?",
-        "message": "Лише ВКС може реєструвати виборців."
+        "title": "Is this an election officer account?",
+        "message": "Only election officers are allowed to check voters in"
     },
     "518": {
-        "title": "Застарілий токен сесії",
-        "message": "Будь-ласка, залогінься знов.",
+        "title": "Expired session token",
+        "message": "Please, sign in again.",
         "icon": "fas fa-sign-in-alt"
     },
     "519": {
-        "title": "Ти хто?",
-        "message": "Увійди в систему.",
+        "title": "Logged out",
+        "message": "Ask one of the election officers to sign in.",
         "icon": "fas fa-sign-in-alt"
     },
     "520": {
-        "title": "Ти начальник чи хто?",
-        "message": "Члени ЦВК не мають право реєструвати студентів."
+        "title": "Is this an election officer account?",
+        "message": "Only election officers are allowed to check voters in"
     },
     "521": {
-        "title": "Твій акаунт неактивний",
-        "message": "Звернись до ЦВК студентів або технічної підтримки."
+        "title": "This account was deactivated",
+        "message": "Ask one of the election officers to sign in."
     },
     "522": {
-        "title": "А-та-та, ти вже залогінен"
+        "title": "You are already signed in."
     },
     "523": {
-        "title": "Немає зв'язку з принтером."
+        "title": "No connection with the printer."
     }
 }

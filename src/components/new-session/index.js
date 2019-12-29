@@ -29,19 +29,19 @@ export default function NewSession() {
     <>
       <div className="new-session-container">
         <div className="logo-container">
-          <img alt="Логотип ЦВК студентів КНУ" className="logo" src={logo} logo="Логотип ЦВК студентів КНУ" />
+          <img alt="Logo of the Central Election Comission of KNU" className="logo" src={logo} />
         </div>
         <div className="election-text">
           <div className="election-type">{electionType}</div>
           <div className="blue-strip">
-            {!loading && (isElectionTime ? electionTitle : 'Зараз не час виборів')}
-            {loading && 'Стартуємо...'}
+            {!loading && (isElectionTime ? electionTitle : 'It\'s not election time.')}
+            {loading && 'Starting...'}
           </div>
         </div>
         {isElectionTime && <div className="card-footer">
           <Button disabled={loading || !isOnline} variant="contained" color="secondary" onClick={startSession}>
             <i className={ICONS.userCheck} style={iconRight}></i>
-            Зареєструвати виборця
+            Check in for election
         </Button>
         </div>}
 

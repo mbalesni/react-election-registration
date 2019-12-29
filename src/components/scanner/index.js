@@ -22,12 +22,12 @@ export default function Scanner(props) {
             {!loading &&
               <div className="video-footer-title">
                 <i className={ICONS.camera} style={iconStyle}></i>
-                Сканування студентського квитка
+                Student ID Scanning
             </div>}
-            <Button disabled={props.loading} onClick={props.onCancel} color="default">Назад</Button>
+            <Button disabled={props.loading} onClick={props.onCancel} color="default">Back</Button>
           </div>
           {loading &&
-            <p className="loading-message" >Запуск сканування...</p>
+            <p className="loading-message" >Starting scanning...</p>
           }
           <div id="video" className="scanner-container" ></div>
 
