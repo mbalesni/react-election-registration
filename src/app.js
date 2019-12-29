@@ -47,7 +47,6 @@ class App extends React.Component {
     return (
       <MuiThemeProvider theme={THEME}>
         <div className="page-content-wrapper " >
-
           <div className="header-and-content">
             <Header />
             {!isOnline && <OfflineMessage />}
@@ -59,15 +58,10 @@ class App extends React.Component {
                   {!loggedIn &&            <Login /> }
                 </div>
               </div>
-
               {showRegistrationComplete && <RegistrationCompleteWindow /> }
-
               {showPrinterPicker && <PrinterPicker />}
-
               {showPrintingWindow && <PrintingWindow /> }
-
               {showConsentDialog && <ConsentDialog /> }
-
               <SessionCompleteWindow
                 open={showCompleteSession}
               />

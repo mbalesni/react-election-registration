@@ -1,9 +1,8 @@
 import iziToast from 'izitoast'
 import store from '../store'
 
-const MAX_SCREEN_WIDTH = 600
-
 export function isMobileScreen() {
+    const MAX_SCREEN_WIDTH = 600
     return window.innerWidth <= MAX_SCREEN_WIDTH
 }
 

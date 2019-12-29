@@ -30,7 +30,7 @@ export default function StudentOption(props) {
     if (props.data.hasVoted === true && !PRINT_BALLOTS) disabled = true
     setDisabled(disabled)
     setIsActiveStudent(isActiveStudent)
-  }, [setDisabled, setIsActiveStudent])
+  }, [setDisabled, setIsActiveStudent, activeStudent.name, props.data.name, props.data.hasVoted])
 
   const { data } = props
   const { name, hasVoted } = data

@@ -34,7 +34,7 @@ export default function NewSession() {
         <div className="election-text">
           <div className="election-type">{electionType}</div>
           <div className="blue-strip">
-            {!loading && isElectionTime ? electionTitle : 'Зараз не час виборів'}
+            {!loading && (isElectionTime ? electionTitle : 'Зараз не час виборів')}
             {loading && 'Стартуємо...'}
           </div>
         </div>

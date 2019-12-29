@@ -1,5 +1,6 @@
 const INITIAL_STATE = {
     loading: false,
+    isOnline: true,
 }
 
 export default store => {

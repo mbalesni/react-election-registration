@@ -15,16 +15,14 @@ export const THEME = createMuiTheme({
       contrastText: '#fff',
     },
     secondary: {
-      // light: red[300],
       main: '#9E2F2E',
-      // dark: red[700],
       contrastText: '#fff'
     }
   },
   overrides: {
-    MuiButton: { // Name of the component ⚛️ / style sheet
-      label: { // Name of the rule
-        textTransform: 'none', // Some CSS
+    MuiButton: { 
+      label: { 
+        textTransform: 'none',
       },
       root: {
         color: BASE_TEXT_COLOR,
@@ -61,7 +59,6 @@ export const THEME = createMuiTheme({
       root: {
         textTransform: 'none',
         minWidth: '0 !important',
-        // flexGrow: 1,
         width: '33.33%',
       },
       labelContainer: {

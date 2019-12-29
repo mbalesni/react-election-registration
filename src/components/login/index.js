@@ -9,6 +9,7 @@ import { API } from '../../config'
 import Raven from 'raven-js'
 import './index.css'
 import store from '../../store'
+import CONFIG from '../../config'
 
 const fieldStyle = {
     marginBottom: '.5rem',
@@ -50,7 +51,7 @@ export default class Login extends React.Component {
                         {loading && <Spinner />}
                 </Button>
                 <FormHelperText style={{ marginTop: '1rem', lineHeight: '1.3', textAlign: 'center' }}>
-                    Або перейти до <a style={{ fontSize: 'inherit', color: '#f44336' }} href="/admin/" rel="noopener noreferrer" target="_blank">адмін панелі</a>.
+                    Або перейти до <a style={{ fontSize: 'inherit', color: '#f44336' }} href={CONFIG.ADMIN_PANEL_URL} rel="noopener noreferrer" target="_blank">адмін панелі</a>.
                 </FormHelperText>
             </form>
         )

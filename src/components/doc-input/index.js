@@ -24,16 +24,19 @@ const MAX_LENGTH = {
 }
 
 const initialState = {
-    value: '0',
     docNumber: '',
     touched: false,
     isScanning: false,
     submitted: false,
 }
 
+function doesIncludeNotDigits(string) {
+    const reg = new RegExp(/[^0-9]+/gm)
+    return reg.test(string)
+}
 
 export default function DocInput() {
-    const [value, setDocType] = useState(0)
+    const [docType, setDocType] = useState(0)
     const [state, setState] = useState(initialState)
     const { appGlobal, session, scanner, dispatch } = useStoreon('session', 'scanner', 'appGlobal')
     const { activeStudent } = session
@@ -45,15 +48,14 @@ export default function DocInput() {
     }
 
     const validate = (docNumber) => {
-        const docType = value
         const len = docNumber.length
         const minLen = MIN_LENGTH[docType]
         const maxLen = MAX_LENGTH[docType]
 
-        const lengthInvalid = len < minLen || len > maxLen
-        const typeInvalid = docType === 0 && (isNaN(parseInt(docNumber)) || parseInt(docNumber).toString().length !== docNumber.length)
+        const invalidLength = len < minLen || len > maxLen
+        const invalidCharacters = docType === 0 && doesIncludeNotDigits(docNumber)            
 
-        return lengthInvalid || typeInvalid
+        return invalidLength || invalidCharacters
     }
 
     const handleBlur = (field) => (evt) => {
@@ -65,17 +67,14 @@ export default function DocInput() {
 
     const handleSubmit = () => {
         const docNumber = state.docNumber
-        const docType = value
-
         const error = validate(docNumber)
 
         if (error) {
-            let text = ''
-            text += `Перевірте правильність номеру ${docNameByValue(docType)}.`
+            let message = `Перевірте правильність номеру ${docNameByValue(docType)}.`
+            console.warn(message)
 
-            console.warn(text)
             iziToast.show({
-                message: `Перевірте правильність номеру ${docNameByValue(docType)}.`,
+                message,
                 icon: ICONS.errorIcon,
                 iconColor: 'orange',
                 position: 'topRight',
@@ -115,17 +114,14 @@ export default function DocInput() {
     }, [activeStudent.docNumber, scannerSeed])
 
     const docNumber = state.docNumber || ''
-
     const error = validate(docNumber)
-
     const disabled = !isOnline || loading || Boolean(validate(docNumber))
 
-    const shouldMarkError = (field) => {
+    const shouldMarkError = () => {
+        const dirty = state.touched
         const hasError = error.length > 0
-        const shouldShow = state.touched
 
-        const result = hasError ? shouldShow : false
-        return result
+        return dirty && hasError
     }
 
     const startAdornment = {
@@ -134,14 +130,14 @@ export default function DocInput() {
         opacity: .6,
     }
 
-    let byTicket = (value === 0)
+    let byTicket = (docType === 0)
 
     return (
         <>
             <div className="doc-picker">
                 <FormControl component="fieldset" style={{ width: '100%' }}>
                     <Tabs
-                        value={value}
+                        value={docType}
                         onChange={handleDocTypeChange}
                         indicatorColor="primary"
                         textColor="primary"
@@ -160,7 +156,7 @@ export default function DocInput() {
                             className="input doc-number"
                             disabled={loading}
                             error={shouldMarkError('docNumber')}
-                            placeholder={"Номер " + docNameByValue(value)}
+                            placeholder={"Номер " + docNameByValue(docType)}
                             value={docNumber}
                             fullWidth={true}
                             onChange={handleDocNumberChange}

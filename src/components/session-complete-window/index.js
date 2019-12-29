@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useCallback } from 'react'
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
@@ -16,14 +16,15 @@ const CLOSE_TIMEOUT = 3 * 1000
 export default function SessionCompleteWindow({ open }) {
     const { dispatch, session } = useStoreon('session')
     const { activeStudent } = session
-    const handleClose = () => {
+    
+    const handleClose = useCallback(() => {
         dispatch('session/end')
-    }
+    }, [dispatch])
 
     useEffect(() => {
         if (open === true) var a = setTimeout(handleClose, CLOSE_TIMEOUT) 
         return () => window.clearTimeout(a)
-    }, [open])
+    }, [open, handleClose])
 
     return (
         <Dialog

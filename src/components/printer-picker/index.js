@@ -50,7 +50,7 @@ export default function PrinterPicker(props) {
         onPick={onPick}
     />)
 
-    const buttonDisabled = typeof choice !== 'number'
+    const buttonDisabled = typeof choice === null
 
     return (
         <Dialog

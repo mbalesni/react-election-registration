@@ -11,7 +11,7 @@ import useStoreon from 'storeon/react'
 import CONFIG from '../../config'
 import { TEST_BALLOT_UUIDS } from '../../constants'
 
-const { ADMIN_PANEL_URL } = CONFIG
+const { ADMIN_PANEL_URL, PRINT_BALLOTS } = CONFIG
 
 const ico = {
   marginRight: '8px',
@@ -54,7 +54,7 @@ function Header(props) {
 
   const handlePrint = () => {
     handleClose()
-    dispatch('printer/print', { number: TEST_BALLOT_UUIDS[printerIdx], test_ballot: true  })
+    dispatch('printer/print', { number: TEST_BALLOT_UUIDS[printerIdx], test_ballot: true })
   }
 
   return (
@@ -101,13 +101,13 @@ function Header(props) {
                   <i className={ICONS.user} style={userIco}></i>
                   {user}
                 </MenuItem>
-                <MenuItem onClick={handlePrint}>
-                    <i className={ICONS.print} style={ico}></i>
-                    Тестовий друк
+                {PRINT_BALLOTS && <MenuItem onClick={handlePrint}>
+                  <i className={ICONS.print} style={ico}></i>
+                  Тестовий друк
                     <span style={{ marginLeft: '.5rem', 'fontSize': '.8em', 'opacity': '.6' }}>
-                      #{printerIdx}
-                    </span>
-                  </MenuItem>
+                    #{printerIdx}
+                  </span>
+                </MenuItem>}
                 <a href={ADMIN_PANEL_URL} target="_blank" rel="noreferrer noopener">
                   <MenuItem>
                     <i className={ICONS.admin} style={ico}></i>

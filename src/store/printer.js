@@ -19,7 +19,7 @@ export default store => {
     console.log('fetching printers')
     API.printer.get('/get_printers')
       .then(res => {
-        if (res.data.error) throw res.data.error // TODO: replace by `handleErrorCode`
+        if (res.data.error) throw res.data.error
         store.dispatch('printer/askPrinterSelect', res.data)
       })
       .catch(err => {

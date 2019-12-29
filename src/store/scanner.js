@@ -6,7 +6,6 @@ const INITIAL_STATE = {
     scannerSeed: 0,
 }
 
-
 export default store => {
     let barcodeScanned = false
     store.on('@init', () => ({ scanner: INITIAL_STATE }));
