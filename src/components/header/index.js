@@ -9,7 +9,6 @@ import './index.css'
 import { ICONS } from '../../utils/icons'
 import useStoreon from 'storeon/react'
 import CONFIG from '../../config'
-import { TEST_BALLOT_UUIDS } from '../../constants'
 
 const { ADMIN_PANEL_URL, PRINT_BALLOTS } = CONFIG
 
@@ -54,7 +53,7 @@ function Header(props) {
 
   const handlePrint = () => {
     handleClose()
-    dispatch('printer/print', { number: TEST_BALLOT_UUIDS[printerIdx], test_ballot: true })
+    dispatch('printer/print', { number: 'abcdef1234567890', test_ballot: true })
   }
 
   return (

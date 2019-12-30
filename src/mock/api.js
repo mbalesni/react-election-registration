@@ -16,7 +16,7 @@ function makeMockRegback(axiosInstance) {
             staff: {
                 first_name: 'Rick',
                 last_name: 'Sanchez',
-                structural_unit_name: 'Universe C-131',
+                structural_unit_name: 'Universe C-137',
                 vote_start_timestamp: LAST_YEAR + DATETIME_ISO_STRING.substring(4), // this time last year
                 vote_end_timestamp: NEXT_YEAR + DATETIME_ISO_STRING.substring(4), // this time next year
             }

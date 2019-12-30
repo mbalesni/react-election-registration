@@ -39,12 +39,14 @@ export default class Login extends React.Component {
                     label="Username"
                     onChange={(event) => this.setState({ username: event.target.value })}
                     style={fieldStyle}
+                    helperText="Provide your favorite username"
                 />
                 <TextField
                     label="Password"
                     type="password"
                     style={fieldStyle}
                     onChange={(event) => this.setState({ password: event.target.value })}
+                    helperText="Any password will do. It's a demo, isn't it?"
                 />
                 <Button variant="contained" color="primary" type="submit" style={buttonStyle} onClick={this.login.bind(this)} >
                     Log In
@@ -60,11 +62,17 @@ export default class Login extends React.Component {
     login() {
         const { username, password } = this.state
         if (!username || !password) return
-        this.setState({ loading: true })
-
+        
         console.log('Log-in attempt into user: ' + username)
-        const payload = { username, password: btoa(password) }
-
+        let payload = {}
+        try {
+            payload = { username, password: btoa(password) }
+        } catch(err) {
+            alert('Please check if your password is correct.')
+            return
+        }
+        
+        this.setState({ loading: true })
         API.regback.post('/login', payload)
             .then(res => {
                 if (res.data.error) return handleErrorCode(res.data.error.code)

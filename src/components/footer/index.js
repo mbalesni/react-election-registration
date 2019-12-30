@@ -4,7 +4,7 @@ export default function Footer(props) {
   return (
     <footer>
       <p>
-        Copyright &copy; 2019 KNU
+        2019 | Kyiv, Ukraine
       </p>
       <p className="love-message">
         Hand-crafted &amp; made with Love
