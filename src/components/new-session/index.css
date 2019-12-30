@@ -28,15 +28,6 @@
     font-weight: 500;
 }
 
-.hero-container {
-    width: 400px;
-    transition: .42s ease-in-out;
-}
-
-/* .new-session-card {
-    padding: 1rem;
-} */
-
 .logo-container {
     display: flex;
     justify-content: center;
@@ -45,10 +36,6 @@
 .logo-container .logo {
     height: 100px;
     width: 100px;
-}
-
-.hero-container.move-right {
-    /* transform: translate(350px) skew(5deg); */
 }
 
 .card-footer {
@@ -70,9 +57,6 @@
     }
     .election-text {
         font-size: 1em;
-    }
-    .hero-container {
-        width: 300px;
     }
 }
 
