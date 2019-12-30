@@ -1,4 +1,4 @@
-.iziToast>.iziToast-body {
+.iziToast > .iziToast-body {
     padding-left: 12px !important;
     margin-left: 0;
     position: relative;
@@ -9,7 +9,7 @@
     align-items: center;
 }
 
-.iziToast>.iziToast-body .iziToast-icon {
+.iziToast > .iziToast-body .iziToast-icon {
     position: static;
     display: table;
     font-size: 26px;

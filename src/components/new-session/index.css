@@ -11,15 +11,13 @@
 }
 
 .election-text {
-    font-family: "Montserrat", sans-serif;
+    font-family: 'Montserrat', sans-serif;
     text-align: center;
     text-transform: uppercase;
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
-
-
 
 .new-session-container .blue-strip {
     background-color: #2196f3;
@@ -44,7 +42,7 @@
     flex-direction: column;
     justify-content: center;
     padding: 2rem 1rem;
-  }
+}
 
 @media (max-width: 600px) {
     .new-session-container {

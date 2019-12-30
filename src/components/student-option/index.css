@@ -1,56 +1,52 @@
 .student {
-  display: flex;
-  justify-content: space-between;
-  padding: .5rem;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-  margin-bottom: 1rem;
-  transition: .3s ease-in-out;
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    margin-bottom: 1rem;
+    transition: 0.3s ease-in-out;
 }
 
 .student:last-of-type {
-  margin-bottom: 0;
+    margin-bottom: 0;
 }
 
 .student .data {
-  flex-grow: 2;
-  margin-right: 3rem;
+    flex-grow: 2;
+    margin-right: 3rem;
 }
 
 .student .actions {
-  align-items: center;
-  margin-right: -1.5rem;
+    align-items: center;
+    margin-right: -1.5rem;
 }
 
 .student--info {
-  margin-top: .5rem;
-  color: rgba(0,0,0,.4);
+    margin-top: 0.5rem;
+    color: rgba(0, 0, 0, 0.4);
 }
 
 .student--name {
-  font-size: 15px;
+    font-size: 15px;
 }
 
 .student--info>* {
-  /* margin-right: .5rem; */
-  font-size: 13px;
+    font-size: 13px;
 }
 
-
 @media (max-width: 600px) {
-  .student {
-    border-left: 0 !important;
-    margin-bottom: 1rem;
-    padding-left: 1rem;
-    padding-right: .5rem;
-    transition: .3s ease-in-out;
-  }
-
-  .student .data {
-    margin-right: .5rem;
-  }
-
-  .student .actions button {
-    border-radius: 20px 0 0 20px;
-  }
+    .student {
+        border-left: 0 !important;
+        margin-bottom: 1rem;
+        padding-left: 1rem;
+        padding-right: 0.5rem;
+        transition: 0.3s ease-in-out;
+    }
+    .student .data {
+        margin-right: 0.5rem;
+    }
+    .student .actions button {
+        border-radius: 20px 0 0 20px;
+    }
 }

@@ -14,10 +14,7 @@
     background-color: #ffffff;
     border-radius: 4px;
     position: relative;
-    /* top: 50%; */
-    /* left: 50%; */
     overflow: hidden;
-    /* transform: translate(-50%, -50%); */
     visibility: hidden;
     max-width: 640px;
     width: 100%;
@@ -39,7 +36,7 @@
     width: 100%;
     top: 0rem;
     left: 0rem;
-    transition-delay: .25s;
+    transition-delay: 0.25s;
 }
 
 .video-card.show * {
@@ -51,7 +48,7 @@
     align-items: center;
     display: flex;
     justify-content: flex-end;
-    padding: .5rem;
+    padding: 0.5rem;
     background-color: #fff;
 }
 
