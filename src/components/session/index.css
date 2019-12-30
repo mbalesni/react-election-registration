@@ -35,7 +35,7 @@ footer {
     z-index: -1;
 }
 
-footer > * {
+footer>* {
     font-size: 12px;
     opacity: 0.65;
 }
@@ -91,8 +91,7 @@ footer > * {
     font-weight: 400;
 }
 
-.card .card-header .card-title svg,
-.card .card-header .card-title i {
+.card .card-header .card-title svg, .card .card-header .card-title i {
     color: #2196f3;
     font-size: 20px;
     margin-right: 0.5rem;
@@ -171,12 +170,12 @@ p.instructions-text {
     padding-left: 2rem;
 }
 
-.guide > li {
+.guide>li {
     margin-bottom: 1rem;
     font-size: 18px;
 }
 
-.guide > li:last-of-type {
+.guide>li:last-of-type {
     margin-bottom: 2rem;
 }
 
@@ -185,7 +184,7 @@ p.instructions-text {
     padding-left: 3rem;
 }
 
-.manual-input-container > button {
+.manual-input-container>button {
     margin-top: 2rem;
 }
 
@@ -218,7 +217,7 @@ p.instructions-text {
     justify-content: flex-start;
 }
 
-.panel .controls > button:first-of-type {
+.panel .controls>button:first-of-type {
     margin-right: 1rem;
 }
 
@@ -295,7 +294,6 @@ p.instructions-text {
         padding: 1rem 1rem !important;
         min-width: 320px;
     }
-
     .card-perspective {
         align-items: center;
         box-shadow: none !important;
@@ -303,11 +301,9 @@ p.instructions-text {
         display: flex;
         justify-content: center;
     }
-
     .card-perspective.with-perspective {
         padding-left: 0;
     }
-
     .instructions-text {
         margin-bottom: 1rem;
         opacity: 0.8;
