@@ -16,13 +16,13 @@ const CLOSE_TIMEOUT = 3 * 1000
 export default function SessionCompleteWindow({ open }) {
     const { dispatch, session } = useStoreon('session')
     const { activeStudent } = session
-    
+
     const handleClose = useCallback(() => {
         dispatch('session/end')
     }, [dispatch])
 
     useEffect(() => {
-        if (open === true) var a = setTimeout(handleClose, CLOSE_TIMEOUT) 
+        if (open === true) var a = setTimeout(handleClose, CLOSE_TIMEOUT)
         return () => window.clearTimeout(a)
     }, [open, handleClose])
 
@@ -36,15 +36,16 @@ export default function SessionCompleteWindow({ open }) {
         >
             <DialogContent style={{ textAlign: 'center' }}>
                 <DialogContentText id="alert-dialog-slide-description">
-                    <i style={{ fontSize: '5rem', color: '#4CAF50' }} className="fas fa-check-circle" />
+                    <i
+                        style={{ fontSize: '5rem', color: '#4CAF50' }}
+                        className="fas fa-check-circle"
+                    />
                 </DialogContentText>
-                <DialogTitle>
-                    {activeStudent.name || ''}
-                </DialogTitle>
+                <DialogTitle>{activeStudent.name || ''}</DialogTitle>
                 <DialogContentText style={{ margin: '1rem 0' }}>
                     Checked-in
                 </DialogContentText>
             </DialogContent>
-        </Dialog >
+        </Dialog>
     )
 }

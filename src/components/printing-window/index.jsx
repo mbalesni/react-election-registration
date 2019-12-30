@@ -18,7 +18,7 @@ function Transition(props) {
 }
 
 const timerStyles = {
-    marginLeft: '.5rem'
+    marginLeft: '.5rem',
 }
 
 const { COMPLETE_TIMEOUT } = CONFIG
@@ -33,10 +33,17 @@ export default function PrintingWindow(props) {
     const [open, setOpen] = useState(true)
     const someStore = useStoreon('printer', 'appGlobal')
     const { printer, appGlobal, dispatch } = someStore
-    const { ballotIsPrinted, error, isTest, number, printerIdx, listOfPrinters } = printer
+    const {
+        ballotIsPrinted,
+        error,
+        isTest,
+        number,
+        printerIdx,
+        listOfPrinters,
+    } = printer
     const { isOnline } = appGlobal
 
-    const completeSession = (auto) => {
+    const completeSession = auto => {
         setOpen(false)
         dispatch('printer/printFinished')
         if (!isTest) dispatch('session/complete', { auto })
@@ -61,13 +68,17 @@ export default function PrintingWindow(props) {
     if (ballotIsPrinted) {
         title = 'Ballot is printing'
         showSpinner = false
-        const currentPrinter = listOfPrinters.find(printer => printer[1] === printerIdx)
+        const currentPrinter = listOfPrinters.find(
+            printer => printer[1] === printerIdx
+        )
         const printerVerboseName = currentPrinter && currentPrinter[0]
         instructions = isTest ? (
             <>
                 <span>Printer:</span>
                 <br />
-                <strong>#{printerIdx} {printerVerboseName} </strong>
+                <strong>
+                    #{printerIdx} {printerVerboseName}{' '}
+                </strong>
                 <br />
                 <br />
                 <span>Ballot number:</span>
@@ -75,10 +86,13 @@ export default function PrintingWindow(props) {
                 <strong>{number} </strong>
                 <br />
                 <br />
-                <span>Verify the ballot legibility and finish the test print</span>
-            </>)
-            :
+                <span>
+                    Verify the ballot legibility and finish the test print
+                </span>
+            </>
+        ) : (
             'Fill in the ballot and finish the session.'
+        )
     }
     if (error) {
         title = 'Error printing the ballot'
@@ -94,25 +108,62 @@ export default function PrintingWindow(props) {
             aria-describedby="alert-dialog-slide-description"
         >
             <DialogTitle id="alert-dialog-slide-title">
-                {error && <i className={ICONS.errorIcon} style={{ color: 'rgb(225, 82, 64)', marginRight: '.5rem' }}></i>}
-                {ballotIsPrinted && <i className={ICONS.scannedIcon} style={{ color: '#2196f3', marginRight: '.5rem' }}></i>}
+                {error && (
+                    <i
+                        className={ICONS.errorIcon}
+                        style={{
+                            color: 'rgb(225, 82, 64)',
+                            marginRight: '.5rem',
+                        }}
+                    ></i>
+                )}
+                {ballotIsPrinted && (
+                    <i
+                        className={ICONS.scannedIcon}
+                        style={{ color: '#2196f3', marginRight: '.5rem' }}
+                    ></i>
+                )}
 
                 {title}
             </DialogTitle>
-            <DialogContent style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <DialogContent
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                }}
+            >
                 <DialogContentText id="alert-dialog-slide-description">
                     {instructions}
                 </DialogContentText>
                 {showSpinner && <SpinnerWrapper />}
             </DialogContent>
             <DialogActions style={{ padding: '.5rem' }}>
-                {ballotIsPrinted && <Button disabled={!isOnline} onClick={onComplete} color="primary" variant="contained">
-                    Finish
-                            <Timer style={timerStyles} onElapsed={onTimerElapsed} timeout={COMPLETE_TIMEOUT} />
-                </Button>}
-                {error && <Button disabled={!isOnline} onClick={onPrintFail} color="primary" variant="contained">
-                    Repeat check-in
-                        </Button>}
+                {ballotIsPrinted && (
+                    <Button
+                        disabled={!isOnline}
+                        onClick={onComplete}
+                        color="primary"
+                        variant="contained"
+                    >
+                        Finish
+                        <Timer
+                            style={timerStyles}
+                            onElapsed={onTimerElapsed}
+                            timeout={COMPLETE_TIMEOUT}
+                        />
+                    </Button>
+                )}
+                {error && (
+                    <Button
+                        disabled={!isOnline}
+                        onClick={onPrintFail}
+                        color="primary"
+                        variant="contained"
+                    >
+                        Repeat check-in
+                    </Button>
+                )}
             </DialogActions>
         </Dialog>
     )

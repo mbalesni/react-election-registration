@@ -7,18 +7,14 @@ export function isMobileScreen() {
 }
 
 /**
-* Gracefully handle registration error
-* that happens due to bad connection.
-*
-* @param {object} err 
-* @returns {boolean}
-*/
+ * Gracefully handle registration error
+ * that happens due to bad connection.
+ *
+ * @param {object} err
+ * @returns {boolean}
+ */
 export function shouldIgnoreRegError(err) {
-    if (
-        err.code === 304
-        && err.context
-        && err.context.ballot_number
-    ) {
+    if (err.code === 304 && err.context && err.context.ballot_number) {
         return true
     }
     return false
@@ -41,7 +37,7 @@ export function showNotification({ title, message, icon, options }) {
         resetOnHover: true,
         progressBar: true,
         drag: false,
-        ...options
+        ...options,
     })
 }
 
@@ -56,7 +52,9 @@ export function parseDTimeString(UTCTimeString) {
         let seconds = parseInt(UTCTimeString.slice(17, 19))
 
         // convert input UTC datetime to local
-        let localDateTime = new Date(Date.UTC(year, month, date, hours, minutes, seconds))
+        let localDateTime = new Date(
+            Date.UTC(year, month, date, hours, minutes, seconds)
+        )
 
         return localDateTime
     } catch (err) {
@@ -73,31 +71,34 @@ export function checkIsElectionTime(startString, endString) {
 
 export function strToBool(string) {
     const YES_VALUES = ['true', 'yes', 'y', 'on', '1']
-    return (YES_VALUES.indexOf(string.toLowerCase()) > -1)
+    return YES_VALUES.indexOf(string.toLowerCase()) > -1
 }
 
 export function setupAuthTokenUpdate(axiosInstance) {
     const storedAuthToken = localStorage.getItem('authToken')
     if (storedAuthToken) includeAuthToken(axiosInstance, storedAuthToken)
 
-    axiosInstance.interceptors.response.use(function (response) {
-        if (response.data && response.data.auth_token) {
-            includeAuthToken(axiosInstance, response.data.auth_token)
-            localStorage.setItem('authToken', response.data.auth_token)
+    axiosInstance.interceptors.response.use(
+        function(response) {
+            if (response.data && response.data.auth_token) {
+                includeAuthToken(axiosInstance, response.data.auth_token)
+                localStorage.setItem('authToken', response.data.auth_token)
+            }
+            if (response.status) {
+                store.dispatch('appGlobal/setOnline', true)
+            }
+            return response
+        },
+        function(error) {
+            return Promise.reject(error)
         }
-        if (response.status) {
-            store.dispatch('appGlobal/setOnline', true)
-        }
-        return response
-    }, function (error) {
-        return Promise.reject(error)
-    })
+    )
     return axiosInstance
 }
 
 export function includeAuthToken(axiosInstance, authToken) {
     axiosInstance.defaults.headers = {
-        'X-Auth-Token': authToken
+        'X-Auth-Token': authToken,
     }
 }
 

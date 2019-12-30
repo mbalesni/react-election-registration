@@ -1,10 +1,10 @@
-import createStore from "storeon"
+import createStore from 'storeon'
 
-import auth from "./auth"
-import appGlobal from "./appGlobal"
-import session from "./session"
-import printer from "./printer"
-import scanner from "./scanner"
+import auth from './auth'
+import appGlobal from './appGlobal'
+import session from './session'
+import printer from './printer'
+import scanner from './scanner'
 
 const store = createStore([
     auth,

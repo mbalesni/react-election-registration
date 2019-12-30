@@ -13,11 +13,7 @@ const style = {
 }
 
 function OfflineMessage() {
-    return (
-        <div style={style}>
-            Waiting for connection...
-        </div>
-    )
+    return <div style={style}>Waiting for connection...</div>
 }
 
 export default OfflineMessage

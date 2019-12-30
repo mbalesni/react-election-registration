@@ -21,10 +21,12 @@ const Printer = ({ name, id, onPick, picked }) => {
 
     const classList = ['printer', picked ? 'picked' : '']
 
-    return <li className={classList.join(' ')} onClick={pick}>
-        <i className={ICONS}></i>
-        {name}
-    </li>
+    return (
+        <li className={classList.join(' ')} onClick={pick}>
+            <i className={ICONS}></i>
+            {name}
+        </li>
+    )
 }
 
 export default function PrinterPicker(props) {
@@ -33,7 +35,7 @@ export default function PrinterPicker(props) {
     const { printer, dispatch } = useStoreon('printer')
     const { listOfPrinters } = printer
 
-    const onPick = (id) => {
+    const onPick = id => {
         setChoice(id)
     }
 
@@ -42,13 +44,15 @@ export default function PrinterPicker(props) {
         dispatch('printer/pickPrinter', choice)
     }
 
-    const printers = listOfPrinters.map(printer => <Printer
-        key={printer[1]}
-        id={printer[1]}
-        picked={choice === printer[1]}
-        name={printer[0]}
-        onPick={onPick}
-    />)
+    const printers = listOfPrinters.map(printer => (
+        <Printer
+            key={printer[1]}
+            id={printer[1]}
+            picked={choice === printer[1]}
+            name={printer[0]}
+            onPick={onPick}
+        />
+    ))
 
     const buttonDisabled = choice === null
 
@@ -68,7 +72,12 @@ export default function PrinterPicker(props) {
                 </DialogContentText>
             </DialogContent>
             <DialogActions style={{ padding: '.5rem' }}>
-                <Button disabled={buttonDisabled} onClick={confirm} color="primary" variant="contained">
+                <Button
+                    disabled={buttonDisabled}
+                    onClick={confirm}
+                    color="primary"
+                    variant="contained"
+                >
                     Select printer
                 </Button>
             </DialogActions>

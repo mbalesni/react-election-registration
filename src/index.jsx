@@ -9,10 +9,12 @@ import CONFIG from './config'
 import StoreContext from 'storeon/react/context'
 import store from './store'
 
-if (CONFIG.SENTRY_DSN && CONFIG.USE_SENTRY) Raven.config(CONFIG.SENTRY_DSN).install()
+if (CONFIG.SENTRY_DSN && CONFIG.USE_SENTRY)
+    Raven.config(CONFIG.SENTRY_DSN).install()
 
 ReactDOM.render(
     <StoreContext.Provider value={store}>
         <App />
-    </StoreContext.Provider>
-    , document.getElementById('root'))
+    </StoreContext.Provider>,
+    document.getElementById('root')
+)

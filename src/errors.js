@@ -1,6 +1,6 @@
-import { showNotification } from './utils/functions.js';
+import { showNotification } from './utils/functions.js'
 import { ICONS } from './utils/icons'
-import ERRORS from './utils/errors.json';
+import ERRORS from './utils/errors.json'
 import Raven from 'raven-js'
 import store from './store'
 
@@ -15,14 +15,11 @@ function handleErrorCode(code, options = {}) {
         icon: ICONS.bug,
     }
 
-    Raven.captureException(
-        options.err || `${error.title} – ${error.message}`,
-        {
-            user: {
-                name: store.get().auth.user
-            }
-        }
-    )
+    Raven.captureException(options.err || `${error.title} – ${error.message}`, {
+        user: {
+            name: store.get().auth.user,
+        },
+    })
 
     if (!options.silent) {
         showNotification({
@@ -35,7 +32,8 @@ function handleErrorCode(code, options = {}) {
 
 function handleApiError(err) {
     console.warn('Handling API error:', err)
-    if (!err.status && !err.response) return store.dispatch('appGlobal/setOnline', false) // network error
+    if (!err.status && !err.response)
+        return store.dispatch('appGlobal/setOnline', false) // network error
     handleErrorCode(300, { err })
 }
 

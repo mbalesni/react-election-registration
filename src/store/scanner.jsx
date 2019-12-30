@@ -8,14 +8,20 @@ const INITIAL_STATE = {
 
 export default store => {
     let barcodeScanned = false
-    store.on('@init', () => ({ scanner: INITIAL_STATE }));
+    store.on('@init', () => ({ scanner: INITIAL_STATE }))
 
     store.on('scanner/start', () => {
         store.dispatch('appGlobal/loadingStart')
         barcodeScanned = false
         Quagga.init(
-            { ...QUAGGA_OPTIONS, inputStream: { ...QUAGGA_OPTIONS.inputStream, target: document.querySelector('.scanner-container') } },
-            (err) => {
+            {
+                ...QUAGGA_OPTIONS,
+                inputStream: {
+                    ...QUAGGA_OPTIONS.inputStream,
+                    target: document.querySelector('.scanner-container'),
+                },
+            },
+            err => {
                 if (err) {
                     store.dispatch('appGlobal/loadingEnd')
                     handleErrorCode(506)
@@ -25,14 +31,14 @@ export default store => {
                 store.dispatch('appGlobal/loadingEnd')
 
                 initOnDetected()
-            })
-
+            }
+        )
     })
 
     store.on('scanner/stop', () => {
         try {
             Quagga.stop()
-        } catch (err) { }
+        } catch (err) {}
     })
 
     store.on('scanner/detected', ({ scanner }, number) => {
@@ -41,13 +47,13 @@ export default store => {
         return {
             scanner: {
                 ...scanner,
-                scannerSeed
-            }
+                scannerSeed,
+            },
         }
     })
 
     function initOnDetected() {
-        Quagga.onDetected((data) => {
+        Quagga.onDetected(data => {
             // prevent multi-requests
             if (barcodeScanned) return
 
@@ -63,5 +69,4 @@ export default store => {
             }
         })
     }
-
-};
+}

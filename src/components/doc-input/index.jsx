@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Button, FormControl, Input } from '@material-ui/core'
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
+import Tabs from '@material-ui/core/Tabs'
+import Tab from '@material-ui/core/Tab'
 import { ICONS } from '../../utils/icons.js'
 import iziToast from 'izitoast'
 import CONFIG from '../../config'
@@ -12,15 +12,15 @@ const { PRINT_BALLOTS } = CONFIG
 const SUBMIT_BTN_NAME = PRINT_BALLOTS ? 'Print ballot' : 'Confirm'
 
 const MIN_LENGTH = {
-    '0': 8,     // ticket
-    '1': 1,     // gradebook
-    '2': 1,     // certificate
+    '0': 8, // ticket
+    '1': 1, // gradebook
+    '2': 1, // certificate
 }
 
 const MAX_LENGTH = {
-    '0': 8,     // ticket
-    '1': 8,     // gradebook
-    '2': 8,     // certificate
+    '0': 8, // ticket
+    '1': 8, // gradebook
+    '2': 8, // certificate
 }
 
 const initialState = {
@@ -38,7 +38,11 @@ function doesIncludeNotDigits(string) {
 export default function DocInput() {
     const [docType, setDocType] = useState(0)
     const [state, setState] = useState(initialState)
-    const { appGlobal, session, scanner, dispatch } = useStoreon('session', 'scanner', 'appGlobal')
+    const { appGlobal, session, scanner, dispatch } = useStoreon(
+        'session',
+        'scanner',
+        'appGlobal'
+    )
     const { activeStudent } = session
     const { scannerSeed } = scanner
     const { loading, isOnline } = appGlobal
@@ -47,18 +51,19 @@ export default function DocInput() {
         setDocType(newValue)
     }
 
-    const validate = (docNumber) => {
+    const validate = docNumber => {
         const len = docNumber.length
         const minLen = MIN_LENGTH[docType]
         const maxLen = MAX_LENGTH[docType]
 
         const invalidLength = len < minLen || len > maxLen
-        const invalidCharacters = docType === 0 && doesIncludeNotDigits(docNumber)            
+        const invalidCharacters =
+            docType === 0 && doesIncludeNotDigits(docNumber)
 
         return invalidLength || invalidCharacters
     }
 
-    const handleBlur = (field) => (evt) => {
+    const handleBlur = field => evt => {
         setState({
             ...state,
             touched: true,
@@ -70,7 +75,9 @@ export default function DocInput() {
         const error = validate(docNumber)
 
         if (error) {
-            let message = `Check the correctness of the ${docNameByValue(docType)} number.`
+            let message = `Check the correctness of the ${docNameByValue(
+                docType
+            )} number.`
             console.warn(message)
 
             iziToast.show({
@@ -90,18 +97,18 @@ export default function DocInput() {
         }
     }
 
-    const handleSubmitOnEnter = (e) => {
+    const handleSubmitOnEnter = e => {
         if (e.key === 'Enter') {
             e.preventDefault()
             handleSubmit()
         } else return
     }
 
-    const handleDocNumberChange = (e) => {
+    const handleDocNumberChange = e => {
         let docNumber = e.target.value
         setState({
             ...state,
-            docNumber
+            docNumber,
         })
     }
 
@@ -127,10 +134,10 @@ export default function DocInput() {
     const startAdornment = {
         marginTop: 0,
         marginRight: 0,
-        opacity: .6,
+        opacity: 0.6,
     }
 
-    let byTicket = (docType === 0)
+    let byTicket = docType === 0
 
     return (
         <>
@@ -143,11 +150,19 @@ export default function DocInput() {
                         textColor="primary"
                         className="doc-types-tabs"
                     >
-                        <Tab label="Student ID" icon={<i className={ICONS.studentCard}></i>} />
-                        <Tab label="Gradebook" icon={<i className={ICONS.gradeBook}></i>} />
-                        <Tab label="Certificate" icon={<i className={ICONS.certificate}></i>} />
+                        <Tab
+                            label="Student ID"
+                            icon={<i className={ICONS.studentCard}></i>}
+                        />
+                        <Tab
+                            label="Gradebook"
+                            icon={<i className={ICONS.gradeBook}></i>}
+                        />
+                        <Tab
+                            label="Certificate"
+                            icon={<i className={ICONS.certificate}></i>}
+                        />
                     </Tabs>
-
                 </FormControl>
 
                 <div>
@@ -156,18 +171,21 @@ export default function DocInput() {
                             className="input doc-number"
                             disabled={loading}
                             error={shouldMarkError('docNumber')}
-                            placeholder={docNameByValue(docType) + " number"}
+                            placeholder={docNameByValue(docType) + ' number'}
                             value={docNumber}
                             fullWidth={true}
                             onChange={handleDocNumberChange}
                             onBlur={handleBlur('docNumber')}
                             tabIndex="0"
                             onKeyPress={handleSubmitOnEnter}
-                            startAdornment={byTicket && <span style={startAdornment}>KB</span>}
+                            startAdornment={
+                                byTicket && (
+                                    <span style={startAdornment}>KB</span>
+                                )
+                            }
                         />
                     </div>
                 </div>
-
             </div>
 
             <Button
@@ -200,5 +218,4 @@ function docNameByValue(value) {
             name = 'document'
     }
     return name
-
 }

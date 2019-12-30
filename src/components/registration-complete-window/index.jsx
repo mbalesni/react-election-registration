@@ -17,7 +17,7 @@ function Transition(props) {
 }
 
 const timerStyles = {
-    marginLeft: '.5rem'
+    marginLeft: '.5rem',
 }
 
 const { COMPLETE_TIMEOUT } = CONFIG
@@ -41,7 +41,9 @@ class RegistrationCompleteWindow extends React.Component {
     }
 
     numberBoxes(numArr) {
-        return numArr.map((num, index) => <NumberBox key={index} number={num} />)
+        return numArr.map((num, index) => (
+            <NumberBox key={index} number={num} />
+        ))
     }
 
     render() {
@@ -54,7 +56,6 @@ class RegistrationCompleteWindow extends React.Component {
         let instructions = 'Fill out the ballot and finish the session.'
 
         return (
-
             <Dialog
                 open={this.state.open}
                 TransitionComponent={Transition}
@@ -64,27 +65,40 @@ class RegistrationCompleteWindow extends React.Component {
                 className="ballot-dialog"
             >
                 <DialogTitle id="alert-dialog-slide-title">
-                    <i className='fas fa-check-circle' style={{ color: '#4CAF50', marginRight: '.5rem' }}></i>
+                    <i
+                        className="fas fa-check-circle"
+                        style={{ color: '#4CAF50', marginRight: '.5rem' }}
+                    ></i>
                     {title}
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-slide-description">
                         {instructions}
                         <span className="number-wrapper">
-                            <span className="number">{this.numberBoxes(numberArr)}</span>
+                            <span className="number">
+                                {this.numberBoxes(numberArr)}
+                            </span>
                         </span>
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions style={{ padding: '.5rem' }}>
-                    <Button disabled={!isOnline} onClick={onComplete} color="primary" variant="contained">
+                    <Button
+                        disabled={!isOnline}
+                        onClick={onComplete}
+                        color="primary"
+                        variant="contained"
+                    >
                         Received
-                            <Timer style={timerStyles} onElapsed={onTimerElapsed} timeout={COMPLETE_TIMEOUT} />
+                        <Timer
+                            style={timerStyles}
+                            onElapsed={onTimerElapsed}
+                            timeout={COMPLETE_TIMEOUT}
+                        />
                     </Button>
                 </DialogActions>
-            </Dialog >
+            </Dialog>
         )
     }
-
 }
 
 export default connect('session', 'appGlobal', RegistrationCompleteWindow)

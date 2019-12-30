@@ -11,13 +11,14 @@ const INITIAL_STATE = {
 
 export default store => {
     let pulseInterval = null
-    store.on('@init', () => ({ auth: INITIAL_STATE }));
+    store.on('@init', () => ({ auth: INITIAL_STATE }))
 
     store.on('auth/get', ({ auth }) => {
         store.dispatch('appGlobal/loadingStart')
         console.log('getting Auth')
 
-        return API.regback.post('/me', {})
+        return API.regback
+            .post('/me', {})
             .then(res => {
                 if (res.data.error) return handleErrorCode(res.data.error.code)
                 const {
@@ -25,9 +26,12 @@ export default store => {
                     last_name,
                     structural_unit_name,
                     vote_start_timestamp,
-                    vote_end_timestamp
+                    vote_end_timestamp,
                 } = res.data.data.staff
-                const isElectionTime = checkIsElectionTime(vote_start_timestamp, vote_end_timestamp)
+                const isElectionTime = checkIsElectionTime(
+                    vote_start_timestamp,
+                    vote_end_timestamp
+                )
 
                 store.dispatch('auth/save', {
                     loggedIn: true,
@@ -39,7 +43,8 @@ export default store => {
                 })
 
                 store.dispatch('session/closeAll')
-                if (CONFIG.PRINT_BALLOTS) store.dispatch('printer/getPrinterList')
+                if (CONFIG.PRINT_BALLOTS)
+                    store.dispatch('printer/getPrinterList')
             })
             .catch(err => {
                 handleApiError(err)
@@ -57,9 +62,9 @@ export default store => {
             auth: {
                 ...auth,
                 ...data,
-            }
-        };
-    });
+            },
+        }
+    })
 
     store.on('auth/logout', () => {
         API.regback
@@ -83,13 +88,13 @@ export default store => {
         store.dispatch('session/end')
         return { auth: INITIAL_STATE }
     })
-
-};
+}
 
 function pulse() {
     console.log('pulse')
 
-    API.regback.post('/me', {})
+    API.regback
+        .post('/me', {})
         .then(res => {
             if (res.data.error) handleErrorCode(res.data.error.code)
         })
@@ -97,4 +102,3 @@ function pulse() {
             handleApiError(err)
         })
 }
-
