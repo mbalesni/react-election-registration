@@ -9,7 +9,7 @@ export default function Footer(props) {
                 rel="noopener noreferrer"
                 target="_blank"
             >
-                by Mykyta Baliesnyi
+                by Nikita Baliesnyi
             </a>
         </footer>
     )

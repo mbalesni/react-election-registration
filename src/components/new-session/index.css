@@ -22,8 +22,11 @@
 .new-session-container .blue-strip {
     background-color: #2196f3;
     color: #fff;
-    padding: 1rem;
+    padding: .5rem 1rem;
     font-weight: 500;
+    align-self: center;
+    border-radius: 4px;
+    font-size: .8em;
 }
 
 .logo-container {
