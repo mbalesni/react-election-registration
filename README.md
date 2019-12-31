@@ -19,8 +19,6 @@ This is a simple voting check-in app for use by students in university elections
 
 ## Run demo
 
-In the application folder:
-
 1. Clone this repo
 ```
 git clone git@github.com:nick-baliesnyi/react-election-registration.git
