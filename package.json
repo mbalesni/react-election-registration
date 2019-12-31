@@ -27,7 +27,8 @@
     "react-spinners": "^0.4.8",
     "react-test-renderer": "^16.8.6",
     "source-map-explorer": "^1.8.0",
-    "storeon": "^0.9.1"
+    "storeon": "^0.9.1",
+    "styled-components": "^4.4.1"
   },
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",

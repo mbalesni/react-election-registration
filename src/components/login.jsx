@@ -4,12 +4,12 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import FormHelperText from '@material-ui/core/FormHelperText'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { handleApiError, handleErrorCode } from '../../errors'
-import { API } from '../../config'
+import { handleApiError, handleErrorCode } from '../errors'
+import { API } from '../config'
 import Raven from 'raven-js'
-import './index.css'
-import store from '../../store'
-import CONFIG from '../../config'
+import styled from 'styled-components'
+import store from '../store'
+import CONFIG from '../config'
 
 const fieldStyle = {
     marginBottom: '.5rem',
@@ -27,6 +27,15 @@ const Spinner = () => (
     />
 )
 
+const Form = styled.form`
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 2;
+    min-width: 300px;
+    margin: 1rem;
+`
+
 export default class Login extends React.Component {
     state = {
         username: '',
@@ -37,7 +46,7 @@ export default class Login extends React.Component {
     render() {
         const { loading } = this.state
         return (
-            <form onSubmit={e => e.preventDefault()} className="login-window">
+            <Form onSubmit={e => e.preventDefault()}>
                 <Typography style={{ marginBottom: '.5rem' }} variant="h6">
                     Election Officer Sign In
                 </Typography>
@@ -86,7 +95,7 @@ export default class Login extends React.Component {
                     </a>
                     .
                 </FormHelperText>
-            </form>
+            </Form>
         )
     }
 

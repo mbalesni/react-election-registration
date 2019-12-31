@@ -6,9 +6,9 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Slide from '@material-ui/core/Slide'
-import { ICONS } from '../../utils/icons'
+import { ICONS } from '../utils/icons'
 import useStoreon from 'storeon/react'
-import './index.css'
+import styled, { css } from 'styled-components'
 
 function Transition(props) {
     return <Slide direction="up" {...props} />
@@ -19,13 +19,35 @@ const Printer = ({ name, id, onPick, picked }) => {
         onPick(id)
     }
 
-    const classList = ['printer', picked ? 'picked' : '']
+    const PrinterItem = styled.li`
+        align-items: center;
+        border-radius: 30px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: row;
+        list-style-type: none;
+        padding: 1rem;
+        margin-bottom: 1rem;
+
+        &:hover {
+            background-color: #eee;
+        }
+
+        ${props =>
+            props.picked &&
+            css`
+                && {
+                    background-color: #2196f3;
+                    color: #fff;
+                }
+            `}
+    `
 
     return (
-        <li className={classList.join(' ')} onClick={pick}>
+        <PrinterItem picked={picked} onClick={pick}>
             <i className={ICONS}></i>
             {name}
-        </li>
+        </PrinterItem>
     )
 }
 
