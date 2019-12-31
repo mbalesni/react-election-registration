@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Button from '@material-ui/core/Button'
-import { BarLoader } from 'react-spinners'
+import BarLoader from 'react-spinners/BarLoader'
 import { css } from 'react-emotion'
 import MenuItem from '@material-ui/core/MenuItem'
 import Menu from '@material-ui/core/Menu'

@@ -1,5 +1,5 @@
 import blue from '@material-ui/core/colors/blue'
-import { createMuiTheme } from '@material-ui/core/styles'
+import createMuiTheme from '@material-ui/core/styles/createMuiTheme'
 
 const BASE_TEXT_COLOR = 'rgba(0,0,0,.6)'
 

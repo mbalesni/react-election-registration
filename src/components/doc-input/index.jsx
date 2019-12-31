@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { Button, FormControl, Input } from '@material-ui/core'
+import Button from '@material-ui/core/Button'
+import FormControl from '@material-ui/core/FormControl'
+import Input from '@material-ui/core/Input'
 import Tabs from '@material-ui/core/Tabs'
 import Tab from '@material-ui/core/Tab'
 import { ICONS } from '../../utils/icons.js'
@@ -38,13 +40,8 @@ function doesIncludeNotDigits(string) {
 export default function DocInput() {
     const [docType, setDocType] = useState(0)
     const [state, setState] = useState(initialState)
-    const { appGlobal, session, scanner, dispatch } = useStoreon(
-        'session',
-        'scanner',
-        'appGlobal'
-    )
+    const { appGlobal, session, dispatch } = useStoreon('session', 'appGlobal')
     const { activeStudent } = session
-    const { scannerSeed } = scanner
     const { loading, isOnline } = appGlobal
 
     const handleDocTypeChange = (e, newValue) => {
@@ -118,7 +115,7 @@ export default function DocInput() {
             docNumber: activeStudent.docNumber,
             isScanning: false,
         }))
-    }, [activeStudent.docNumber, scannerSeed])
+    }, [activeStudent.docNumber])
 
     const docNumber = state.docNumber || ''
     const error = validate(docNumber)

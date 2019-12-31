@@ -4,6 +4,12 @@ const LAST_YEAR = (new Date().getFullYear() - 1).toString()
 const NEXT_YEAR = (new Date().getFullYear() + 1).toString()
 const DATETIME_ISO_STRING = new Date().toISOString()
 
+/**
+ * This function takes in an axios instance and
+ * modifies it in place, mocking requests and responses.
+ *
+ * @param {*} axiosInstance
+ */
 function makeMockRegback(axiosInstance) {
     const mockRegback = new MockAdapter(axiosInstance, { delayResponse: 300 })
 
@@ -84,6 +90,12 @@ function makeMockRegback(axiosInstance) {
     })
 }
 
+/**
+ * This function takes in an axios instance and
+ * modifies it in place, mocking requests and responses.
+ *
+ * @param {*} axiosInstance
+ */
 function makeMockPrinter(axiosInstance) {
     const mockPrinter = new MockAdapter(axiosInstance, { delayResponse: 300 })
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import Raven from 'raven-js'
-import { MuiThemeProvider } from '@material-ui/core/styles'
+import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider'
 import Session from './components/session'
 import NewSession from './components/new-session'
 import ConsentDialog from './components/consent-window'
