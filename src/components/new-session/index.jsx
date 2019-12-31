@@ -56,7 +56,7 @@ export default function NewSession() {
                                 className={ICONS.userCheck}
                                 style={iconRight}
                             ></i>
-                            Check in for election
+                            Check in to Vote
                         </Button>
                     </div>
                 )}
