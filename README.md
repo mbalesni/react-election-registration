@@ -7,7 +7,7 @@ This is a simple voting check-in app for use by students in university elections
 **Some of its features:**
 
 - Dazzling-ly fast, performant and lightweight
-- Sign in and forms with custom validation – we had _super specific_ requirements
+- Sign in and forms with custom validation – for _super specific_ requirements
 - Configuration: change titles, accepted IDs, validation rules etc. – you can configure the heck out of it
 
 **What I used here:**
