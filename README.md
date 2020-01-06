@@ -2,7 +2,7 @@
 
 ![Main screen](main-screen.png)
 
-This is a simple voting check-in app for use by students in university elections. 
+This is a simple election check-in app for use by students in university elections. 
 
 **Some of its features:**
 
