@@ -8,7 +8,7 @@
         "@material-ui/icons": "^2.0.3",
         "@material/elevation": "^0.38.0",
         "@material/fab": "^0.38.1",
-        "axios": "^0.21.1",
+        "axios": "^1.6.0",
         "izitoast": "^1.4.0",
         "raven-js": "^3.27.0",
         "react": "^16.8.6",
